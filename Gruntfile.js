@@ -17,15 +17,28 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('dts-generator');
 	grunt.loadNpmTasks('intern');
 
-	var compilerOptions = grunt.file.readJSON('tsconfig.json').compilerOptions;
+	var tsconfigContent = grunt.file.read('tsconfig.json');
+	var tsconfig = JSON.parse(tsconfigContent);
+	var compilerOptions = mixin({}, tsconfig.compilerOptions);
+	tsconfig.filesGlob = tsconfig.filesGlob.map(function (glob) {
+		if (/^\.\//.test(glob)) {
+			// Remove the leading './' from the glob because grunt-ts
+			// sees it and thinks it needs to create a .baseDir.ts which
+			// messes up the "dist" compilation
+			return glob.slice(2);
+		}
+		return glob;
+	});
 	var packageJson = grunt.file.readJSON('package.json');
 
 	grunt.initConfig({
 		name: packageJson.name,
 		version: packageJson.version,
-		all: [ 'src/**/*.ts', 'typings/tsd.d.ts' ],
-		tests: [ 'tests/**/*.ts', 'typings/tsd.d.ts' ],
-		devDirectory: compilerOptions.outDir,
+		tsconfig: tsconfig,
+		all: [ '<%= tsconfig.filesGlob %>' ],
+		skipTests: [ '<%= all %>' , '!tests/**/*.ts' ],
+		staticTestFiles: 'tests/**/*.{html,css}',
+		devDirectory: '<%= tsconfig.compilerOptions.outDir %>',
 		istanbulIgnoreNext: '/* istanbul ignore next */',
 
 		clean: {
@@ -59,6 +72,12 @@ module.exports = function (grunt) {
 				src: [ 'README.md', 'LICENSE', 'package.json', 'bower.json' ],
 				dest: 'dist/'
 			},
+			staticTestFiles: {
+				expand: true,
+				cwd: '.',
+				src: [ '<%= staticTestFiles %>' ],
+				dest: '<%= devDirectory %>'
+			},
 			typings: {
 				expand: true,
 				cwd: 'typings/',
@@ -76,7 +95,7 @@ module.exports = function (grunt) {
 				options: {
 					out: 'dist/typings/<%= name %>/<%= name %>-<%= version %>.d.ts'
 				},
-				src: [ '<%= all %>' ]
+				src: [ '<%= skipTests %>' ]
 			}
 		},
 
@@ -152,14 +171,21 @@ module.exports = function (grunt) {
 			),
 			dev: {
 				outDir: '<%= devDirectory %>',
-				src: [ '<%= all %>', '<%= tests %>' ]
+				src: [ '<%= skipTests %>' ]
+			},
+			tests: {
+				options: {
+					module: 'amd'
+				},
+				outDir: '<%= devDirectory %>/tests',
+				src: [ 'tests/**/*.ts', 'typings/tsd.d.ts' ]
 			},
 			dist: {
 				options: {
 					mapRoot: '../dist/_debug'
 				},
 				outDir: 'dist',
-				src: [ '<%= all %>' ]
+				src: [ '<%= skipTests %>' ]
 			}
 		},
 
@@ -170,7 +196,6 @@ module.exports = function (grunt) {
 			src: {
 				src: [
 					'<%= all %>',
-					'<%= tests %>',
 					'!typings/**/*.ts',
 					'!tests/typings/**/*.ts'
 				]
@@ -178,14 +203,19 @@ module.exports = function (grunt) {
 		},
 
 		watch: {
+			grunt: {
+				options: {
+					reload: true
+				},
+				files: [ 'Gruntfile.js', 'tsconfig.json' ]
+			},
 			src: {
 				options: {
 					atBegin: true
 				},
-				files: [ '<%= all %>', '<%= tests %>' ],
+				files: [ '<%= all %>', '<%= staticTestFiles %>' ],
 				tasks: [
-					'dev',
-					'tslint'
+					'dev'
 				]
 			}
 		}
@@ -216,9 +246,23 @@ module.exports = function (grunt) {
 		grunt.log.writeln('Moved ' + this.files.length + ' files');
 	});
 
+	grunt.registerTask('updateTsconfig', function () {
+		var tsconfig = JSON.parse(tsconfigContent);
+		tsconfig.files = grunt.file.expand(tsconfig.filesGlob);
+
+		var output = JSON.stringify(tsconfig, null, '\t') + require('os').EOL;
+		if (output !== tsconfigContent) {
+			grunt.file.write('tsconfig.json', output);
+			tsconfigContent = output;
+		}
+	});
+
 	grunt.registerTask('dev', [
 		'ts:dev',
-		'replace:addIstanbulIgnore'
+		'ts:tests',
+		'copy:staticTestFiles',
+		'replace:addIstanbulIgnore',
+		'updateTsconfig'
 	]);
 	grunt.registerTask('dist', [
 		'ts:dist',

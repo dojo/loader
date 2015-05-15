@@ -2,7 +2,7 @@
 	"version": "1.5.0",
 	"compilerOptions": {
 		"declaration": false,
-		"module": "umd",
+		"module": "commonjs",
 		"noImplicitAny": true,
 		"outDir": "_build/",
 		"removeComments": false,
@@ -16,13 +16,21 @@
 	],
 	"files": [
 		"./typings/tsd.d.ts",
-		"./tests/typings/tsd.d.ts",
-
-		"./src/main.ts",
-
+		"./src/has.ts",
+		"./src/loader.ts",
+		"./tests/functional/all.ts",
+		"./tests/functional/amdApp/app.ts",
+		"./tests/functional/basicAmdLoading.ts",
 		"./tests/intern-local.ts",
 		"./tests/intern.ts",
-		"./tests/functional/all.ts",
+		"./tests/module.d.ts",
+		"./tests/typings/chai/chai.d.ts",
+		"./tests/typings/digdug/digdug.d.ts",
+		"./tests/typings/dojo2/dojo.d.ts",
+		"./tests/typings/intern/intern.d.ts",
+		"./tests/typings/leadfoot/leadfoot.d.ts",
+		"./tests/typings/node/node.d.ts",
+		"./tests/typings/tsd.d.ts",
 		"./tests/unit/all.ts"
 	]
 }

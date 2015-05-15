@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>Basic Amd Loading Test</title>
+</head>
+<body>
+<script src="../../loader.js"></script>
+<script>
+require({
+	packages: [
+		{ name: 'amdApp', location: './amdApp' }
+	]
+}, ['amdApp/app'], function (app) {
+	window.testMessage = app.getMessage();
+	document.body.innerHTML = app.getMessage();
+});
+</script>
+</body>
+</html>
