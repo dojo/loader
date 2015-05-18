@@ -16,7 +16,6 @@
 	],
 	"files": [
 		"./typings/tsd.d.ts",
-		"./src/has.ts",
 		"./src/loader.ts",
 		"./tests/functional/all.ts",
 		"./tests/functional/amdApp/app.ts",

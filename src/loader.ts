@@ -1,5 +1,3 @@
-import has = require('./has');
-
 declare var process: any;
 declare var require: <ModuleType>(moduleId: string) => ModuleType;
 declare var module: { exports: any; };
@@ -20,6 +18,12 @@ export interface IDefine {
 
 export interface IFactory {
 	(...modules: any[]): any;
+}
+
+export interface Has {
+	(name: string): any;
+	add(name: string, value: (global: Window, document?: HTMLDocument, element?: HTMLDivElement) => any, now?: boolean, force?: boolean): void;
+	add(name: string, value: any, now?: boolean, force?: boolean): void;
 }
 
 export interface ILoaderPlugin {
@@ -112,7 +116,7 @@ export interface IRequireCallback {
 
 export interface IRootRequire extends IRequire {
 	config(config: IConfig): void;
-	has: has;
+	has: Has;
 	inspect?(name: string): any;
 	nodeRequire?(id: string): any;
 	signal(type: string, data: any[]): void;
@@ -134,13 +138,13 @@ export interface IRootRequire extends IRequire {
 		contextRequire(dependencies, callback);
 	};
 
-	var has: has = req.has = (function (): has {
+	var has: Has = req.has = (function (): Has {
 		var hasCache: { [name: string]: any; } = Object.create(null);
 		var global: Window = this;
 		var document: HTMLDocument = global.document;
 		var element: HTMLDivElement = document && document.createElement('div');
 
-		var has: has = <has> function(name: string): any {
+		var has: Has = <Has> function(name: string): any {
 			return typeof hasCache[name] === 'function' ? (hasCache[name] = hasCache[name](global, document, element)) : hasCache[name];
 		};
 
