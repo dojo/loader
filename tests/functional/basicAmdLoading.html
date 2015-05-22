@@ -12,8 +12,9 @@ require({
 		{ name: 'amdApp', location: './amdApp' }
 	]
 }, ['amdApp/app'], function (app) {
-	window.testMessage = app.getMessage();
-	document.body.innerHTML = app.getMessage();
+	window.loaderTestResults = {
+		message: app.getMessage()
+	};
 });
 </script>
 </body>
