@@ -1,6 +1,6 @@
 # dojo-loader
 
-This package provides a JavaScript AMD loader useful in applications running in either a web browser or node.js. 
+This package provides a JavaScript AMD loader useful in applications running in either a web browser or node.js.
 
 ## Features
 
@@ -15,7 +15,7 @@ From the loader root directory:
 
  1. npm install
  1. grunt dist
- 
+
 The "dist" subdirectory will contain the loader modules.
 
 ### Use the loader
@@ -24,7 +24,8 @@ TBD: how to use the loader
 
 ## How do I contribute?
 
-We appreciate your interest!  Please see the [contributing guidelines](CONTRIBUTING.md).
+We appreciate your interest!  Please see the [Guidelines Repository](https://github.com/dojo/guidelines#readme) for the
+Contributing Guidelines and Style Guide.
 
 ## Testing
 
@@ -35,4 +36,3 @@ Test cases MUST be written using Intern using the Object test interface and Asse
 ## Licensing information
 
 © 2004–2015 Dojo Foundation & contributors. [New BSD](http://opensource.org/licenses/BSD-3-Clause) license.
-
