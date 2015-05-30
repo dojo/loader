@@ -18,9 +18,31 @@ function executeTest(suite: Suite, htmlTestPath: string, testFn: (result: any) =
 
 registerSuite({
 	name: 'basic AMD loading',
+
 	'simple test'() {
 		return executeTest(this, './basicAmdLoading.html', function (results: any) {
 				assert.strictEqual(results.message, 'Message from AMD app.');
 			});
+	},
+
+	'AMD module with ID'() {
+		return executeTest(this, './amdModuleWithId1.html', function (results: any) {
+			assert.strictEqual(results.testModule1Value, 'testModule1');
+		});
+	},
+
+	'AMD module with ID and dependency - ID'() {
+		return executeTest(this, './amdModuleWithId2.html', function (results: any) {
+			assert.strictEqual(results.testModule1Value, 'testModule1');
+			assert.strictEqual(results.testModule2Value, 'testModule2');
+		});
+	},
+
+	'AMD module with ID and dependency - module'() {
+		return executeTest(this, './amdModuleWithId3.html', function (results: any) {
+			// TODO: not working
+			assert.isTrue(results.testModule3Loaded);
+			assert.strictEqual(results.testModule3Value, 'testModule3');
+		});
 	}
 });
