@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+	<meta charset="UTF-8">
+	<title>AMD Loading Test</title>
+</head>
+
+<body>
+	<script src="../../loader.js"></script>
+	<script>
+define('test/module1', [], function () {
+	return 'testModule1';
+});
+
+define('test/module2', [ 'test/module1' ], function (testModule1) {
+	return {
+		testModule1Value: testModule1,
+		testModule2Value: 'testModule2'
+	};
+});
+
+require([ 'test/module2' ], function (testModule2) {
+	window.loaderTestResults = testModule2;
+});
+	</script>
+</body>
+</html>

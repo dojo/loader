@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+	<meta charset="UTF-8">
+	<title>AMD Loading Test</title>
+</head>
+
+<body>
+	<script src="../../loader.js"></script>
+	<script>
+// Should null be accepted as 2nd param? (It isn't)
+// Should 2nd param be optional? (It isn't)
+define('test/module1', [], function () {
+	return 'testModule1';
+});
+
+require([ 'test/module1' ], function (testModule1) {
+	window.loaderTestResults = {
+		testModule1Value: testModule1
+	};
+});
+	</script>
+</body>
+</html>

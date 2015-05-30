@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+	<meta charset="UTF-8">
+	<title>AMD Loading Test</title>
+</head>
+
+<body>
+	<script src="../../loader.js"></script>
+	<script>
+require.config({
+	packages: [
+		{
+			name: 'amdApp',
+			location: './amdApp'
+		}
+	]
+});
+
+define('test/module1', [ 'amdApp/app' ], function (app) {
+	return {
+		appModuleValue: app.getMessage(),
+		testModule1Value: 'testModule1'
+	};
+});
+
+require([ 'test/module1' ], function (testModule1) {
+	window.loaderTestResults = testModule1;
+});
+	</script>
+</body>
+</html>
