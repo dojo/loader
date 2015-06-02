@@ -41,12 +41,18 @@ registerSuite({
 	'AMD module with ID and dependency - module'() {
 		return executeTest(this, './amdModuleWithId3.html', function (results: any) {
 			assert.isTrue(results.testModule3Loaded);
-			assert.strictEqual(results.testModule3Value, 'testModule3');
+			assert.strictEqual(results.testModule3Value, 'testModule3', 'Test module and dependency should load');
+		});
+	},
+
+	'AMD module without ID and dependency - id'() {
+		return executeTest(this, './amdModuleWithId4.html', function (results: any) {
+			assert.strictEqual(results, 'testModule1', 'Test module and dependency should load');
 		});
 	},
 
 	'AMD module with ID - dependency param omitted'() {
-		return executeTest(this, './amdModuleWithId4.html', function (results: any) {
+		return executeTest(this, './amdModuleWithId5.html', function (results: any) {
 			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module should load');
 		});
 	},

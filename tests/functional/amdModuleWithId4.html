@@ -8,14 +8,22 @@
 <body>
 	<script src="../../loader.js"></script>
 	<script>
-define('test/module1', function () {
+// ensure loader is configured before 'define' is called
+require.config({
+	packages: [
+		{
+			name: 'amdApp',
+			location: './amdApp'
+		}
+	]
+});
+
+define('test/module1', [], function (app) {
 	return 'testModule1';
 });
 
-require([ 'test/module1' ], function (testModule1) {
-	window.loaderTestResults = {
-		testModule1Value: testModule1
-	};
+require([ 'amdApp/app1' ], function (app1) {
+	window.loaderTestResults = app1.getMessage();
 });
 	</script>
 </body>
