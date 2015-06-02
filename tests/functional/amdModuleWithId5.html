@@ -8,21 +8,14 @@
 <body>
 	<script src="../../loader.js"></script>
 	<script>
-require.config({
-	packages: [
-		{
-			name: 'amdApp',
-			location: './amdApp'
-		}
-	]
-});
-
-define('test/module1', [], function (app) {
+define('test/module1', function () {
 	return 'testModule1';
 });
 
-require([ 'amdApp/app1' ], function (app1) {
-	window.loaderTestResults = app1.getMessage();
+require([ 'test/module1' ], function (testModule1) {
+	window.loaderTestResults = {
+		testModule1Value: testModule1
+	};
 });
 	</script>
 </body>
