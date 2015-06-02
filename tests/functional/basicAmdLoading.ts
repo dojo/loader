@@ -27,22 +27,48 @@ registerSuite({
 
 	'AMD module with ID'() {
 		return executeTest(this, './amdModuleWithId1.html', function (results: any) {
-			assert.strictEqual(results.testModule1Value, 'testModule1');
+			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module should load');
 		});
 	},
 
 	'AMD module with ID and dependency - ID'() {
 		return executeTest(this, './amdModuleWithId2.html', function (results: any) {
-			assert.strictEqual(results.testModule1Value, 'testModule1');
-			assert.strictEqual(results.testModule2Value, 'testModule2');
+			assert.strictEqual(results.testModule1Value, 'testModule1', 'Dependency module should load');
+			assert.strictEqual(results.testModule2Value, 'testModule2', 'Test module should load');
 		});
 	},
 
 	'AMD module with ID and dependency - module'() {
 		return executeTest(this, './amdModuleWithId3.html', function (results: any) {
-			// TODO: not working
 			assert.isTrue(results.testModule3Loaded);
 			assert.strictEqual(results.testModule3Value, 'testModule3');
+		});
+	},
+
+	'AMD module with ID - dependency param omitted'() {
+		return executeTest(this, './amdModuleWithId4.html', function (results: any) {
+			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module should load');
+		});
+	},
+
+	'AMD module with circular dependency'() {
+		const expected = {
+			default: 'circular2',
+			message: 'circular1.getMessage'
+		};
+
+		return executeTest(this, './amdModuleWithId6.html', function (results: any) {
+			assert.deepEqual(results, expected, 'Circular dependency should be resolved');
+		});
+	},
+
+	'AMD module with deep dependencies'() {
+		const expected = {
+			objectExport: 'objectExport'
+		};
+
+		return executeTest(this, './amdModuleWithId7.html', function (results: any) {
+			assert.deepEqual(results, expected, 'Deep dependency should be resolved');
 		});
 	}
 });
