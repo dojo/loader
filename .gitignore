@@ -3,6 +3,7 @@
 *.js
 *.js.map
 !/*.js
+!tests/functional/amdApp/*.js
 dist
 _build
 node_modules
