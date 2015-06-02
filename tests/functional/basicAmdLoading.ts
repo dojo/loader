@@ -63,7 +63,7 @@ registerSuite({
 			message: 'circular1.getMessage'
 		};
 
-		return executeTest(this, './amdModuleWithId6.html', function (results: any) {
+		return executeTest(this, './amdModuleCircular.html', function (results: any) {
 			assert.deepEqual(results, expected, 'Circular dependency should be resolved');
 		});
 	},
@@ -73,7 +73,7 @@ registerSuite({
 			objectExport: 'objectExport'
 		};
 
-		return executeTest(this, './amdModuleWithId7.html', function (results: any) {
+		return executeTest(this, './amdModuleDeepDeps.html', function (results: any) {
 			assert.deepEqual(results, expected, 'Deep dependency should be resolved');
 		});
 	}
