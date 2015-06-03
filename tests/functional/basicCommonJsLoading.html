@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>Basic CommonJS Loading Test</title>
+</head>
+<body>
+<script src="../../loader.js"></script>
+<script>
+require.config({
+	packages: [
+		{
+			name: 'commonJsApp',
+			location: './commonJsApp'
+		}
+	]
+});
+
+require([
+	'commonJsApp/app'
+], function () {
+	var app = require('commonJsApp/app');
+
+	window.loaderTestResults = {
+		message: app.getMessage()
+	};
+});
+</script>
+</body>
+</html>

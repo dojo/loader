@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+	<meta charset="UTF-8">
+	<title>CommonJS Loading Test</title>
+</head>
+
+<body>
+	<script src="../../loader.js"></script>
+	<script>
+require({
+	packages: [
+		{
+			name: 'commonJsApp',
+			location: './commonJsApp'
+		}
+	]
+}, [
+	'commonJsApp/deep1'
+], function () {
+	var deep1 = require('commonJsApp/deep1');
+	var obj = deep1.default();
+
+	window.loaderTestResults = obj.deep3();
+});
+	</script>
+</body>
+</html>
