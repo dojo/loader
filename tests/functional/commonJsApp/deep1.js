@@ -1,5 +1,10 @@
-var Deep2 = require('./Deep2');
+define([
+	'require',
+	'module'
+], function (require, module) {
+	var Deep2 = require('./Deep2');
 
-exports.default = function () {
-	return new Deep2();
-};
+	module.exports = function () {
+		return new Deep2();
+	};
+});

@@ -17,9 +17,8 @@ require({
 	]
 }, [
 	'commonJsApp/deep1'
-], function () {
-	var deep1 = require('commonJsApp/deep1');
-	var obj = deep1.default();
+], function (deep1) {
+	var obj = deep1();
 
 	window.loaderTestResults = obj.deep3();
 });

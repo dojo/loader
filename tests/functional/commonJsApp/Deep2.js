@@ -1,9 +1,14 @@
-var deep3 = require('./deep3');
+define([
+	'require',
+	'module'
+], function (require, module) {
+	var deep3 = require('./deep3');
 
-function Deep2() {}
+	function Deep2() {}
 
-Deep2.prototype.deep3 = function () {
-	return deep3();
-};
+	Deep2.prototype.deep3 = function () {
+		return deep3();
+	};
 
-exports.default = Deep2;
+	module.exports = Deep2;
+});

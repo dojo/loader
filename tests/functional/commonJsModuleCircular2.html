@@ -16,11 +16,11 @@ require({
 		}
 	]
 }, [
-	'commonJsApp/circular1'
-], function (circular1) {
+	'commonJsApp/circular2'
+], function (circular2) {
 	window.loaderTestResults = {
-		default: circular1.default(),
-		message: circular1.getMessage()
+		default: circular2.default(),
+		message: circular2.circular1Message()
 	};
 });
 	</script>

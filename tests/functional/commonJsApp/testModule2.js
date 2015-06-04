@@ -1,8 +1,14 @@
-var testModule1 = require('test/module1');
+define([
+	'require',
+	'exports',
+	'module'
+], function (require, exports, module) {
+	var testModule1 = require('test/module1');
 
-exports.default = {
-	testModule1Value: testModule1,
-	testModule2Value: 'testModule2'
-};
+	exports.default = {
+		testModule1Value: testModule1,
+		testModule2Value: 'testModule2'
+	};
 
-module.id = 'test/module2';
+	module.id = 'test/module2';
+});
