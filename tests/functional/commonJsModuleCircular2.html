@@ -19,8 +19,8 @@ require({
 	'commonJsApp/circular2'
 ], function (circular2) {
 	window.loaderTestResults = {
-		default: circular2.default(),
-		message: circular2.circular1Message()
+		message: circular2.getMessage(),
+		circular1Message: circular2.circular1Message()
 	};
 });
 	</script>

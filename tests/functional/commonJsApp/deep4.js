@@ -1,6 +1,4 @@
-define([
-	'module'
-], function (module) {
+define(function (require, exports, module) {
 	module.exports = {
 		objectExport: 'objectExport'
 	};

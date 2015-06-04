@@ -1,11 +1,7 @@
-define([
-	'require',
-	'exports',
-	'module'
-], function (require, exports, module) {
+define(function (require, exports, module) {
 	var app = require('commonJsApp/app');
 
-	exports.default = {
+	module.exports = {
 		appModuleValue: app.getMessage(),
 		testModule3Value: 'testModule3'
 	};

@@ -1,7 +1,4 @@
-define([
-	'require',
-	'module'
-], function (require, module) {
+define(function (require, exports, module) {
 	var deep3 = require('./deep3');
 
 	function Deep2() {}

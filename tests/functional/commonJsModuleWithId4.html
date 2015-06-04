@@ -18,9 +18,7 @@ require({
 }, [
 	'commonJsApp/app1',
 	'commonJsApp/testModule1'
-], function () {
-	var app1 = require('commonJsApp/app1');
-
+], function (app1) {
 	window.loaderTestResults = app1.getMessage();
 });
 	</script>

@@ -1,10 +1,7 @@
-define([
-	'require',
-	'exports'
-], function (require, exports) {
+define(function (require, exports) {
 	var circular1 = require('./circular1');
 
-	exports.default = function () {
+	exports.getMessage = function () {
 		return 'circular2';
 	};
 

@@ -53,11 +53,35 @@ registerSuite({
 
 	'CommonJS module with circular dependency'() {
 		const expected = {
-			default: 'circular2',
-			message: 'circular1.getMessage'
+			message: 'circular1',
+			circular2Message: 'circular2'
 		};
 
 		return executeTest(this, './commonJsModuleCircular.html', function (results: any) {
+			assert.deepEqual(results, expected, 'Circular dependency should be resolved');
+		});
+	},
+
+	'CommonJS module with circular dependency 2'() {
+		const expected = {
+			message: 'circular2',
+			circular1Message: 'circular1'
+		};
+
+		return executeTest(this, './commonJsModuleCircular2.html', function (results: any) {
+			assert.deepEqual(results, expected, 'Circular dependency should be resolved');
+		});
+	},
+
+	'CommonJS module with circular dependency 3'() {
+		const expected = {
+			c1message: 'circular1',
+			c1message2: 'circular2',
+			c2message: 'circular2',
+			c2message1: 'circular1'
+		};
+
+		return executeTest(this, './commonJsModuleCircular3.html', function (results: any) {
 			assert.deepEqual(results, expected, 'Circular dependency should be resolved');
 		});
 	},
