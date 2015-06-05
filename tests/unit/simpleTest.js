@@ -1,3 +1,4 @@
-var module1 = require('./cjsModules/module1');
+require('./_build/loader.js');
 
-loaderTestResults = module1.getMessage();
+// this will be the return value from vm.runInContext
+x = 'y';
