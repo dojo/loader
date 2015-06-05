@@ -833,7 +833,41 @@ export interface IRootRequire extends IRequire {
 
 	var setGlobals: (require: IRequire, define: IDefine) => void;
 	var injectUrl: (url: string, callback: (node?: HTMLScriptElement) => void, module: IModule, parent?: IModule) => void;
-	if (has('host-browser')) {
+	if (has('host-node')) {
+		var vm: any = require('vm');
+		var fs: any = require('fs');
+
+		// retain the ability to get node's require
+		req.nodeRequire = require;
+		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: IModule, parent?: IModule): void {
+			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
+				if (error) {
+					throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
+				}
+
+				// global `module` variable needs to be shadowed for UMD modules that are loaded in an Electron webview;
+				// in Node.js the `module` variable does not exist when using `vm.runInThisContext`, but in Electron it
+				// exists in the webview when Node.js integration is enabled which causes loaded modules to register
+				// with Node.js and break the loader
+				var oldModule = this.module;
+				this.module = undefined;
+				try {
+					vm.runInThisContext(data, url);
+				}
+				finally {
+					this.module = oldModule;
+				}
+
+				callback();
+			});
+		};
+
+		setGlobals = function (require: IRequire, define: IDefine): void {
+			module.exports = this.require = require;
+			this.define = define;
+		};
+	}
+	else if (has('host-browser')) {
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: IModule, parent?: IModule): void {
 			// insert a script element to the insert-point element with src=url;
 			// apply callback upon detecting the script has loaded.
@@ -860,28 +894,6 @@ export interface IRootRequire extends IRequire {
 
 		setGlobals = function (require: IRequire, define: IDefine): void {
 			this.require = require;
-			this.define = define;
-		};
-	}
-	else if (has('host-node')) {
-		var vm: any = require('vm');
-		var fs: any = require('fs');
-
-		// retain the ability to get node's require
-		req.nodeRequire = require;
-		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: IModule, parent?: IModule): void {
-			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
-				if (error) {
-					throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
-				}
-
-				vm.runInThisContext(data, url);
-				callback();
-			});
-		};
-
-		setGlobals = function (require: IRequire, define: IDefine): void {
-			module.exports = this.require = require;
 			this.define = define;
 		};
 	}
@@ -944,9 +956,13 @@ export interface IRootRequire extends IRequire {
 			deps = <any> factory;
 			factory = arguments[2];
 
-			var module: IModule = getModule(id);
-			module.injected = true;
-			defineModule(module, deps, factory);
+			// Some modules in the wild have an explicit module ID that is null; ignore the module ID in this case and
+			// register normally using the request module ID
+			if (id != null) {
+				var module: IModule = getModule(id);
+				module.injected = true;
+				defineModule(module, deps, factory);
+			}
 		}
 
 		if (arguments.length === 1) {
