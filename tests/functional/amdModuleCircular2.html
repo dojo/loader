@@ -8,7 +8,6 @@
 	<body>
 		<script src="../../loader.js"></script>
 		<script>
-			// ensure loader is configured before 'define' is called
 			require.config({
 				packages: [
 					{
@@ -18,19 +17,13 @@
 				]
 			});
 
-			define('test/module3', [
-				'amdApp/app'
-			], function (app) {
-				return {
-					appModuleValue: app.getMessage(),
-					testModule3Value: 'testModule3'
-				};
-			});
-
 			require([
-				'test/module3'
-			], function (testModule3) {
-				window.loaderTestResults = testModule3;
+				'amdApp/circular2'
+			], function (circular2) {
+				window.loaderTestResults = {
+					default: circular2.default(),
+					message: circular2.getMessage()
+				};
 			});
 		</script>
 	</body>
