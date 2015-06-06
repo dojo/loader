@@ -1,9 +1,9 @@
-import * as circular1 from './circular1';
+import { getMessage as circular1Message } from './circular1';
 
 export default function (): string {
 	return 'circular2';
 }
 
-export function circular1Message(): string {
-	return circular1.getMessage();
+export function getMessage(): string {
+	return circular1Message();
 }
