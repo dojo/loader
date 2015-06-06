@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>AMD Loading Test</title>
+	</head>
+
+	<body>
+		<script src="../../loader.js"></script>
+		<script>
+			require.config({
+				packages: [
+					{
+						name: 'amdApp',
+						location: './amdApp'
+					}
+				]
+			});
+
+			require([
+				'amdApp/deep1'
+			], function (deep1) {
+				var obj = deep1.default();
+
+				window.loaderTestResults = obj.deep3();
+			});
+		</script>
+	</body>
+</html>

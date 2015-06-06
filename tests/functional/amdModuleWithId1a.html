@@ -2,21 +2,19 @@
 <html>
 	<head lang="en">
 		<meta charset="UTF-8">
-		<title>Basic AMD Loading Test</title>
+		<title>AMD Loading Test</title>
 	</head>
 
 	<body>
 		<script src="../../loader.js"></script>
 		<script>
-			require({
-				packages: [
-					{ name: 'amdApp', location: './amdApp' }
-				]
-			}, [
-				'amdApp/app'
-			], function (app) {
+			require([
+				'amdApp/module1'
+			], function () {
+				var testModule1 = require('test/module1');
+
 				window.loaderTestResults = {
-					message: app.getMessage()
+					testModule1Value: testModule1
 				};
 			});
 		</script>

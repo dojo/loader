@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>AMD Loading Test</title>
+	</head>
+
+	<body>
+		<script src="../../loader.js"></script>
+		<script>
+			require.config({
+				packages: [
+					{
+						name: 'amdApp',
+						location: './amdApp'
+					}
+				]
+			});
+
+			require([
+				'amdApp/circular1',
+				'amdApp/circular2'
+			], function (circular1, circular2) {
+				window.loaderTestResults = {
+					c1default: circular1.default(),
+					c1message: circular1.getMessage(),
+					c2default: circular2.default(),
+					c2message: circular2.getMessage()
+				};
+			});
+		</script>
+	</body>
+</html>

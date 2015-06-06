@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>AMD Loading Test</title>
+	</head>
+
+	<body>
+		<script src="../../loader.js"></script>
+		<script>
+			require.config({
+				packages: [
+					{
+						name: 'amdApp',
+						location: './amdApp'
+					}
+				]
+			});
+
+			require([
+				'amdApp/module3'
+			], function () {
+				var testModule3 = require('test/module3');
+
+				window.loaderTestResults = testModule3;
+			});
+		</script>
+	</body>
+</html>
