@@ -170,6 +170,7 @@ module.exports = function (grunt) {
 				}
 			),
 			dev: {
+				baseDir: './',
 				outDir: '<%= devDirectory %>',
 				src: [ '<%= skipTests %>' ]
 			},
