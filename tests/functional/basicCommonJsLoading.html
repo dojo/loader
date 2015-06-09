@@ -11,12 +11,12 @@
 require({
 	packages: [
 		{
-			name: 'commonJsApp',
-			location: './commonJsApp'
+			name: 'commonJs',
+			location: '../common/commonJs'
 		}
 	]
 }, [
-	'commonJsApp/app'
+	'commonJs/app'
 ], function (app) {
 	window.loaderTestResults = {
 		message: app.getMessage()

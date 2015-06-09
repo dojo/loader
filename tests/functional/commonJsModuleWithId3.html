@@ -11,12 +11,12 @@
 require({
 	packages: [
 		{
-			name: 'commonJsApp',
-			location: './commonJsApp'
+			name: 'commonJs',
+			location: '../common/commonJs'
 		}
 	]
 }, [
-	'commonJsApp/testModule3'
+	'commonJs/testModule3'
 ], function () {
 	var testModule3 = require('test/module3');
 

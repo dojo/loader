@@ -1,67 +1,169 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
-import * as fs from 'intern/dojo/node!fs';
-import * as Module from 'intern/dojo!module';
-import * as path from 'intern/dojo/node!path';
-import * as vm from 'intern/dojo/node!vm';
-import * as Promise from 'dojo/Promise';
 
-const basePath = './_build/tests/unit/';
-const timeout = 1000;
+const appMessage = 'Message from CommonJS app.';
 
-let testContext: any;
-
-function readFile(filePath: string): Promise<string> {
-	return new Promise(function (resolve, reject) {
-		fs.readFile(filePath, 'utf8', function (error: Error, data: string) {
-			if (error) {
-				reject(error);
-			}
-			else {
-				resolve(data);
-			}
-		});
-	});
-}
+let nodeRequire: Function;
+let originalDefine: any;
+let originalRequire: any;
 
 registerSuite({
 	name: 'basic CommonJS loading',
 
 	setup() {
-		testContext = vm.createContext({
-			console: console,
-			process: process
+		nodeRequire = (<any> require).nodeRequire;
+		originalDefine = global.define;
+		originalRequire = global.require;
+		global.define = null;
+		global.require = null;
+		nodeRequire((<any> require).toUrl('src/loader.js'));
+		global.require.config({
+			packages: [
+				{
+					name: 'commonJs',
+					location: './tests/common/commonJs'
+				}
+			]
 		});
 	},
 
+	teardown() {
+		global.define = originalDefine;
+		global.require = originalRequire;
+	},
+
 	'simple test'() {
-		let dfd = this.async(timeout);
-		let testCaseFileName = 'simpleTest.js';
-		let testModule = new Module(testCaseFileName);
+		let dfd = this.async();
 
-		testContext.module = testModule;
-		testContext.require = function (path: string) {
-			return testModule.require(path);
-		};
-		testContext.__filename = testCaseFileName;
-		testContext.__dirname = path.dirname(testCaseFileName);
-
-		readFile(basePath + testCaseFileName).then(function (moduleSource) {
-			let result = vm.runInContext(moduleSource, testContext, testCaseFileName);
-			console.log(result);
+		global.require([
+			'commonJs/app'
+		], function (app: any) {
+			assert.strictEqual(app.getMessage(), appMessage);
+			dfd.resolve();
 		});
+	},
 
-		// fs.readFile(basePath + testCaseFileName, 'utf8', function (error: Error, data: any) {
-		// 	if (error) {
-		// 		dfd.reject(error);
-		// 	}
-		// 	else {
-		// 		dfd.callback(function () {
-		// 			var module = data;
-		// 			var result = vm.runInContext(module, testContext, testCaseFileName);
-		// 			console.log(result);
-		// 		})();
-		// 	}
-		// });
+	'CommonJS module with ID'() {
+		let dfd = this.async();
+
+		global.require([
+			'require',
+			'commonJs/testModule1'
+		], function (require: any) {
+			let testModule1 = require('test/module1');
+
+			assert.strictEqual(testModule1, 'testModule1', 'Test module should load and use explicit id');
+			dfd.resolve();
+		});
+	},
+
+	'CommonJS module with ID and dependency - ID'() {
+		let dfd = this.async();
+
+		global.require([
+			'require',
+			'commonJs/testModule1',
+			'commonJs/testModule2'
+		], function (require: any) {
+			const expected = {
+				testModule1Value: 'testModule1',
+				testModule2Value: 'testModule2'
+			};
+			let testModule2 = require('test/module2');
+
+			assert.strictEqual(testModule2, expected, 'Test modules should load and use explicit ids');
+			dfd.resolve();
+		});
+	},
+
+	'CommonJS module with ID and dependency - module'() {
+		let dfd = this.async();
+
+		global.require([
+			'require',
+			'commonJs/testModule3'
+		], function (require: any) {
+			const expected = {
+				appModuleValue: appMessage,
+				testModule3Value: 'testModule3'
+			};
+			let testModule3 = require('test/module3');
+
+			assert.strictEqual(testModule3, expected, 'Test module and dependency should load');
+			dfd.resolve();
+		});
+	},
+
+	'CommonJS module without ID and dependency - id'() {
+		let dfd = this.async();
+
+		global.require([
+			'commonJs/app1',
+			'commonJs/testModule1'
+		], function (app1: any) {
+			const expected = {
+				testModule1Value: 'testModule1',
+				testModule2Value: 'testModule2'
+			};
+
+			assert.strictEqual(app1, 'testmodule1', 'Test module and dependency should load');
+			dfd.resolve();
+		});
+	},
+
+	'CommonJS module with circular dependency'() {
+		let dfd = this.async();
+
+		global.require([
+			'commonJs/circular1'
+		], function (circular1: any) {
+			assert.strictEqual(circular1.getMessage(), 'circular1', 'Circular dependency should be resolved');
+			assert.strictEqual(circular1.circular2Message, 'circular2', 'Circular dependency should be resolved')
+			dfd.resolve();
+		});
+	},
+
+	'CommonJS module with circular dependency 2'() {
+		let dfd = this.async();
+
+		global.require([
+			'commonJs/circular2'
+		], function (circular2: any) {
+			assert.strictEqual(circular2.getMessage(), 'circular2', 'Circular dependency should be resolved');
+			assert.strictEqual(circular2.circular1Message, 'circular1', 'Circular dependency should be resolved')
+			dfd.resolve();
+		});
+	},
+
+	'CommonJS module with circular dependency 3'() {
+		let dfd = this.async();
+
+		global.require([
+			'commonJs/circular1',
+			'commonJs/circular2'
+		], function (circular1: any, circular2: any) {
+			assert.strictEqual(circular1.getMessage(), 'circular1', 'Circular dependency should be resolved');
+			assert.strictEqual(circular1.circular2Message, 'circular2', 'Circular dependency should be resolved')
+			assert.strictEqual(circular2.getMessage(), 'circular2', 'Circular dependency should be resolved');
+			assert.strictEqual(circular2.circular1Message, 'circular1', 'Circular dependency should be resolved')
+			dfd.resolve();
+		});
+	},
+
+	'CommonJS module with deep dependencies'() {
+		let dfd = this.async();
+
+		global.require([
+			'commonJs/deep1'
+		], function (deep1: any) {
+			const expected = {
+				objectExport: 'objectExport'
+			};
+			let obj = deep1();
+
+			assert.isObject(obj, 'deep1() should create an object');
+			assert.deepEqual(obj.deep3(), expected, 'deep3() should create an object');
+			dfd.resolve();
+		});
 	}
 });

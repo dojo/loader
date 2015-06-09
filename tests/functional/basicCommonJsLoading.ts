@@ -5,6 +5,8 @@ import * as Command from 'leadfoot/Command';
 
 import pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
 
+const appMessage = 'Message from CommonJS app.';
+
 function executeTest(suite: Suite, htmlTestPath: string, testFn: (result: any) => void, timeout = 5000): Command<any> {
 	return suite.remote
 		.get((<any>require).toUrl(htmlTestPath))
@@ -21,7 +23,7 @@ registerSuite({
 
 	'simple test'() {
 		return executeTest(this, './basicCommonJsLoading.html', function (results: any) {
-				assert.strictEqual(results.message, 'Message from CommonJS app.');
+				assert.strictEqual(results.message, appMessage);
 			});
 	},
 
@@ -32,16 +34,24 @@ registerSuite({
 	},
 
 	'CommonJS module with ID and dependency - ID'() {
+		const expected = {
+			testModule1Value: 'testModule1',
+			testModule2Value: 'testModule2'
+		};
+
 		return executeTest(this, './commonJsModuleWithId2.html', function (results: any) {
-			assert.strictEqual(results.testModule1Value, 'testModule1', 'Dependency module should load');
-			assert.strictEqual(results.testModule2Value, 'testModule2', 'Test module should load');
+			assert.strictEqual(results, expected, 'Test modules should load and use explicit ids');
 		});
 	},
 
 	'CommonJS module with ID and dependency - module'() {
+		const expected = {
+			appModuleValue: appMessage,
+			testModule3Value: 'testModule3'
+		};
+
 		return executeTest(this, './commonJsModuleWithId3.html', function (results: any) {
-			assert.isTrue(results.testModule3Loaded);
-			assert.strictEqual(results.testModule3Value, 'testModule3', 'Test module and dependency should load');
+			assert.strictEqual(results, expected, 'Test module and dependency should load');
 		});
 	},
 

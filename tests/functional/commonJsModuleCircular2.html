@@ -11,12 +11,12 @@
 require({
 	packages: [
 		{
-			name: 'commonJsApp',
-			location: './commonJsApp'
+			name: 'commonJs',
+			location: '../common/commonJs'
 		}
 	]
 }, [
-	'commonJsApp/circular2'
+	'commonJs/circular2'
 ], function (circular2) {
 	window.loaderTestResults = {
 		message: circular2.getMessage(),
