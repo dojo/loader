@@ -124,7 +124,7 @@ export interface IRootRequire extends IRequire {
 }
 
 (function (): void {
-	var req: IRootRequire = <IRootRequire> function (config: any, dependencies?: any, callback?: IRequireCallback): void {
+	var req: IRootRequire = <IRootRequire> function (config: any, dependencies?: any, callback?: IRequireCallback): IModule {
 		if (/* require([], cb) */ Array.isArray(config) || /* require(mid) */ typeof config === 'string') {
 			callback = <IRequireCallback> dependencies;
 			dependencies = <string[]> config;
@@ -135,7 +135,7 @@ export interface IRootRequire extends IRequire {
 			configure(config);
 		}
 
-		contextRequire(dependencies, callback);
+		return contextRequire(dependencies, callback);
 	};
 
 	var has: Has = req.has = (function (): Has {
@@ -951,17 +951,33 @@ export interface IRootRequire extends IRequire {
 	 * @param factory //(any)
 	 */
 	var define: IDefine = <IDefine> mix(function (deps: string[], factory: IFactory): void {
-		if (has('loader-explicit-mid') && arguments.length === 3) {
-			var id: string = <any> deps;
-			deps = <any> factory;
-			factory = arguments[2];
+		if (has('loader-explicit-mid') && arguments.length > 1 && typeof deps === 'string') {
+			let id: string = <any> deps;
+			if (arguments.length === 3) {
+				deps = <any> factory;
+				factory = arguments[2];
+			} else {
+				deps = [];
+			}
 
 			// Some modules in the wild have an explicit module ID that is null; ignore the module ID in this case and
 			// register normally using the request module ID
 			if (id != null) {
-				var module: IModule = getModule(id);
+				let module: IModule = getModule(id);
+				if (factory) {
+					const originalFactory = factory;
+					factory = function () {
+						var result = originalFactory.apply(null, arguments);
+						module.executed = true;
+						module.result = result;
+						return result;
+					};
+				}
 				module.injected = true;
 				defineModule(module, deps, factory);
+				guardCheckComplete(function (): void {
+					forEach(module.deps, injectModule.bind(null, module));
+				});
 			}
 		}
 
