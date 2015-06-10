@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html>
 	<head lang="en">
-	<meta charset="UTF-8">
-	<title>CommonJS Loading Test</title>
-</head>
+		<meta charset="UTF-8">
+		<title>CommonJS Loading Test</title>
+	</head>
 
-<body>
-	<script src="../../src/loader.js"></script>
-	<script>
-require({
-	packages: [
-		{
-			name: 'commonJs',
-			location: '../common/commonJs'
-		}
-	]
-}, [
-	'commonJs/circular1'
-], function (circular1) {
-	window.loaderTestResults = {
-		message: circular1.getMessage(),
-		circular2Message: circular1.circular2Message()
-	};
-});
-	</script>
-</body>
+	<body>
+		<script src="../../src/loader.js"></script>
+		<script>
+			require({
+				packages: [
+					{
+						name: 'commonJs',
+						location: '../common/commonJs'
+					}
+				]
+			}, [
+				'commonJs/circular1'
+			], function (circular1) {
+				window.loaderTestResults = {
+					message: circular1.getMessage(),
+					circular2Message: circular1.circular2Message()
+				};
+			});
+		</script>
+	</body>
 </html>

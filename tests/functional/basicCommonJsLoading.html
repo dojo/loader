@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html>
 	<head lang="en">
-	<meta charset="UTF-8">
-	<title>Basic CommonJS Loading Test</title>
-</head>
+		<meta charset="UTF-8">
+		<title>Basic CommonJS Loading Test</title>
+	</head>
 
-<body>
-	<script src="../../src/loader.js"></script>
-	<script>
-require({
-	packages: [
-		{
-			name: 'commonJs',
-			location: '../common/commonJs'
-		}
-	]
-}, [
-	'commonJs/app'
-], function (app) {
-	window.loaderTestResults = {
-		message: app.getMessage()
-	};
-});
-	</script>
-</body>
+	<body>
+		<script src="../../src/loader.js"></script>
+		<script>
+			require({
+				packages: [
+					{
+						name: 'commonJs',
+						location: '../common/commonJs'
+					}
+				]
+			}, [
+				'commonJs/app'
+			], function (app) {
+				window.loaderTestResults = {
+					message: app.getMessage()
+				};
+			});
+		</script>
+	</body>
 </html>

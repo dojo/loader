@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html>
 	<head lang="en">
-	<meta charset="UTF-8">
-	<title>CommonJS Loading Test</title>
-</head>
+		<meta charset="UTF-8">
+		<title>CommonJS Loading Test</title>
+	</head>
 
-<body>
-	<script src="../../src/loader.js"></script>
-	<script>
-require({
-	packages: [
-		{
-			name: 'commonJs',
-			location: '../common/commonJs'
-		}
-	]
-}, [
-	'commonJs/deep1'
-], function (deep1) {
-	var obj = deep1();
+	<body>
+		<script src="../../src/loader.js"></script>
+		<script>
+			require({
+				packages: [
+					{
+						name: 'commonJs',
+						location: '../common/commonJs'
+					}
+				]
+			}, [
+				'commonJs/deep1'
+			], function (deep1) {
+				var obj = deep1();
 
-	window.loaderTestResults = obj.deep3();
-});
-	</script>
-</body>
+				window.loaderTestResults = obj.deep3();
+			});
+		</script>
+	</body>
 </html>
