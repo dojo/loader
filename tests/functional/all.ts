@@ -1,1 +1,2 @@
 import './basicAmdLoading'
+import './basicCommonJsLoading'

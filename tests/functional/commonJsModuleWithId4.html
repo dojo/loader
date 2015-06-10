@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>CommonJS Loading Test</title>
+	</head>
+
+	<body>
+		<script src="../../src/loader.js"></script>
+		<script>
+			require.config({
+				packages: [
+					{
+						name: 'commonJs',
+						location: '../common/commonJs'
+					}
+				]
+			});
+
+			// 'commonJs/testModule1.js' specifies its mid explicitly ('test/module1'), so we have to specify it by filepath
+			// to get it load initially. 'commonJs/app1' specifies 'test/module1' as a dependency, so we need to ensure
+			// 'commonJs/testModule1.js' has been loaded before we attempt to load 'commonJs/app1'
+			require([
+				'commonJs/testModule1'
+			], function () {
+				require([
+					'commonJs/app1'
+				], function (app1) {
+					window.loaderTestResults = app1.getMessage();
+				});
+			});
+		</script>
+	</body>
+</html>

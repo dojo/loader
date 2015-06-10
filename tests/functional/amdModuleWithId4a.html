@@ -18,10 +18,13 @@
 			});
 
 			require([
-				'amdApp/app1',
 				'amdApp/module1'
-			], function (app1) {
-				window.loaderTestResults = app1.getMessage();
+			], function () {
+				require([
+					'amdApp/app1',
+				], function (app1) {
+					window.loaderTestResults = app1.getMessage();
+				});
 			});
 		</script>
 	</body>
