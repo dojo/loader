@@ -15,6 +15,19 @@ function setErrorHandler(dfd: any) {
 	};
 }
 
+function reloadLoader() {
+	let loaderPath = (<any> require).toUrl('src/loader.js');
+
+	global.define = null;
+	global.require = null;
+
+	if ((<any> nodeRequire).cache) {
+		delete (<any> nodeRequire).cache[(<any> nodeRequire).resolve(loaderPath)];
+	}
+
+	nodeRequire(loaderPath);
+}
+
 registerSuite({
 	name: 'basic CommonJS loading',
 
@@ -22,17 +35,6 @@ registerSuite({
 		nodeRequire = (<any> require).nodeRequire;
 		originalDefine = global.define;
 		originalRequire = global.require;
-		global.define = null;
-		global.require = null;
-		nodeRequire((<any> require).toUrl('src/loader.js'));
-		global.require.config({
-			packages: [
-				{
-					name: 'commonJs',
-					location: './tests/common/commonJs'
-				}
-			]
-		});
 	},
 
 	teardown() {
@@ -41,6 +43,21 @@ registerSuite({
 	},
 
 	beforeEach() {
+		// Do this before each test to ensure a clean loader environment with empty cache
+		reloadLoader();
+
+		global.require.config({
+			packages: [
+				{
+					name: 'commonJs',
+					location: './tests/common/commonJs'
+				}
+			]
+		});
+
+		// Need to handle global errors to catch errors thrown by 'require' or 'define'
+		// otherwise the whole test suite dies
+		// Note: process.on('uncaughtException') does not work
 		globalErrorHandler = (<any> process)._events.uncaughtException;
 		delete (<any> process)._events.uncaughtException;
 	},
@@ -127,7 +144,6 @@ registerSuite({
 
 		setErrorHandler(dfd);
 
-		// TODO: does this scenario make any sense?
 		// 'commonJs/testModule1.js' specifies its mid explicitly ('test/module1'), so we have to specify it by filepath
 		// to get it load initially. 'commonJs/app1' specifies 'test/module1' as a dependency, so we need to ensure
 		// 'commonJs/testModule1.js' has been loaded before we attempt to load 'commonJs/app1'
