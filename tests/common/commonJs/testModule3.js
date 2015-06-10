@@ -1,5 +1,5 @@
 define(function (require, exports, module) {
-	var app = require('commonJsApp/app');
+	var app = require('./app');
 
 	module.exports = {
 		appModuleValue: app.getMessage(),
