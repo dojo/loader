@@ -29,7 +29,7 @@ registerSuite({
 
 	'CommonJS module with ID'() {
 		return executeTest(this, './commonJsModuleWithId1.html', function (results: any) {
-			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module should load');
+			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module with explicit mid should load');
 		});
 	},
 
@@ -40,7 +40,7 @@ registerSuite({
 		};
 
 		return executeTest(this, './commonJsModuleWithId2.html', function (results: any) {
-			assert.strictEqual(results, expected, 'Test modules should load and use explicit ids');
+			assert.strictEqual(results, expected, 'Test modules with explicit mids should load');
 		});
 	},
 
