@@ -103,5 +103,126 @@ registerSuite({
 		assert.throws(function () {
 			global.require('thisIsNotAValidNodeModule');
 		});
+	},
+
+	config: {
+		baseUrl: {
+			default() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require([
+					'_build/tests/common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			},
+
+			explicit() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					baseUrl: './_build/tests'
+				});
+
+				global.require([
+					'common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			}
+		},
+
+		map: {
+			// TODO
+		},
+
+		packages: {
+			'name and location'() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			},
+
+			'name, location and main'() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common',
+							main: 'app'
+						}
+					]
+				});
+
+				global.require([
+					'common'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			}
+		},
+
+		paths: {
+			simple() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					paths: {
+						common: '_build/tests/common'
+					}
+				});
+
+				global.require([
+					'common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			}
+		}
+	},
+
+	has: {
+	},
+
+	// TODO: is require.inspect worth testing?
+
+	nodeRequire: {
+	},
+
+	signal: {
+	},
+
+	toAbsMid: {
+	},
+
+	toUrl: {
+	},
+
+	undef: {
 	}
 });
