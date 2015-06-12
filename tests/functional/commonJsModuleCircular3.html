@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>CommonJS Loading Test</title>
+	</head>
+
+	<body>
+		<script src="../../src/loader.js"></script>
+		<script>
+			require({
+				packages: [
+					{
+						name: 'commonJs',
+						location: '../common/commonJs'
+					}
+				]
+			}, [
+				'commonJs/circular1',
+				'commonJs/circular2'
+			], function (circular1, circular2) {
+				window.loaderTestResults = {
+					c1message: circular1.getMessage(),
+					c1message2: circular1.circular2Message(),
+					c2message: circular2.getMessage(),
+					c2message1: circular2.circular1Message()
+				};
+			});
+		</script>
+	</body>
+</html>
