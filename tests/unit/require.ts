@@ -137,7 +137,51 @@ registerSuite({
 		},
 
 		map: {
-			// TODO
+			'global'() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'*': {
+							'mapped': './_build/tests/common'
+						}
+					}
+				});
+
+				global.require([
+					'mapped/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			},
+
+			'targeted'() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						common: {
+							mapped: './_build/tests/common'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/map1'
+				], dfd.callback(function (map1: any) {
+					assert.strictEqual(map1.app, 'app', '"map1" module and dependency should load');
+				}));
+			}
 		},
 
 		packages: {
@@ -207,6 +251,41 @@ registerSuite({
 	},
 
 	has: {
+		'has API is available'() {
+			assert.instanceOf(global.require.has, Function, '\'require.has\' should be a function');
+			assert.instanceOf(global.require.has.add, Function, '\'require.has.add\' should be a function');
+		},
+
+		'add'() {
+			global.require.has.add('test1', 'test1');
+			assert.strictEqual(global.require.has('test1'), 'test1');
+			assert.isUndefined(global.require.has('test2'), 'Undefined test should be undefined');
+
+			global.require.has.add('test1', 'NEW VALUE');
+			assert.strictEqual(global.require.has('test1'), 'test1', 'Re-adding same-name test should fail');
+
+			global.require.has.add('test1', 'NEW VALUE', false, true);
+			assert.strictEqual(global.require.has('test1'), 'NEW VALUE',
+				'Re-adding same-name test with force parameter should succeed');
+
+			let runCount = 0;
+			global.require.has.add('test2', function () {
+				runCount += 1;
+				return runCount;
+			});
+			assert.strictEqual(runCount, 0, 'has test should not execute immediately');
+
+			global.require.has.add('test3', function () {
+				runCount += 1;
+				return runCount;
+			}, true);
+			assert.strictEqual(runCount, 1, 'has test with \'now\' parameter should execute immediately');
+
+			assert.strictEqual(global.require.has('test2'), 2);
+			assert.strictEqual(runCount, 2);
+			assert.strictEqual(global.require.has('test3'), 1, 'Re-running has test should use cached value');
+			assert.strictEqual(runCount, 2);
+		}
 	},
 
 	// TODO: is require.inspect worth testing?
