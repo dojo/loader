@@ -40,7 +40,7 @@ registerSuite({
 		};
 
 		return executeTest(this, './commonJsModuleWithId2.html', function (results: any) {
-			assert.strictEqual(results, expected, 'Test modules with explicit mids should load');
+			assert.deepEqual(results, expected, 'Test modules with explicit mids should load');
 		});
 	},
 
@@ -51,7 +51,7 @@ registerSuite({
 		};
 
 		return executeTest(this, './commonJsModuleWithId3.html', function (results: any) {
-			assert.strictEqual(results, expected, 'Test module and dependency should load');
+			assert.deepEqual(results, expected, 'Test module and dependency should load');
 		});
 	},
 
