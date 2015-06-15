@@ -110,7 +110,7 @@ registerSuite({
 		], dfd.callback(function (require: any) {
 			let testModule2 = require('test/module2');
 
-			assert.strictEqual(testModule2, expected, 'Test modules with explicit mids should load');
+			assert.deepEqual(testModule2, expected, 'Test modules with explicit mids should load');
 		}));
 	},
 
@@ -130,7 +130,7 @@ registerSuite({
 		], dfd.callback(function (require: any) {
 			let testModule3 = require('test/module3');
 
-			assert.strictEqual(testModule3, expected, 'Test module and dependency should load');
+			assert.deepEqual(testModule3, expected, 'Test module and dependency should load');
 		}));
 	},
 
@@ -154,7 +154,7 @@ registerSuite({
 			require([
 				'commonJs/app1'
 			], dfd.callback(function (app1: any) {
-				assert.strictEqual(app1.getMessage(), 'testmodule1', 'Test module and dependency should load');
+				assert.strictEqual(app1.getMessage(), 'testModule1', 'Test module and dependency should load');
 			}));
 		});
 	},

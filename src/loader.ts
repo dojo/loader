@@ -983,17 +983,28 @@ export interface IRootRequire extends IRequire {
 
 		if (arguments.length === 1) {
 			if (has('loader-cjs-wrapping') && typeof deps === 'function') {
-				factory = <any> deps;
+				let originalFactory = <any> deps;
 				deps = [ 'require', 'exports', 'module' ];
 
 				// Scan factory for require() calls and add them to the
 				// list of dependencies
-				factory.toString()
+				originalFactory.toString()
 					.replace(comments, '')
 					.replace(requireCall, function (): string {
 						deps.push(/* mid */ arguments[2]);
 						return arguments[0];
 					});
+				factory = function (require, exports, module): any {
+					var originalMid = module.id;
+					originalFactory.apply(null, arguments);
+					if (originalMid !== module.id) {
+						let newModule: IModule = getModule(module.id);
+						defineModule(newModule, deps, null);
+						newModule.injected = true;
+						newModule.executed = true;
+						newModule.result = module.exports;
+					}
+				}
 			}
 			else if (/* define(value) */ !Array.isArray(deps)) {
 				var value: any = deps;
