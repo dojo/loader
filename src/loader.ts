@@ -831,6 +831,35 @@ export interface IRootRequire extends IRequire {
 		};
 	}
 
+	function nodeLoadModule(mid: string, parent?: IModule): any {
+		let module: any = require('module');
+
+		if(module._findPath && module._nodeModulePaths){
+			let localModulePath = module._findPath(mid, module._nodeModulePaths(toUrl('.', parent)));
+
+			if (localModulePath !== false) {
+				mid = localModulePath;
+			}
+		}
+
+		let oldDefine = define;
+		let result: any;
+
+		// Some modules attempt to detect an AMD loader by looking for global AMD `define`. This causes issues
+		// when other CommonJS modules attempt to load them via the standard Node.js `require`, so hide it
+		// during the load
+		define = undefined;
+
+		try {
+			result = req.nodeRequire(mid);
+		}
+		finally {
+			define = oldDefine;
+		}
+
+		return result;
+	}
+
 	var setGlobals: (require: IRequire, define: IDefine) => void;
 	var injectUrl: (url: string, callback: (node?: HTMLScriptElement) => void, module: IModule, parent?: IModule) => void;
 	if (has('host-node')) {
@@ -842,23 +871,36 @@ export interface IRootRequire extends IRequire {
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: IModule, parent?: IModule): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
 				if (error) {
-					throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
-				}
+					let result = nodeLoadModule(module.mid, parent);
 
-				// global `module` variable needs to be shadowed for UMD modules that are loaded in an Electron webview;
-				// in Node.js the `module` variable does not exist when using `vm.runInThisContext`, but in Electron it
-				// exists in the webview when Node.js integration is enabled which causes loaded modules to register
-				// with Node.js and break the loader
-				var oldModule = this.module;
-				this.module = undefined;
-				try {
-					vm.runInThisContext(data, url);
+					if (result) {
+						console.log(result);
+						// TODO: figure out correct logic for defining the module
+						module.result = result;
+						--waitingCount;
+						module.executed = true;
+						checkComplete();
+					}
+					else{
+						throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
+					}
 				}
-				finally {
-					this.module = oldModule;
+				else {
+					// global `module` variable needs to be shadowed for UMD modules that are loaded in an Electron webview;
+					// in Node.js the `module` variable does not exist when using `vm.runInThisContext`, but in Electron it
+					// exists in the webview when Node.js integration is enabled which causes loaded modules to register
+					// with Node.js and break the loader
+					var oldModule = this.module;
+					this.module = undefined;
+					try {
+						vm.runInThisContext(data, url);
+					}
+					finally {
+						this.module = oldModule;
+					}
 				}
-
 				callback();
+
 			});
 		};
 
