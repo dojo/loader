@@ -1,4 +1,5 @@
 import { IRequire } from './loader';
+import has from 'dojo-core/has';
 import request, { Response } from 'dojo-core/request';
 
 /* 
@@ -16,6 +17,36 @@ function strip(text: string): string {
 	text = matches ? matches[1] : text;
 
 	return text;
+}
+
+/*
+ * Host-specific method to retrieve text
+ */
+let getText: (url: string, callback: (value: string) => void) => void;
+
+if (has('host-browser')) {
+	getText = function(url: string, callback: (value: string) => void): void {
+		request(url).then(function(response: Response<string>) {
+			callback(response.data);
+		});
+	};
+}
+else if (has('host-node')) {
+	let fs = (<any> require).nodeRequire ? (<any> require).nodeRequire('fs') : require('fs');
+	getText = function(url: string, callback: (value: string) => void): void {
+		fs.readFile(url, { encoding: 'utf8' }, function(error: Error, data: string): void {
+			if (error) {
+				throw error;
+			}
+
+			callback(data);
+		});
+	};
+}
+else {
+	getText = function(): void {
+		throw new Error('dojo/text not supported on this platform');
+	};
 }
 
 /*
@@ -58,10 +89,10 @@ export function load(id: string, require: IRequire, load: (value?: any) => void)
 			pending[url].push(finish);
 		} else {
 			let pendingList = pending[url] = [finish];
-			request.get(url).then(function (response: Response<string>) {
-				textCache[mid] = textCache[url] = response.data;
-				for (var i = 0; i < pendingList.length;) {
-					pendingList[i++](response.data);
+			getText(url, function(value: string) {
+				textCache[mid] = textCache[url] = value;
+				for (let i = 0; i < pendingList.length;) {
+					pendingList[i++](value);
 				}
 				delete pending[url];
 			});
