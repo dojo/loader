@@ -137,7 +137,7 @@ registerSuite({
 		},
 
 		map: {
-			'global'() {
+			star() {
 				let dfd = this.async(timeout);
 
 				setErrorHandler(dfd);
@@ -157,7 +157,7 @@ registerSuite({
 				}));
 			},
 
-			'targeted'() {
+			simple() {
 				let dfd = this.async(timeout);
 
 				setErrorHandler(dfd);
@@ -180,6 +180,96 @@ registerSuite({
 					'common/map1'
 				], dfd.callback(function (map1: any) {
 					assert.strictEqual(map1.app, 'app', '"map1" module and dependency should load');
+				}));
+			},
+
+			hierarchy() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						common: {
+							mapped: './_build/tests/common'
+						},
+						'common/a': {
+							mapped: './_build/tests/common/a'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/a/map2'
+				], dfd.callback(function (map2: any) {
+					assert.strictEqual(map2.app, 'app A', '"map1" module and dependency should load');
+				}));
+			},
+
+			merge() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						common: {
+							mapped: './_build/tests/common'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require({
+					map: {
+						'common/a': {
+							mapped: './_build/tests/common/a'
+						}
+					}
+				}, [
+					'common/map1',
+					'common/a/map2'
+				], dfd.callback(function (map1: any, map2: any) {
+					assert.strictEqual(map1.app, 'app', '"map1" module and dependency should load');
+					assert.strictEqual(map2.app, 'app A', '"amap1" module and dependency should load');
+				}));
+			},
+
+			relative() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'common/a': {
+							'common/a': './_build/tests/common'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/a/relative1'
+				], dfd.callback(function (relative1: any) {
+					assert.strictEqual(relative1.app, 'app',
+						'"relative1" module and dependency "common/app" should load');
 				}));
 			}
 		},
