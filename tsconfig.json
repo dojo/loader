@@ -17,6 +17,7 @@
 	"files": [
 		"./typings/tsd.d.ts",
 		"./src/loader.ts",
+		"./src/text.ts",
 		"./tests/functional/all.ts",
 		"./tests/functional/amdApp/Deep2.ts",
 		"./tests/functional/amdApp/app.ts",
@@ -35,7 +36,6 @@
 		"./tests/typings/dojo2/dojo.d.ts",
 		"./tests/typings/intern/intern.d.ts",
 		"./tests/typings/leadfoot/leadfoot.d.ts",
-		"./tests/typings/node/node.d.ts",
 		"./tests/typings/tsd.d.ts",
 		"./tests/unit/all.ts",
 		"./tests/unit/basicCommonJsLoading.ts"
