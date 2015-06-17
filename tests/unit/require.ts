@@ -52,7 +52,7 @@ registerSuite({
 		(<any> process)._events.uncaughtException = globalErrorHandler;
 	},
 
-	node_modules() {
+	'node modules'() {
 		let dfd = this.async(timeout);
 
 		setErrorHandler(dfd);
@@ -70,6 +70,21 @@ registerSuite({
 		}));
 	},
 
+	'node modules sync'() {
+		const events = global.require('events');
+		assert.isNotNull(events);
+		assert.isNotNull(events.EventEmitter);
+	},
+
+	'node modules sync multiples'() {
+		const events = global.require('events');
+		assert.isNotNull(events);
+		assert.isNotNull(events.EventEmitter);
+
+		const eventsAgain = global.require('events');
+		assert.strictEqual(eventsAgain, events);
+	},
+
 	'non-existent module'() {
 		let dfd = this.async(timeout);
 
@@ -82,5 +97,11 @@ registerSuite({
 		], dfd.rejectOnError(function (gruntOption: any, app: any) {
 			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
 		}));
+	},
+
+	'non-existent module sync'() {
+		assert.throws(function () {
+			global.require('thisIsNotAValidNodeModule');
+		});
 	}
 });

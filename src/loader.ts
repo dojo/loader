@@ -373,7 +373,18 @@ export interface RootRequire extends Require {
 		if (typeof a1 === 'string') {
 			module = getModule(a1, referenceModule);
 			if (module.executed !== true && module.executed !== EXECUTING) {
-				throw new Error('Attempt to require unloaded module ' + module.mid);
+				if (has('host-node')) {
+					let result = nodeLoadModule(module.mid, referenceModule);
+					if (result) {
+						initModule(module, [], null);
+						module.result = result;
+						module.cjs.setExports(result);
+						module.executed = true;
+						module.injected = true;
+					} else {
+						throw new Error('Attempt to require unloaded module ' + module.mid);
+					}
+				}
 			}
 			// Assign the result of the module to `module`
 			// otherwise require('moduleId') returns the internal
@@ -798,6 +809,10 @@ export interface RootRequire extends Require {
 
 	function defineModule(module: Module, deps: string[], def: Factory): Module {
 		--waitingCount;
+		return initModule(module, deps, def);
+	}
+
+	function initModule(module: Module, deps: string[], def: Factory): Module {
 		return <Module> mix(module, {
 			def: def,
 			deps: resolveDeps(deps, module, module),
