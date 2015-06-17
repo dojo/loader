@@ -812,7 +812,6 @@ export interface RootRequire extends Require {
 		});
 	}
 
-	// PhantomJS
 	has.add('function-bind', Boolean(Function.prototype.bind));
 	if (!has('function-bind')) {
 		injectModule.bind = function (thisArg: any): typeof injectModule {
@@ -825,6 +824,39 @@ export interface RootRequire extends Require {
 		};
 	}
 
+	function nodeLoadModule(mid: string, parent?: Module): any {
+		let module: any = require('module');
+		let oldDefine = define;
+		let result: any;
+
+		if(module._findPath && module._nodeModulePaths){
+			let localModulePath = module._findPath(mid, module._nodeModulePaths(toUrl('.', parent)));
+
+			if (localModulePath !== false) {
+				mid = localModulePath;
+			}
+		}
+
+		// Some modules attempt to detect an AMD loader by looking for global AMD `define`. This causes issues
+		// when other CommonJS modules attempt to load them via the standard Node.js `require`, so hide it
+		// during the load
+		define = undefined;
+
+		try {
+			result = req.nodeRequire(mid);
+		}
+		catch (error) {
+			// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
+			// Leave it to the caller of this function to handle a non-existent module (and throw an error if desired)
+			result = undefined;
+		}
+		finally {
+			define = oldDefine;
+		}
+
+		return result;
+	}
+
 	if (has('host-node')) {
 		const vm: any = require('vm');
 		const fs: any = require('fs');
@@ -834,20 +866,31 @@ export interface RootRequire extends Require {
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: Module, parent?: Module): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
 				if (error) {
-					throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
-				}
+					function loadCallback () {
+						let result = nodeLoadModule(module.mid, parent);
 
-				// global `module` variable needs to be shadowed for UMD modules that are loaded in an Electron webview;
-				// in Node.js the `module` variable does not exist when using `vm.runInThisContext`, but in Electron it
-				// exists in the webview when Node.js integration is enabled which causes loaded modules to register
-				// with Node.js and break the loader
-				const oldModule = this.module;
-				this.module = undefined;
-				try {
-					vm.runInThisContext(data, url);
+						if (!result) {
+							throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
+						}
+
+						return result;
+					}
+
+					defArgs = [ [], loadCallback ];
 				}
-				finally {
-					this.module = oldModule;
+				else {
+					// global `module` variable needs to be shadowed for UMD modules that are loaded in an Electron webview;
+					// in Node.js the `module` variable does not exist when using `vm.runInThisContext`, but in Electron it
+					// exists in the webview when Node.js integration is enabled which causes loaded modules to register
+					// with Node.js and break the loader
+					var oldModule = this.module;
+					this.module = undefined;
+					try {
+						vm.runInThisContext(data, url);
+					}
+					finally {
+						this.module = oldModule;
+					}
 				}
 
 				callback();
@@ -941,7 +984,7 @@ export interface RootRequire extends Require {
 	 * @param deps //(array of commonjs.moduleId, optional)
 	 * @param factory //(any)
 	 */
-	const define: Define = <Define> mix(function (deps: string[], factory: Factory): void {
+	var define: Define = <Define> mix(function (deps: string[], factory: Factory): void {
 		if (has('loader-explicit-mid') && arguments.length > 1 && typeof deps === 'string') {
 			let id: string = <any> deps;
 			if (arguments.length === 3) {

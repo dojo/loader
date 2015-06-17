@@ -38,6 +38,7 @@
 		"./tests/typings/node/node.d.ts",
 		"./tests/typings/tsd.d.ts",
 		"./tests/unit/all.ts",
-		"./tests/unit/basicCommonJsLoading.ts"
+		"./tests/unit/basicCommonJsLoading.ts",
+		"./tests/unit/require.ts"
 	]
 }
