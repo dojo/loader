@@ -853,6 +853,11 @@ export interface IRootRequire extends IRequire {
 		try {
 			result = req.nodeRequire(mid);
 		}
+		catch (error) {
+			// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
+			// Leave it to the caller of this function to handle a non-existent module (and throw an error if desired)
+			result = undefined;
+		}
 		finally {
 			define = oldDefine;
 		}
@@ -871,19 +876,17 @@ export interface IRootRequire extends IRequire {
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: IModule, parent?: IModule): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
 				if (error) {
-					let result = nodeLoadModule(module.mid, parent);
+					function loadCallback () {
+						let result = nodeLoadModule(module.mid, parent);
 
-					if (result) {
-						console.log(result);
-						// TODO: figure out correct logic for defining the module
-						module.result = result;
-						--waitingCount;
-						module.executed = true;
-						checkComplete();
+						if (!result) {
+							throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
+						}
+
+						return result;
 					}
-					else{
-						throw new Error('Failed to load module ' + module.mid + ' from ' + url + (parent ? ' (parent: ' + parent.mid + ')' : ''));
-					}
+
+					defArgs = [ [], loadCallback ];
 				}
 				else {
 					// global `module` variable needs to be shadowed for UMD modules that are loaded in an Electron webview;
@@ -899,8 +902,8 @@ export interface IRootRequire extends IRequire {
 						this.module = oldModule;
 					}
 				}
-				callback();
 
+				callback();
 			});
 		};
 
