@@ -120,7 +120,6 @@ export interface RootRequire extends Require {
 	has: Has;
 	inspect?(name: string): any;
 	nodeRequire?(id: string): any;
-	signal(type: string, data: any[]): void;
 	undef(moduleId: string): void;
 }
 
@@ -353,10 +352,6 @@ export interface RootRequire extends Require {
 			(<any> target)[key] = (<any> source)[key];
 		}
 		return target;
-	}
-
-	function signal(type: string, event: any): void {
-		req.signal.apply(req, arguments);
 	}
 
 	function consumePendingCacheInsert(referenceModule?: Module): void {
@@ -682,7 +677,6 @@ export interface RootRequire extends Require {
 		++checkCompleteGuard;
 		proc();
 		--checkCompleteGuard;
-		!defArgs && !waitingCount && !execQ.length && !checkCompleteGuard && signal('idle', []);
 	}
 
 	function checkComplete(): void {
@@ -766,7 +760,6 @@ export interface RootRequire extends Require {
 				defineModule(module, defArgs[0], defArgs[1]);
 				defArgs = null;
 
-				// checkComplete!==false holds the idle signal; we're not idle if we're injecting dependencies
 				guardCheckComplete(function (): void {
 					forEach(module.deps, injectModule.bind(null, module));
 				});
@@ -782,8 +775,8 @@ export interface RootRequire extends Require {
 					return;
 				}
 				catch (error) {
-					// If a cache load fails, notify and then retrieve using injectUrl
-					signal('cachedThrew', [ error, module ]);
+					// If a cache load fails, retrieve using injectUrl
+					// TODO: report error, 'cachedThrew', [ error, module ]
 				}
 			}
 			injectUrl(module.url, onLoadCallback, module, parent);
@@ -920,7 +913,6 @@ export interface RootRequire extends Require {
 	}
 
 	mix(req, {
-		signal: function (): void {},
 		toAbsMid: toAbsMid,
 		toUrl: toUrl,
 
