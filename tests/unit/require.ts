@@ -89,7 +89,12 @@ registerSuite({
 		let dfd = this.async(timeout);
 
 		(<any> process)._events.uncaughtException = function (error: Error) {
-			dfd.resolve();
+			if (error.message.indexOf('bad/module/id') === -1) {
+				dfd.reject(error);
+			}
+			else {
+				dfd.resolve();
+			}
 		};
 
 		global.require([
@@ -271,6 +276,68 @@ registerSuite({
 					assert.strictEqual(relative1.app, 'app',
 						'"relative1" module and dependency "common/app" should load');
 				}));
+			},
+
+			nested() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'*': {
+							'common/app': 'common/a/remappedApp'
+						},
+						'common/a/remappedApp': {
+							'common/app': 'common/app'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/usesApp',
+					'common/a/remappedApp'
+				], dfd.callback(function (app: any, remappedApp: any) {
+					assert.strictEqual(app, 'remappedapp',
+						'"usesApp" module should get remapped "a/remappedApp" module');
+					assert.strictEqual(remappedApp, 'remappedapp',
+						'"remappedApp" module should get unmapped "app" module');
+				}));
+			},
+
+			plugin() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'*': {
+							plugin1: 'common/plugin!one',
+							plugin2: 'common/plugin!two'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'plugin1',
+					'plugin2'
+				], dfd.callback(function (plugin1: any, plugin2: any) {
+					assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
+					assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
+				}));
 			}
 		},
 
@@ -378,20 +445,82 @@ registerSuite({
 		}
 	},
 
-	// TODO: is require.inspect worth testing?
+	// TODO: is require.inspect worth testing? (it just calls eval)
 
-	nodeRequire: {
+	nodeRequire() {
+		assert.isFunction(global.require.nodeRequire, '"require.nodeRequire" should be a function');
+		assert.isNotNull(global.require('events').EventEmitter, '"require.nodeRequire" should load module');
 	},
 
-	signal: {
+	toAbsMid() {
+		let dfd = this.async(timeout);
+
+		setErrorHandler(dfd);
+
+		global.define('toAbsMidTest', [], function () {
+			return {
+				assert: assert,
+				dfd: dfd
+			};
+		});
+
+		global.require.config({
+			baseUrl: './_build/tests'
+		});
+
+		global.require([
+			'common/a/toAbsMid'
+		]);
 	},
 
-	toAbsMid: {
+	toUrl() {
+		let dfd = this.async(timeout);
+
+		setErrorHandler(dfd);
+
+		global.define('toUrlTest', [], function () {
+			return {
+				assert: assert,
+				dfd: dfd
+			};
+		});
+
+		global.require.config({
+			baseUrl: './_build/tests'
+		});
+
+		global.require([
+			'common/a/toUrl'
+		]);
 	},
 
-	toUrl: {
-	},
+	undef() {
+		let dfd = this.async(timeout);
 
-	undef: {
+		(<any> process)._events.uncaughtException = function (error: Error) {
+			if (error.message.indexOf('common/app') === -1) {
+				dfd.reject(error);
+			}
+			else {
+				dfd.resolve();
+			}
+		};
+
+		global.require.config({
+			packages: [
+				{
+					name: 'common',
+					location: './_build/tests/common'
+				}
+			]
+		});
+
+		global.require([
+			'common/app'
+		], function () {
+			global.require.undef('common/app');
+			let app: any = global.require('common/app');
+			dfd.reject('Loading undefined module should throw an error');
+		});
 	}
 });
