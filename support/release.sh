@@ -151,6 +151,7 @@ if [ "$MAKE_BRANCH" != "" ]; then
 	PUSH_BRANCHES="$PUSH_BRANCHES $MAKE_BRANCH"
 fi
 # Create pre-built release for bower & npm
+git checkout $TAG_VERSION
 grunt clean
 git clone -n $REPO_URL "$BUILD_DIR"
 grunt dist
