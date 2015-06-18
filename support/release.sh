@@ -15,6 +15,7 @@ usage() {
 
 ORIGINAL_REVISION=$(git rev-parse --abbrev-ref HEAD)
 REPO_URL=$(git config --get remote.origin.url)
+#TODO BOWER: create BOWER_REPO_URL form REPO_URL
 
 if [ "$1" == "--help" ]; then
 	usage
@@ -153,12 +154,12 @@ fi
 # Create pre-built release for bower & npm
 git checkout $TAG_VERSION
 grunt clean
-git clone -n $REPO_URL "$BUILD_DIR"
+# TODO BOWER: git clone -n $BOWER_REPO_URL "$BUILD_DIR"
 grunt dist
-cd "$BUILD_DIR"
-git add -A
-git commit -m "Update pre-built release version $VERSION"
-git tag -a -m "Release $VERSION" $TAG_VERSION
+# TODO BOWER: cd "$BUILD_DIR"
+# TODO BOWER: git add -A
+# TODO BOWER: git commit -m "Update pre-built release version $VERSION"
+# TODO BOWER: git tag -a -m "Release $VERSION" $TAG_VERSION
 
 cd "$ROOT_DIR"
 echo -e "\nDone!\n"
@@ -180,8 +181,8 @@ git push origin --tags
 
 cd "$BUILD_DIR"
 npm publish --tag $NPM_TAG
-git push origin master
-git push origin --tags
+#TODO BOWER: git push origin master
+#TODO BOWER: git push origin --tags
 
 cd "$ROOT_DIR"
 git checkout "$ORIGINAL_REVISION"
