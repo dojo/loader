@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.has Test</title>
+	</head>
+
+	<body>
+		<script src="../../../src/loader.js"></script>
+		<script>
+			require({
+				baseUrl: '../../../..',
+				packages: [
+					{
+						name: 'chai',
+						location: 'node_modules/intern/node_modules/chai',
+						main: 'chai'
+					}
+				]
+			}, [
+				'chai/chai'
+			], function (chai) {
+				var assert = chai.assert;
+
+				try {
+					assert.instanceOf(require.has, Function, '\'require.has\' should be a function');
+					assert.instanceOf(require.has.add, Function, '\'require.has.add\' should be a function');
+
+					require.has.add('test1', 'test1');
+					assert.strictEqual(require.has('test1'), 'test1', '"test1" should work');
+					assert.isUndefined(require.has('test2'), 'Undefined test should be undefined');
+
+					require.has.add('test1', 'NEW VALUE');
+					assert.strictEqual(require.has('test1'), 'test1', 'Re-adding same-name test should fail');
+
+					require.has.add('test1', 'NEW VALUE', false, true);
+					assert.strictEqual(require.has('test1'), 'NEW VALUE',
+						'Re-adding same-name test with force parameter should succeed');
+
+					var runCount = 0;
+					require.has.add('test2', function () {
+						runCount += 1;
+						return runCount;
+					});
+					assert.strictEqual(runCount, 0, 'has test should not execute immediately');
+
+					require.has.add('test3', function () {
+						runCount += 1;
+						return runCount;
+					}, true);
+					assert.strictEqual(runCount, 1, 'has test with \'now\' parameter should execute immediately');
+
+					assert.strictEqual(require.has('test2'), 2, '"test2" should work');
+					assert.strictEqual(runCount, 2, 'Running "test2" should increment runCount');
+					assert.strictEqual(require.has('test3'), 1, 'Re-running has test should use cached value');
+					assert.strictEqual(runCount, 2, 'Re-running "test3" should not increment runCount');
+				}
+				catch (error) {
+					window.loaderTestResults = error.message;
+				}
+				finally {
+					if (window.loaderTestResults === undefined) {
+						window.loaderTestResults = 'success';
+					}
+				}
+			});
+		</script>
+	</body>
+</html>

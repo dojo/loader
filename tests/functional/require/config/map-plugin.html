@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.config Test</title>
+	</head>
+
+	<body>
+		<script src="../../../../src/loader.js"></script>
+		<script>
+			require.config({
+				map: {
+					'*': {
+						plugin: 'common/plugin',
+						plugin2: 'common/plugin!two'
+					}
+				},
+				packages: [
+					{
+						name: 'common',
+						location: '../../../common'
+					}
+				]
+			});
+
+			require([
+				'plugin!one',
+				'plugin2'
+			], function (plugin1, plugin2) {
+				window.loaderTestResults = {
+					plugin1: plugin1,
+					plugin2: plugin2
+				};
+			});
+		</script>
+	</body>
+</html>

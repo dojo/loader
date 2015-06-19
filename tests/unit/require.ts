@@ -89,7 +89,12 @@ registerSuite({
 		let dfd = this.async(timeout);
 
 		(<any> process)._events.uncaughtException = function (error: Error) {
-			dfd.resolve();
+			if (error.message.indexOf('bad/module/id') === -1) {
+				dfd.reject(error);
+			}
+			else {
+				dfd.resolve();
+			}
 		};
 
 		global.require([
@@ -102,6 +107,436 @@ registerSuite({
 	'non-existent module sync'() {
 		assert.throws(function () {
 			global.require('thisIsNotAValidNodeModule');
+		});
+	},
+
+	config: {
+		baseUrl: {
+			default() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require([
+					'_build/tests/common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			},
+
+			explicit() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					baseUrl: './_build/tests'
+				});
+
+				global.require([
+					'common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			}
+		},
+
+		map: {
+			star() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'*': {
+							'mapped': './_build/tests/common'
+						}
+					}
+				});
+
+				global.require([
+					'mapped/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			},
+
+			simple() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						common: {
+							mapped: './_build/tests/common'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/map1'
+				], dfd.callback(function (map1: any) {
+					assert.strictEqual(map1.app, 'app', '"map1" module and dependency should load');
+				}));
+			},
+
+			hierarchy() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						common: {
+							mapped: './_build/tests/common'
+						},
+						'common/a': {
+							mapped: './_build/tests/common/a'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/a/map2'
+				], dfd.callback(function (map2: any) {
+					assert.strictEqual(map2.app, 'app A', '"map2" module and dependency should load');
+				}));
+			},
+
+			merge() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						common: {
+							mapped: './_build/tests/common'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require({
+					map: {
+						'common/a': {
+							mapped: './_build/tests/common/a'
+						}
+					}
+				}, [
+					'common/map1',
+					'common/a/map2'
+				], dfd.callback(function (map1: any, map2: any) {
+					assert.strictEqual(map1.app, 'app', '"map1" module and dependency should load');
+					assert.strictEqual(map2.app, 'app A', '"map2" module and dependency should load');
+				}));
+			},
+
+			relative() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'common/a': {
+							'common/a': './_build/tests/common'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/a/relative1'
+				], dfd.callback(function (relative1: any) {
+					assert.strictEqual(relative1.app, 'app',
+						'"relative1" module and dependency "common/app" should load');
+				}));
+			},
+
+			nested() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'*': {
+							'common/app': 'common/a/remappedApp'
+						},
+						'common/a/remappedApp': {
+							'common/app': 'common/app'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/usesApp',
+					'common/a/remappedApp'
+				], dfd.callback(function (app: any, remappedApp: any) {
+					assert.strictEqual(app, 'remappedapp',
+						'"usesApp" module should get remapped "a/remappedApp" module');
+					assert.strictEqual(remappedApp, 'remappedapp',
+						'"remappedApp" module should get unmapped "app" module');
+				}));
+			},
+
+			plugin() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'*': {
+							plugin: 'common/plugin',
+							plugin2: 'common/plugin!two'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'plugin!one',
+					'plugin2'
+				], dfd.callback(function (plugin1: any, plugin2: any) {
+					assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
+					assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
+				}));
+			}
+		},
+
+		packages: {
+			'name and location'() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			},
+
+			'name, location and main'() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common',
+							main: 'app'
+						}
+					]
+				});
+
+				global.require([
+					'common'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			}
+		},
+
+		paths: {
+			simple() {
+				let dfd = this.async(timeout);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					paths: {
+						common: '_build/tests/common'
+					}
+				});
+
+				global.require([
+					'common/app'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
+			}
+		}
+	},
+
+	has: {
+		'has API is available'() {
+			assert.instanceOf(global.require.has, Function, '\'require.has\' should be a function');
+			assert.instanceOf(global.require.has.add, Function, '\'require.has.add\' should be a function');
+		},
+
+		'add'() {
+			global.require.has.add('test1', 'test1');
+			assert.strictEqual(global.require.has('test1'), 'test1');
+			assert.isUndefined(global.require.has('test2'), 'Undefined test should be undefined');
+
+			global.require.has.add('test1', 'NEW VALUE');
+			assert.strictEqual(global.require.has('test1'), 'test1', 'Re-adding same-name test should fail');
+
+			global.require.has.add('test1', 'NEW VALUE', false, true);
+			assert.strictEqual(global.require.has('test1'), 'NEW VALUE',
+				'Re-adding same-name test with force parameter should succeed');
+
+			let runCount = 0;
+			global.require.has.add('test2', function () {
+				runCount += 1;
+				return runCount;
+			});
+			assert.strictEqual(runCount, 0, 'has test should not execute immediately');
+
+			global.require.has.add('test3', function () {
+				runCount += 1;
+				return runCount;
+			}, true);
+			assert.strictEqual(runCount, 1, 'has test with \'now\' parameter should execute immediately');
+
+			assert.strictEqual(global.require.has('test2'), 2);
+			assert.strictEqual(runCount, 2);
+			assert.strictEqual(global.require.has('test3'), 1, 'Re-running has test should use cached value');
+			assert.strictEqual(runCount, 2);
+		}
+	},
+
+	nodeRequire() {
+		assert.isFunction(global.require.nodeRequire, '"require.nodeRequire" should be a function');
+		assert.isNotNull(global.require('events').EventEmitter, '"require.nodeRequire" should load module');
+	},
+
+	toAbsMid() {
+		let dfd = this.async(timeout);
+
+		setErrorHandler(dfd);
+
+		// Put the test in its own module so we can use context require
+		global.define('common/a/toAbsMidTest', [
+			'require'
+		], dfd.callback(function (contextRequire: any) {
+			assert.strictEqual(global.require.toAbsMid('mid'), 'mid');
+			assert.strictEqual(global.require.toAbsMid('./mid'), 'mid');
+			assert.strictEqual(global.require.toAbsMid('common/mid'), 'common/mid');
+
+			assert.strictEqual(contextRequire.toAbsMid('mid'), 'mid');
+			assert.strictEqual(contextRequire.toAbsMid('./mid'), 'common/a/mid');
+			assert.strictEqual(contextRequire.toAbsMid('../mid'), 'common/mid');
+			assert.strictEqual(contextRequire.toAbsMid('package/mid'), 'package/mid');
+			assert.strictEqual(contextRequire.toAbsMid('./package/mid'), 'common/a/package/mid');
+			assert.strictEqual(contextRequire.toAbsMid('../package/mid'), 'common/package/mid');
+		}));
+
+		global.require.config({
+			baseUrl: './_build/tests'
+		});
+
+		global.require([
+			'common/a/toAbsMidTest'
+		]);
+	},
+
+	toUrl() {
+		let dfd = this.async(timeout);
+
+		setErrorHandler(dfd);
+
+		// Put the test in its own module so we can use context require
+		global.define('common/a/toUrlTest', [
+			'require'
+		], dfd.callback(function (contextRequire: any) {
+			assert.strictEqual(global.require.toUrl('mid'), '_build/tests/mid');
+			assert.strictEqual(global.require.toUrl('./mid'), '_build/tests/mid');
+			assert.strictEqual(global.require.toUrl('common/mid'), '_build/tests/common/mid');
+
+			assert.strictEqual(contextRequire.toUrl('mid'), '_build/tests/mid');
+			assert.strictEqual(contextRequire.toUrl('./mid'), '_build/tests/common/a/mid');
+			assert.strictEqual(contextRequire.toUrl('../mid'), '_build/tests/common/mid');
+			assert.strictEqual(contextRequire.toUrl('package/mid'), '_build/tests/package/mid');
+			assert.strictEqual(contextRequire.toUrl('./package/mid'), '_build/tests/common/a/package/mid');
+			assert.strictEqual(contextRequire.toUrl('../package/mid'), '_build/tests/common/package/mid');
+		}));
+
+		global.require.config({
+			baseUrl: './_build/tests'
+		});
+
+		global.require([
+			'common/a/toUrlTest'
+		]);
+	},
+
+	undef() {
+		let dfd = this.async(timeout);
+
+		(<any> process)._events.uncaughtException = function (error: Error) {
+			if (error.message.indexOf('common/app') === -1) {
+				dfd.reject(error);
+			}
+			else {
+				dfd.resolve();
+			}
+		};
+
+		global.require.config({
+			packages: [
+				{
+					name: 'common',
+					location: './_build/tests/common'
+				}
+			]
+		});
+
+		global.require([
+			'common/app'
+		], function () {
+			global.require.undef('common/app');
+			let app: any = global.require('common/app');
+			dfd.reject('Loading undefined module should throw an error');
 		});
 	}
 });

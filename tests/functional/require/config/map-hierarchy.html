@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.config Test</title>
+	</head>
+
+	<body>
+		<script src="../../../../src/loader.js"></script>
+		<script>
+			require.config({
+				map: {
+					common: {
+						mapped: '../../../common'
+					},
+					'common/a': {
+						mapped: '../../../common/a'
+					}
+				},
+				packages: [
+					{
+						name: 'common',
+						location: '../../../common'
+					}
+				]
+			});
+
+			require([
+				'common/a/map2'
+			], function (map2) {
+				window.loaderTestResults = map2;
+			});
+		</script>
+	</body>
+</html>

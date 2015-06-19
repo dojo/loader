@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.toAbsMid Test</title>
+	</head>
+
+	<body>
+		<script src="../../../src/loader.js"></script>
+		<script>
+			require.config({
+				baseUrl: '../../../..',
+				packages: [
+					{
+						name: 'chai',
+						location: 'node_modules/intern/node_modules/chai',
+						main: 'chai'
+					}
+				]
+			});
+
+			define('common/a/toAbsMidTest', [
+				'require',
+				'chai/chai'
+			], function (contextRequire, chai) {
+				var assert = chai.assert;
+
+				try {
+					assert.strictEqual(require.toAbsMid('mid'), 'mid');
+					assert.strictEqual(require.toAbsMid('./mid'), 'mid');
+					assert.strictEqual(require.toAbsMid('common/mid'), 'common/mid');
+
+					assert.strictEqual(contextRequire.toAbsMid('mid'), 'mid');
+					assert.strictEqual(contextRequire.toAbsMid('./mid'), 'common/a/mid');
+					assert.strictEqual(contextRequire.toAbsMid('../mid'), 'common/mid');
+					assert.strictEqual(contextRequire.toAbsMid('package/mid'), 'package/mid');
+					assert.strictEqual(contextRequire.toAbsMid('./package/mid'), 'common/a/package/mid');
+					assert.strictEqual(contextRequire.toAbsMid('../package/mid'), 'common/package/mid');
+				}
+				catch (error) {
+					window.loaderTestResults = error.message;
+				}
+				finally {
+					if (window.loaderTestResults === undefined) {
+						window.loaderTestResults = 'success';
+					}
+				}
+			});
+
+			require([
+				'common/a/toAbsMidTest'
+			]);
+		</script>
+	</body>
+</html>
