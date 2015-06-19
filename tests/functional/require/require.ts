@@ -115,5 +115,29 @@ registerSuite({
 				assert.fail(null, null, results);
 			}
 		});
+	},
+
+	toAbsMid() {
+		return executeTest(this, './toAbsMid.html', function (results: any) {
+			if (results !== 'success') {
+				assert.fail(null, null, results);
+			}
+		});
+	},
+
+	toUrl() {
+		return executeTest(this, './toUrl.html', function (results: any) {
+			if (results !== 'success') {
+				assert.fail(null, null, results);
+			}
+		});
+	},
+
+	undef() {
+		return executeTest(this, './undef.html', function (results: any) {
+			if (results !== 'success') {
+				assert.fail(null, null, results);
+			}
+		});
 	}
 });
