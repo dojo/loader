@@ -1,6 +1,4 @@
 import { IRequire } from './loader';
-import has from 'dojo-core/has';
-import request, { Response } from 'dojo-core/request';
 
 /* 
  * Strips <?xml ...?> declarations so that external SVG and XML
@@ -24,14 +22,24 @@ function strip(text: string): string {
  */
 let getText: (url: string, callback: (value: string) => void) => void;
 
-if (has('host-browser')) {
+if (typeof document !== 'undefined' && typeof location !== 'undefined') {
+	// This function is needed so onreadystatechange can be set to something
+	// that doesn't form a closure around the XHR object and form a circular
+	// reference
+	const noop = function () {};
 	getText = function(url: string, callback: (value: string) => void): void {
-		request(url).then(function(response: Response<string>) {
-			callback(response.data);
-		});
+		const xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState === 4) {
+				xhr.onreadystatechange = noop;
+				callback(xhr.responseText);
+			}
+		};
+		xhr.open('GET', url, true);
+		xhr.send(null);
 	};
 }
-else if (has('host-node')) {
+else if (typeof process === 'object' && process.versions && process.versions.node) {
 	let fs = (<any> require).nodeRequire ? (<any> require).nodeRequire('fs') : require('fs');
 	getText = function(url: string, callback: (value: string) => void): void {
 		fs.readFile(url, { encoding: 'utf8' }, function(error: Error, data: string): void {
