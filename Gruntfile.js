@@ -37,7 +37,7 @@ module.exports = function (grunt) {
 		tsconfig: tsconfig,
 		all: [ '<%= tsconfig.filesGlob %>' ],
 		skipTests: [ '<%= all %>' , '!tests/**/*.ts' ],
-		staticTestFiles: 'tests/**/*.{html,css,js}',
+		staticTestFiles: 'tests/**/*.{html,css,js,txt,xml}',
 		devDirectory: '<%= tsconfig.compilerOptions.outDir %>',
 		istanbulIgnoreNext: '/* istanbul ignore next */',
 
@@ -172,7 +172,15 @@ module.exports = function (grunt) {
 			dev: {
 				baseDir: './',
 				outDir: '<%= devDirectory %>',
-				src: [ '<%= skipTests %>' ]
+				src: [ '<%= skipTests %>', '!src/loader.ts' ]
+			},
+			devLoader: {
+				options: {
+					module: 'commonjs'
+				},
+				baseDir: './',
+				outDir: '<%= devDirectory %>',
+				src: [ 'src/loader.ts' ]
 			},
 			tests: {
 				options: {
@@ -186,7 +194,15 @@ module.exports = function (grunt) {
 					mapRoot: '../dist/_debug'
 				},
 				outDir: 'dist',
-				src: [ '<%= skipTests %>' ]
+				src: [ '<%= skipTests %>', '!src/loader.ts' ]
+			},
+			distLoader: {
+				options: {
+					mapRoot: '../dist/_debug',
+					module: 'commonjs'
+				},
+				outDir: 'dist',
+				src: [ 'src/loader.ts' ]
 			}
 		},
 
@@ -260,6 +276,7 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('dev', [
 		'ts:dev',
+		'ts:devLoader',
 		'ts:tests',
 		'copy:staticTestFiles',
 		'replace:addIstanbulIgnore',
@@ -267,6 +284,7 @@ module.exports = function (grunt) {
 	]);
 	grunt.registerTask('dist', [
 		'ts:dist',
+		'ts:distLoader',
 		'rename:sourceMaps',
 		'rewriteSourceMaps',
 		'copy:typings',
