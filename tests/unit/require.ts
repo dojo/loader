@@ -213,7 +213,7 @@ registerSuite({
 				global.require([
 					'common/a/map2'
 				], dfd.callback(function (map2: any) {
-					assert.strictEqual(map2.app, 'app A', '"map1" module and dependency should load');
+					assert.strictEqual(map2.app, 'app A', '"map2" module and dependency should load');
 				}));
 			},
 
@@ -247,7 +247,7 @@ registerSuite({
 					'common/a/map2'
 				], dfd.callback(function (map1: any, map2: any) {
 					assert.strictEqual(map1.app, 'app', '"map1" module and dependency should load');
-					assert.strictEqual(map2.app, 'app A', '"amap1" module and dependency should load');
+					assert.strictEqual(map2.app, 'app A', '"map2" module and dependency should load');
 				}));
 			},
 
@@ -319,7 +319,7 @@ registerSuite({
 				global.require.config({
 					map: {
 						'*': {
-							plugin1: 'common/plugin!one',
+							plugin: 'common/plugin',
 							plugin2: 'common/plugin!two'
 						}
 					},
@@ -332,7 +332,7 @@ registerSuite({
 				});
 
 				global.require([
-					'plugin1',
+					'plugin!one',
 					'plugin2'
 				], dfd.callback(function (plugin1: any, plugin2: any) {
 					assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
@@ -445,8 +445,6 @@ registerSuite({
 		}
 	},
 
-	// TODO: is require.inspect worth testing? (it just calls eval)
-
 	nodeRequire() {
 		assert.isFunction(global.require.nodeRequire, '"require.nodeRequire" should be a function');
 		assert.isNotNull(global.require('events').EventEmitter, '"require.nodeRequire" should load module');
@@ -457,19 +455,28 @@ registerSuite({
 
 		setErrorHandler(dfd);
 
-		global.define('toAbsMidTest', [], function () {
-			return {
-				assert: assert,
-				dfd: dfd
-			};
-		});
+		// Put the test in its own module so we can use context require
+		global.define('common/a/toAbsMidTest', [
+			'require'
+		], dfd.callback(function (contextRequire: any) {
+			assert.strictEqual(global.require.toAbsMid('mid'), 'mid');
+			assert.strictEqual(global.require.toAbsMid('./mid'), 'mid');
+			assert.strictEqual(global.require.toAbsMid('common/mid'), 'common/mid');
+
+			assert.strictEqual(contextRequire.toAbsMid('mid'), 'mid');
+			assert.strictEqual(contextRequire.toAbsMid('./mid'), 'common/a/mid');
+			assert.strictEqual(contextRequire.toAbsMid('../mid'), 'common/mid');
+			assert.strictEqual(contextRequire.toAbsMid('package/mid'), 'package/mid');
+			assert.strictEqual(contextRequire.toAbsMid('./package/mid'), 'common/a/package/mid');
+			assert.strictEqual(contextRequire.toAbsMid('../package/mid'), 'common/package/mid');
+		}));
 
 		global.require.config({
 			baseUrl: './_build/tests'
 		});
 
 		global.require([
-			'common/a/toAbsMid'
+			'common/a/toAbsMidTest'
 		]);
 	},
 
@@ -478,19 +485,28 @@ registerSuite({
 
 		setErrorHandler(dfd);
 
-		global.define('toUrlTest', [], function () {
-			return {
-				assert: assert,
-				dfd: dfd
-			};
-		});
+		// Put the test in its own module so we can use context require
+		global.define('common/a/toUrlTest', [
+			'require'
+		], dfd.callback(function (contextRequire: any) {
+			assert.strictEqual(global.require.toUrl('mid'), '_build/tests/mid');
+			assert.strictEqual(global.require.toUrl('./mid'), '_build/tests/mid');
+			assert.strictEqual(global.require.toUrl('common/mid'), '_build/tests/common/mid');
+
+			assert.strictEqual(contextRequire.toUrl('mid'), '_build/tests/mid');
+			assert.strictEqual(contextRequire.toUrl('./mid'), '_build/tests/common/a/mid');
+			assert.strictEqual(contextRequire.toUrl('../mid'), '_build/tests/common/mid');
+			assert.strictEqual(contextRequire.toUrl('package/mid'), '_build/tests/package/mid');
+			assert.strictEqual(contextRequire.toUrl('./package/mid'), '_build/tests/common/a/package/mid');
+			assert.strictEqual(contextRequire.toUrl('../package/mid'), '_build/tests/common/package/mid');
+		}));
 
 		global.require.config({
 			baseUrl: './_build/tests'
 		});
 
 		global.require([
-			'common/a/toUrl'
+			'common/a/toUrlTest'
 		]);
 	},
 

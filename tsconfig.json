@@ -27,6 +27,7 @@
 		"./tests/functional/amdApp/deep4.ts",
 		"./tests/functional/basicAmdLoading.ts",
 		"./tests/functional/basicCommonJsLoading.ts",
+		"./tests/functional/require/require.ts",
 		"./tests/intern-local.ts",
 		"./tests/intern.ts",
 		"./tests/module.d.ts",

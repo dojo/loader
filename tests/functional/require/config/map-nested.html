@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.config Test</title>
+	</head>
+
+	<body>
+		<script src="../../../../src/loader.js"></script>
+		<script>
+			require.config({
+				map: {
+					'*': {
+						'common/app': 'common/a/remappedApp'
+					},
+					'common/a/remappedApp': {
+						'common/app': 'common/app'
+					}
+				},
+				packages: [
+					{
+						name: 'common',
+						location: '../../../common'
+					}
+				]
+			});
+
+			require([
+				'common/usesApp',
+				'common/a/remappedApp'
+			], function (app, remappedApp) {
+				window.loaderTestResults = {
+					app: app,
+					remappedApp: remappedApp
+				};
+			});
+		</script>
+	</body>
+</html>

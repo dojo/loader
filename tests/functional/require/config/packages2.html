@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.config Test</title>
+	</head>
+
+	<body>
+		<script src="../../../../src/loader.js"></script>
+		<script>
+			require.config({
+				packages: [
+					{
+						name: 'common',
+						location: '../../../common',
+						main: 'app'
+					}
+				]
+			});
+
+			require([
+				'common'
+			], function (app) {
+				window.loaderTestResults = app;
+			});
+		</script>
+	</body>
+</html>
