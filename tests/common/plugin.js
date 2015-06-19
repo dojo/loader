@@ -1,5 +1,5 @@
 define({
-	load: function (name, require, load) {
-		load(name);
+	load: function (name, require, loaded) {
+		loaded(name);
 	}
 });
