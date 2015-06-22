@@ -173,16 +173,16 @@ if [ "$REPLY" != "y" ]; then
 	exit 0
 fi
 
-cd "$BUILD_DIR"
-npm publish --tag $NPM_TAG
-#TODO BOWER: git push origin master
-#TODO BOWER: git push origin --tags
-
 for BRANCH in $PUSH_BRANCHES; do
 	git push origin $BRANCH
 done
 
 git push origin --tags
+
+cd "$BUILD_DIR"
+npm publish --tag $NPM_TAG
+#TODO BOWER: git push origin master
+#TODO BOWER: git push origin --tags
 
 cd "$ROOT_DIR"
 git checkout "$ORIGINAL_REVISION"
