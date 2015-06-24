@@ -76,14 +76,14 @@ registerSuite({
 					assert.strictEqual(results.remappedApp, 'remappedapp',
 						'"remappedApp" module should get unmapped "app" module');
 				});
-			},
-
-			plugin() {
-				return executeTest(this, './config/map-plugin.html', function (results: any) {
-					assert.strictEqual(results.plugin1, 'plugin1', 'Plug-in module should load');
-					assert.strictEqual(results.plugin2, 'plugin2', 'Plug-in module should load');
-				});
 			}
+
+			//plugin() {
+			//	return executeTest(this, './config/map-plugin.html', function (results: any) {
+			//		assert.strictEqual(results.plugin1, 'plugin1', 'Plug-in module should load');
+			//		assert.strictEqual(results.plugin2, 'plugin2', 'Plug-in module should load');
+			//	});
+			//}
 		},
 
 		packages: {

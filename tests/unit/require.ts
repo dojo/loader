@@ -309,36 +309,36 @@ registerSuite({
 					assert.strictEqual(remappedApp, 'remappedapp',
 						'"remappedApp" module should get unmapped "app" module');
 				}));
-			},
-
-			plugin() {
-				let dfd = this.async(timeout);
-
-				setErrorHandler(dfd);
-
-				global.require.config({
-					map: {
-						'*': {
-							plugin: 'common/plugin',
-							plugin2: 'common/plugin!two'
-						}
-					},
-					packages: [
-						{
-							name: 'common',
-							location: './_build/tests/common'
-						}
-					]
-				});
-
-				global.require([
-					'plugin!one',
-					'plugin2'
-				], dfd.callback(function (plugin1: any, plugin2: any) {
-					assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
-					assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
-				}));
 			}
+
+			//plugin() {
+			//	let dfd = this.async(timeout);
+			//
+			//	setErrorHandler(dfd);
+			//
+			//	global.require.config({
+			//		map: {
+			//			'*': {
+			//				plugin: 'common/plugin',
+			//				plugin2: 'common/plugin!two'
+			//			}
+			//		},
+			//		packages: [
+			//			{
+			//				name: 'common',
+			//				location: './_build/tests/common'
+			//			}
+			//		]
+			//	});
+			//
+			//	global.require([
+			//		'plugin!one',
+			//		'plugin2'
+			//	], dfd.callback(function (plugin1: any, plugin2: any) {
+			//		assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
+			//		assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
+			//	}));
+			//}
 		},
 
 		packages: {
