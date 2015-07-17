@@ -373,7 +373,7 @@ export interface RootRequire extends Require {
 		if (typeof a1 === 'string') {
 			module = getModule(a1, referenceModule);
 			if (module.executed !== true && module.executed !== EXECUTING) {
-				if (has('host-node')) {
+				if (has('host-node') && !module.plugin) {
 					let result = nodeLoadModule(module.mid, referenceModule);
 					if (result) {
 						initModule(module, [], null);
