@@ -1,7 +1,7 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
 
-const timeout = 1000;
+const DEFAULT_TIMEOUT = 1000;
 
 let globalErrorHandler: any;
 let nodeRequire: Function;
@@ -53,7 +53,7 @@ registerSuite({
 	},
 
 	'node modules'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -86,7 +86,7 @@ registerSuite({
 	},
 
 	'non-existent module'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		(<any> process)._events.uncaughtException = function (error: Error) {
 			if (error.message.indexOf('bad/module/id') === -1) {
@@ -113,7 +113,7 @@ registerSuite({
 	config: {
 		baseUrl: {
 			default() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -125,7 +125,7 @@ registerSuite({
 			},
 
 			explicit() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -143,7 +143,7 @@ registerSuite({
 
 		map: {
 			star() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -163,7 +163,7 @@ registerSuite({
 			},
 
 			simple() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -189,7 +189,7 @@ registerSuite({
 			},
 
 			hierarchy() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -218,7 +218,7 @@ registerSuite({
 			},
 
 			merge() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -252,7 +252,7 @@ registerSuite({
 			},
 
 			relative() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -279,7 +279,7 @@ registerSuite({
 			},
 
 			nested() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -311,39 +311,39 @@ registerSuite({
 				}));
 			}
 
-			//plugin() {
-			//	let dfd = this.async(timeout);
+			// plugin() {
+			// 	let dfd = this.async(timeout);
 			//
-			//	setErrorHandler(dfd);
+			// 	setErrorHandler(dfd);
 			//
-			//	global.require.config({
-			//		map: {
-			//			'*': {
-			//				plugin: 'common/plugin',
-			//				plugin2: 'common/plugin!two'
-			//			}
-			//		},
-			//		packages: [
-			//			{
-			//				name: 'common',
-			//				location: './_build/tests/common'
-			//			}
-			//		]
-			//	});
+			// 	global.require.config({
+			// 		map: {
+			// 			'*': {
+			// 				plugin: 'common/plugin',
+			// 				plugin2: 'common/plugin!two'
+			// 			}
+			// 		},
+			// 		packages: [
+			// 			{
+			// 				name: 'common',
+			// 				location: './_build/tests/common'
+			// 			}
+			// 		]
+			// 	});
 			//
-			//	global.require([
-			//		'plugin!one',
-			//		'plugin2'
-			//	], dfd.callback(function (plugin1: any, plugin2: any) {
-			//		assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
-			//		assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
-			//	}));
-			//}
+			// 	global.require([
+			// 		'plugin!one',
+			// 		'plugin2'
+			// 	], dfd.callback(function (plugin1: any, plugin2: any) {
+			// 		assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
+			// 		assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
+			// 	}));
+			// }
 		},
 
 		packages: {
 			'name and location'() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -364,7 +364,7 @@ registerSuite({
 			},
 
 			'name, location and main'() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -388,7 +388,7 @@ registerSuite({
 
 		paths: {
 			simple() {
-				let dfd = this.async(timeout);
+				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
 
@@ -451,7 +451,7 @@ registerSuite({
 	},
 
 	toAbsMid() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -481,7 +481,7 @@ registerSuite({
 	},
 
 	toUrl() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -511,7 +511,7 @@ registerSuite({
 	},
 
 	undef() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		(<any> process)._events.uncaughtException = function (error: Error) {
 			if (error.message.indexOf('common/app') === -1) {
@@ -535,7 +535,7 @@ registerSuite({
 			'common/app'
 		], function () {
 			global.require.undef('common/app');
-			let app: any = global.require('common/app');
+			global.require('common/app');
 			dfd.reject('Loading undefined module should throw an error');
 		});
 	}

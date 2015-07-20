@@ -1,30 +1,16 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
-import * as Suite from 'intern/lib/Suite';
-import * as Command from 'leadfoot/Command';
+import executeTest from './executeTest';
 
-import pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
-
-const appMessage = 'Message from CommonJS app.';
-
-function executeTest(suite: Suite, htmlTestPath: string, testFn: (result: any) => void, timeout = 5000): Command<any> {
-	return suite.remote
-		.get((<any>require).toUrl(htmlTestPath))
-		.then(pollUntil<any>(function () {
-			return (<any>window).loaderTestResults;
-		}, null, timeout), undefined)
-		.then(testFn, function () {
-			throw new Error('loaderTestResult was not set.');
-		});
-}
+const COMMON_JS_APP_MESSAGE = 'Message from CommonJS app.';
 
 registerSuite({
 	name: 'basic CommonJS loading',
 
 	'simple test'() {
 		return executeTest(this, './basicCommonJsLoading.html', function (results: any) {
-				assert.strictEqual(results.message, appMessage);
-			});
+			assert.strictEqual(results.message, COMMON_JS_APP_MESSAGE);
+		});
 	},
 
 	'CommonJS module with ID'() {
@@ -46,7 +32,7 @@ registerSuite({
 
 	'CommonJS module with ID and dependency - module'() {
 		const expected = {
-			appModuleValue: appMessage,
+			appModuleValue: COMMON_JS_APP_MESSAGE,
 			testModule3Value: 'testModule3'
 		};
 
