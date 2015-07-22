@@ -1,8 +1,8 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
 
-const appMessage = 'Message from CommonJS app.';
-const timeout = 1000;
+const COMMON_JS_APP_MESSAGE = 'Message from CommonJS app.';
+const DEFAULT_TIMEOUT = 1000;
 
 let globalErrorHandler: any;
 let nodeRequire: Function;
@@ -67,19 +67,19 @@ registerSuite({
 	},
 
 	'simple test'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
 		global.require([
 			'commonJs/app'
 		], dfd.callback(function (app: any) {
-			assert.strictEqual(app.getMessage(), appMessage);
+			assert.strictEqual(app.getMessage(), COMMON_JS_APP_MESSAGE);
 		}));
 	},
 
 	'CommonJS module with ID'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -99,7 +99,7 @@ registerSuite({
 			testModule2Value: 'testModule2'
 		};
 
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -116,11 +116,11 @@ registerSuite({
 
 	'CommonJS module with ID and dependency - module'() {
 		const expected = {
-			appModuleValue: appMessage,
+			appModuleValue: COMMON_JS_APP_MESSAGE,
 			testModule3Value: 'testModule3'
 		};
 
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -140,7 +140,7 @@ registerSuite({
 			testModule2Value: 'testModule2'
 		};
 
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -154,13 +154,13 @@ registerSuite({
 			require([
 				'commonJs/app1'
 			], dfd.callback(function (app1: any) {
-				assert.strictEqual(app1.getMessage(), 'testModule1', 'Test module and dependency should load');
+				assert.strictEqual(app1.getMessage(), expected.testModule1Value, 'Test module and dependency should load');
 			}));
 		});
 	},
 
 	'CommonJS module with circular dependency'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -168,12 +168,12 @@ registerSuite({
 			'commonJs/circular1'
 		], dfd.callback(function (circular1: any) {
 			assert.strictEqual(circular1.getMessage(), 'circular1', 'Circular dependency should be resolved');
-			assert.strictEqual(circular1.circular2Message(), 'circular2', 'Circular dependency should be resolved')
+			assert.strictEqual(circular1.circular2Message(), 'circular2', 'Circular dependency should be resolved');
 		}));
 	},
 
 	'CommonJS module with circular dependency 2'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -181,12 +181,12 @@ registerSuite({
 			'commonJs/circular2'
 		], dfd.callback(function (circular2: any) {
 			assert.strictEqual(circular2.getMessage(), 'circular2', 'Circular dependency should be resolved');
-			assert.strictEqual(circular2.circular1Message(), 'circular1', 'Circular dependency should be resolved')
+			assert.strictEqual(circular2.circular1Message(), 'circular1', 'Circular dependency should be resolved');
 		}));
 	},
 
 	'CommonJS module with circular dependency 3'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
@@ -195,9 +195,9 @@ registerSuite({
 			'commonJs/circular2'
 		], dfd.callback(function (circular1: any, circular2: any) {
 			assert.strictEqual(circular1.getMessage(), 'circular1', 'Circular dependency should be resolved');
-			assert.strictEqual(circular1.circular2Message(), 'circular2', 'Circular dependency should be resolved')
+			assert.strictEqual(circular1.circular2Message(), 'circular2', 'Circular dependency should be resolved');
 			assert.strictEqual(circular2.getMessage(), 'circular2', 'Circular dependency should be resolved');
-			assert.strictEqual(circular2.circular1Message(), 'circular1', 'Circular dependency should be resolved')
+			assert.strictEqual(circular2.circular1Message(), 'circular1', 'Circular dependency should be resolved');
 		}));
 	},
 
@@ -206,7 +206,7 @@ registerSuite({
 			objectExport: 'objectExport'
 		};
 
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
