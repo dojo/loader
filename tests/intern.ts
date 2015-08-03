@@ -36,7 +36,7 @@ export var tunnel = 'SauceLabsTunnel';
 // loader
 export var useLoader = {
 	'host-node': 'dojo/dojo',
-	'host-browser': 'node_modules/dojo/dojo.js'
+	'host-browser': '../../_build/src/loader.js'
 };
 
 // Configuration options for the module loader; any AMD configuration options supported by the specified AMD loader

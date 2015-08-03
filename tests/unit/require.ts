@@ -110,6 +110,18 @@ registerSuite({
 		});
 	},
 
+	'only factory AMD require'() {
+		let dfd = this.async(timeout);
+
+		setErrorHandler(dfd);
+
+		global.require([
+			'_build/tests/common/amd/onlyFactory'
+		], dfd.callback(function (onlyFactory: any) {
+			assert.strictEqual(onlyFactory.property, 'value', 'AMD module with no dependencies should load');
+		}));
+	},
+
 	config: {
 		baseUrl: {
 			default() {

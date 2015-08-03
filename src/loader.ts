@@ -1000,6 +1000,7 @@ export interface RootRequire extends Require {
 	 * @param factory //(any)
 	 */
 	var define: Define = <Define> mix(function (deps: string[], factory: Factory): void {
+		let originalFactory: any;
 		if (has('loader-explicit-mid') && arguments.length > 1 && typeof deps === 'string') {
 			let id: string = <any> deps;
 			if (arguments.length === 3) {
@@ -1014,7 +1015,7 @@ export interface RootRequire extends Require {
 			if (id != null) {
 				let module: Module = getModule(id);
 				if (factory) {
-					const originalFactory = factory;
+					originalFactory = factory;
 					factory = function () {
 						module.executed = true;
 						return (module.result = originalFactory.apply(null, arguments));
@@ -1030,7 +1031,7 @@ export interface RootRequire extends Require {
 
 		if (arguments.length === 1) {
 			if (has('loader-cjs-wrapping') && typeof deps === 'function') {
-				let originalFactory = <any> deps;
+				originalFactory = <any> deps;
 				deps = [ 'require', 'exports', 'module' ];
 
 				// Scan factory for require() calls and add them to the
@@ -1043,14 +1044,15 @@ export interface RootRequire extends Require {
 					});
 				factory = function (require, exports, module): any {
 					const originalMid = module.id;
-					originalFactory.apply(null, arguments);
+					let result: any = originalFactory.apply(null, arguments);
 					if (originalMid !== module.id) {
 						const newModule: Module = getModule(module.id);
 						defineModule(newModule, deps, null);
 						newModule.injected = true;
 						newModule.executed = true;
-						newModule.result = module.exports;
+						newModule.result = module.exports = result || module.exports;
 					}
+					return result;
 				}
 			}
 			else if (/* define(value) */ !Array.isArray(deps)) {
