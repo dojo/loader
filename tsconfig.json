@@ -40,6 +40,8 @@
 		"./tests/typings/tsd.d.ts",
 		"./tests/unit/all.ts",
 		"./tests/unit/basicCommonJsLoading.ts",
-		"./tests/unit/require.ts"
+		"./tests/unit/basicCommonJsLoadingBrowser.ts",
+		"./tests/unit/require.ts",
+		"./tests/unit/requireBrowser.ts"
 	]
 }
