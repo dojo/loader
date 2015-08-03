@@ -1026,6 +1026,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	 * @param factory //(any)
 	 */
 	var define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
+		let originalFactory: any;
 		if (has('loader-explicit-mid') && arguments.length > 1 && typeof dependencies === 'string') {
 			let id: string = <any> dependencies;
 			if (arguments.length === 3) {
@@ -1040,7 +1041,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 			if (id != null) {
 				let module: Module = getModule(id);
 				if (factory) {
-					const originalFactory = factory;
+					originalFactory = factory;
 					factory = function () {
 						module.executed = true;
 						return (module.result = originalFactory.apply ?
@@ -1057,7 +1058,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		if (arguments.length === 1) {
 			if (has('loader-cjs-wrapping') && typeof dependencies === 'function') {
-				let originalFactory = <any> dependencies;
+				originalFactory = <any> dependencies;
 				dependencies = [ 'require', 'exports', 'module' ];
 
 				// Scan factory for require() calls and add them to the
@@ -1070,14 +1071,15 @@ interface ModuleDefinitionArguments extends Array<any> {
 					});
 				factory = function (require, exports, module): any {
 					const originalModuleId = module.id;
-					originalFactory.apply(null, arguments);
+					let result: any = originalFactory.apply(null, arguments);
 					if (originalModuleId !== module.id) {
 						const newModule: Module = getModule(module.id);
 						defineModule(newModule, dependencies, null);
 						newModule.injected = true;
 						newModule.executed = true;
-						newModule.result = module.exports;
+						newModule.result = module.exports = result || module.exports;
 					}
+					return result;
 				};
 			}
 			else if (/* define(value) */ !Array.isArray(dependencies)) {

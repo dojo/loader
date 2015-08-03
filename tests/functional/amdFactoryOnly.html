@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>Basic AMD Loading Test</title>
+	</head>
+
+	<body>
+		<script src="../../src/loader.js"></script>
+		<script>
+			require({
+				packages: [
+					{ name: 'amd', location: '../common/amd' }
+				]
+			}, [
+				'amd/app'
+			], function (app) {
+				window.loaderTestResults = {
+					property: app.property
+				};
+			});
+		</script>
+	</body>
+</html>
