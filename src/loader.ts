@@ -373,7 +373,7 @@ export interface RootRequire extends Require {
 		if (typeof a1 === 'string') {
 			module = getModule(a1, referenceModule);
 			if (module.executed !== true && module.executed !== EXECUTING) {
-				if (has('host-node')) {
+				if (has('host-node') && !module.plugin) {
 					let result = nodeLoadModule(module.mid, referenceModule);
 					if (result) {
 						initModule(module, [], null);
@@ -385,6 +385,9 @@ export interface RootRequire extends Require {
 						throw new Error('Attempt to require unloaded module ' + module.mid);
 					}
 				}
+				else {
+                    injectModule(module, null);
+                }
 			}
 			// Assign the result of the module to `module`
 			// otherwise require('moduleId') returns the internal
