@@ -7,9 +7,9 @@ import pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
 
 function executeTest(suite: Suite, htmlTestPath: string, testFn: (result: any) => void, timeout = 5000): Command<any> {
 	return suite.remote
-		.get((<any>require).toUrl(htmlTestPath))
+		.get((<any> require).toUrl(htmlTestPath))
 		.then(pollUntil<any>(function () {
-			return (<any>window).loaderTestResults;
+			return (<any> window).loaderTestResults;
 		}, null, timeout), undefined)
 		.then(testFn, function () {
 			throw new Error('loaderTestResult was not set.');
@@ -78,12 +78,12 @@ registerSuite({
 				});
 			}
 
-			//plugin() {
-			//	return executeTest(this, './config/map-plugin.html', function (results: any) {
-			//		assert.strictEqual(results.plugin1, 'plugin1', 'Plug-in module should load');
-			//		assert.strictEqual(results.plugin2, 'plugin2', 'Plug-in module should load');
-			//	});
-			//}
+			// plugin() {
+			// 	return executeTest(this, './config/map-plugin.html', function (results: any) {
+			// 		assert.strictEqual(results.plugin1, 'plugin1', 'Plug-in module should load');
+			// 		assert.strictEqual(results.plugin2, 'plugin2', 'Plug-in module should load');
+			// 	});
+			// }
 		},
 
 		packages: {

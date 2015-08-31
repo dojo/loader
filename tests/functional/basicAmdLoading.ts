@@ -1,30 +1,16 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
-import * as Suite from 'intern/lib/Suite';
-import * as Command from 'leadfoot/Command';
+import executeTest from './executeTest';
 
-import pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
-
-function executeTest(suite: Suite, htmlTestPath: string, testFn: (result: any) => void, timeout = 5000): Command<any> {
-	return suite.remote
-		.get((<any>require).toUrl(htmlTestPath))
-		.then(pollUntil<any>(function () {
-			return (<any>window).loaderTestResults;
-		}, null, timeout), undefined)
-		.then(testFn, function () {
-			throw new Error('loaderTestResult was not set.');
-		});
-}
-
-const amdAppMessage = 'Message from AMD app.';
+const AMD_APP_MESSAGE = 'Message from AMD app.';
 
 registerSuite({
 	name: 'basic AMD loading',
 
 	'simple test'() {
 		return executeTest(this, './basicAmdLoading.html', function (results: any) {
-				assert.strictEqual(results.message, amdAppMessage);
-			});
+			assert.strictEqual(results.message, AMD_APP_MESSAGE);
+		});
 	},
 
 	'AMD module with ID'() {
@@ -55,14 +41,14 @@ registerSuite({
 
 	'AMD module with ID and dependency - module'() {
 		return executeTest(this, './amdModuleWithId3.html', function (results: any) {
-			assert.strictEqual(results.appModuleValue, amdAppMessage, 'Test module and dependency should load');
+			assert.strictEqual(results.appModuleValue, AMD_APP_MESSAGE, 'Test module and dependency should load');
 			assert.strictEqual(results.testModule3Value, 'testModule3', 'Test module and dependency should load');
 		});
 	},
 
 	'AMD module with ID and dependency - module and separate module files'() {
 		return executeTest(this, './amdModuleWithId3a.html', function (results: any) {
-			assert.strictEqual(results.appModuleValue, amdAppMessage, 'Test module and dependency should load');
+			assert.strictEqual(results.appModuleValue, AMD_APP_MESSAGE, 'Test module and dependency should load');
 			assert.strictEqual(results.testModule3Value, 'testModule3', 'Test module and dependency should load');
 		});
 	},
@@ -87,7 +73,7 @@ registerSuite({
 
 	'AMD module with circular dependency'() {
 		const expected = {
-			default: 'circular2',
+			'default': 'circular2',
 			message: 'circular1.getMessage'
 		};
 
@@ -98,7 +84,7 @@ registerSuite({
 
 	'AMD module with circular dependency 2'() {
 		const expected = {
-			default: 'circular2',
+			'default': 'circular2',
 			message: 'circular1.getMessage'
 		};
 
