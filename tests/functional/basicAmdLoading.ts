@@ -71,6 +71,18 @@ registerSuite({
 		});
 	},
 
+	'AMD module with ID - no dependencies - object returned'() {
+		return executeTest(this, './amdModuleWithId6.html', function (results: any) {
+			assert.strictEqual(results.testModuleProperty, 'property value', 'Test module should load');
+		});
+	},
+
+	'AMD module without ID and dependency - separate module file - object returned'() {
+		return executeTest(this, './amdModuleWithId6a.html', function (results: any) {
+			assert.strictEqual(results.aModuleProperty, 'a property value', 'Test module should load');
+		});
+	},
+
 	'AMD module with circular dependency'() {
 		const expected = {
 			'default': 'circular2',

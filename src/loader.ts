@@ -1043,7 +1043,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 					const originalFactory = factory;
 					factory = function () {
 						module.executed = true;
-						return (module.result = originalFactory.apply(null, arguments));
+						return (module.result = originalFactory.apply ?
+							originalFactory.apply(null, arguments) : originalFactory);
 					};
 				}
 				module.injected = true;
