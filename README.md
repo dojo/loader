@@ -1,5 +1,8 @@
 # dojo-loader
 
+[![Build Status](https://travis-ci.org/dojo/loader.svg?branch=master)](https://travis-ci.org/dojo/loader)
+[![codecov.io](http://codecov.io/github/dojo/loader/coverage.svg?branch=master)](http://codecov.io/github/dojo/loader?branch=master)
+
 This package provides a JavaScript AMD loader useful in applications running in either a web browser or node.js.
 
 ## Features
