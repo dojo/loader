@@ -18,7 +18,7 @@
 	},
 	"ignore": [
 		".*",
-		"test"
+		"tests"
 	],
 	"license": [ "BSD-3-Clause" ],
 	"moduleType": [ "amd" ]
