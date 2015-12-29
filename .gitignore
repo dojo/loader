@@ -4,6 +4,7 @@
 *.js.map
 !/*.js
 !tests/**/*.js
+!tasks/**/*.js
 dist
 _build
 node_modules

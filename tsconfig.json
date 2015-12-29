@@ -1,5 +1,5 @@
 {
-	"version": "1.6.0",
+	"version": "1.7.3",
 	"compilerOptions": {
 		"declaration": false,
 		"module": "commonjs",
@@ -33,6 +33,8 @@
 		"./tests/intern-local.ts",
 		"./tests/intern.ts",
 		"./tests/module.d.ts",
+		"./tests/support/Reporter.ts",
+		"./tests/support/util.ts",
 		"./tests/typings/chai/chai.d.ts",
 		"./tests/typings/digdug/digdug.d.ts",
 		"./tests/typings/dojo2/dojo.d.ts",
