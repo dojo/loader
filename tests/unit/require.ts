@@ -111,7 +111,7 @@ registerSuite({
 	},
 
 	'only factory AMD require'() {
-		let dfd = this.async(timeout);
+		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
 
