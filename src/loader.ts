@@ -29,7 +29,6 @@ export interface Has {
 }
 
 export interface LoaderPlugin {
-	dynamic?: boolean;
 	load?: (resourceId: string, require: Require, load: (value?: any) => void, config?: Object) => void;
 	normalize?: (moduleId: string, normalize: (moduleId: string) => string) => string;
 }
@@ -184,7 +183,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	// def: the factory for this module
 	// result: the result of the running the factory for this module
 	// injected: true => module has been injected
-	// load, dynamic, normalize: plugin functions applicable only for plugins
+	// load, normalize: plugin functions applicable only for plugins
 	//
 	// Modules go through several phases in creation:
 	//
@@ -550,16 +549,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 			let contextRequire = createRequire(referenceModule);
 
 			let pluginResourceId: string;
-			if (isPluginLoaded) {
-				pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
-				moduleId = (plugin.mid + '!' + (plugin.dynamic ? ++uidGenerator + '!' : '') + pluginResourceId);
-			}
-			else {
-				// if the plugin has not been isPluginLoaded, then can't resolve the pluginResourceId and must assume this plugin is dynamic
-				// until we find out otherwise
-				pluginResourceId = match[2];
-				moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
-			}
+			pluginResourceId = resolvePluginResourceId(plugin, match[ 2 ], contextRequire);
+			moduleId = (plugin.mid + '!' + pluginResourceId);
 			module = <Module> <any> {
 				plugin: plugin,
 				mid: moduleId,
@@ -669,7 +660,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 			}
 
 			// if result defines load, just assume it's a plugin; harmless if the assumption is wrong
-			result && result.load && [ 'dynamic', 'normalize', 'load' ].forEach(function (key: string): void {
+			result && result.load && [ 'normalize', 'load' ].forEach(function (key: string): void {
 				(<any> module)[key] = (<any> result)[key];
 			});
 
@@ -678,15 +669,14 @@ interface ModuleDefinitionArguments extends Array<any> {
 				// manufacture and insert the real module in modules
 				const pluginResourceId: string = resolvePluginResourceId(module, pseudoPluginResource.prid,
 					pseudoPluginResource.req);
-				const moduleId: string = module.dynamic ?
-					pseudoPluginResource.mid.replace(/\*$/, pluginResourceId) : (module.mid + '!' + pluginResourceId);
+				const moduleId: string = (module.mid + '!' + pluginResourceId);
 				const pluginResource: Module =
 					<Module> mix(mix({}, pseudoPluginResource), { mid: moduleId, prid: pluginResourceId });
 
 				if (!modules[moduleId]) {
 					// create a new (the real) plugin resource and inject it normally now that the plugin is on board
 					injectPlugin((modules[moduleId] = pluginResource));
-				} // else this was a duplicate request for the same (plugin, rid) for a nondynamic plugin
+				} // else this was a duplicate request for the same (plugin, rid)
 
 				// pluginResource is really just a placeholder with the wrong moduleId (because we couldn't calculate it
 				// until the plugin was on board) fix() replaces the pseudo module in a resolved dependencies array with the
