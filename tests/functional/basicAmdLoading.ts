@@ -126,5 +126,14 @@ registerSuite({
 		return executeTest(this, './amdModuleDeepDeps.html', function (results: any) {
 			assert.deepEqual(results, expected, 'Deep dependency should be resolved');
 		});
+	},
+
+	'AMD only factory require'() {
+		const expected = {
+			property: 'value'
+		};
+		return executeTest(this, './amdFactoryOnly.html', function(results: any) {
+			assert.deepEqual(results, expected, 'Factory only should be resolved');
+		});
 	}
 });
