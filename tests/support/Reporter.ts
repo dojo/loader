@@ -1,12 +1,12 @@
-import * as fs from 'fs';
-import * as nodeUtil from 'util';
-import * as path from 'path';
+import * as fs from 'intern/dojo/node!fs';
+import * as nodeUtil from 'intern/dojo/node!util';
+import * as path from 'intern/dojo/node!path';
 import * as intern from 'intern';
-import Collector = require('istanbul/lib/collector');
-import glob = require('glob');
-import JsonReporter = require('istanbul/lib/report/json');
-import Instrumenter = require('istanbul/lib/instrumenter');
-import 'istanbul/index';
+import Collector = require('intern/dojo/node!istanbul/lib/collector');
+import glob = require('intern/dojo/node!glob');
+import JsonReporter = require('intern/dojo/node!istanbul/lib/report/json');
+import Instrumenter = require('intern/dojo/node!istanbul/lib/instrumenter');
+import 'intern/dojo/node!istanbul/index';
 
 import Runner = require('intern/lib/reporters/Runner');
 import util = require('intern/lib/util');
