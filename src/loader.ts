@@ -540,17 +540,24 @@ interface ModuleDefinitionArguments extends Array<any> {
 		// compute and construct (if necessary) the module implied by the moduleId with respect to referenceModule
 		let module: Module;
 
-		let match = moduleId.match(/^(.+?)\!(.*)$/);
+		const match = moduleId.match(/^(.+?)\!(.*)$/);
 		if (match) {
 			// name was <plugin-module>!<plugin-resource-id>
-			let plugin = getModule(match[1], referenceModule);
-			let isPluginLoaded = Boolean(plugin.load);
+			const plugin = getModule(match[1], referenceModule);
+			const isPluginLoaded = Boolean(plugin.load);
 
-			let contextRequire = createRequire(referenceModule);
+			const contextRequire = createRequire(referenceModule);
 
 			let pluginResourceId: string;
-			pluginResourceId = resolvePluginResourceId(plugin, match[ 2 ], contextRequire);
-			moduleId = (plugin.mid + '!' + pluginResourceId);
+			if (isPluginLoaded) {
+				pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
+				moduleId = (plugin.mid + '!' + pluginResourceId);
+			}
+			else {
+				// if not loaded, need to mark in a way that it will get properly resolved later
+				pluginResourceId = match[2];
+				moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
+			}
 			module = <Module> <any> {
 				plugin: plugin,
 				mid: moduleId,
