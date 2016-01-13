@@ -404,7 +404,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 						throw new Error('Attempt to require unloaded module ' + module.mid);
 					}
 				}
-				else {
+				else if (module.plugin) {
 					injectModule(module, null);
 				}
 			}
