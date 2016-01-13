@@ -13,6 +13,7 @@ function mixin(destination) {
 module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-release');
 	grunt.loadNpmTasks('grunt-text-replace');
@@ -258,6 +259,26 @@ module.exports = function (grunt) {
 				},
 				src: [ 'coverage-unmapped.json' ]
 			}
+		},
+
+		uglify: {
+			dist: {
+				options: {
+					banner: '/*! <%= name %>@<%= version %> - Copyright (c) 2015, The Dojo Foundation. ' +
+						'All rights reserved. */',
+					sourceMap: true,
+					sourceMapName: 'dist/_debug/loader.min.js.map',
+					sourceMapIncludeSources: true,
+					sourceMapIn: 'dist/_debug/loader.js.map',
+					compress: {
+						dead_code: true,
+						unsafe: true
+					}
+				},
+				files: {
+					'dist/loader.min.js': 'dist/loader.js'
+				}
+			}
 		}
 	});
 
@@ -315,7 +336,8 @@ module.exports = function (grunt) {
 		'copy:typings',
 		'copy:staticFiles',
 		'dtsGenerator:dist',
-		'updatePackageJson'
+		'updatePackageJson',
+		'uglify:dist'
 	]);
 	grunt.registerTask('test-proxy', [ 'dev', 'intern:proxy' ]);
 	grunt.registerTask('default', [ 'clean', 'dev' ]);
