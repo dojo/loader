@@ -986,8 +986,18 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 	has.add('loader-undef', true);
 	if (has('loader-undef')) {
-		requireModule.undef = function (id: string): void {
-			if (modules[id]) {
+		requireModule.undef = function (id: string, recursive?: boolean): void {
+			const module: Module = modules[id];
+			const undefDeps = function (mod: Module): void {
+				if (mod.deps) {
+					forEach(mod.deps, undefDeps);
+				}
+				modules[mod.mid] = undefined;
+			};
+			if (module) {
+				if (recursive && module.deps) {
+					forEach(module.deps, undefDeps);
+				}
 				modules[id] = undefined;
 			}
 		};
