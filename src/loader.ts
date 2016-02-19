@@ -132,9 +132,9 @@ interface ModuleDefinitionArguments extends Array<any> {
 	1: Factory;
 }
 
-interface ListenerQueueMap {
-	[type: string]: any[];
-}
+export enum SignalType {
+	Error
+};
 
 (function (): void {
 	const EXECUTING: string = 'executing';
@@ -246,20 +246,16 @@ interface ListenerQueueMap {
 		return has;
 	})();
 
-	let listenerQueues: ListenerQueueMap = {};
+	let listenerQueues = {};
 
-	const makeSignalError = function (type: string, args: ObjectMap): Object {
+	const makeSignalError = function (type: string, args: ObjectMap): {} {
 		return mix(new Error(type), {
 			src: 'dojo/loader',
 			info: args
 		});
 	};
 
-	const signals = {
-		error: 'error'
-	};
-
-	const signal = function(type: string, args: Object) {
+	const signal = function(type: SignalType, args: {}) {
 		let queue: any[] = listenerQueues[type];
 
 		for (let listener of queue.slice(0)) {
@@ -273,7 +269,7 @@ interface ListenerQueueMap {
 		queue.push(listener);
 
 		return {
-			remove: function() : void {
+			remove() : void {
 				for (let i = 0; i < queue.length; i++) {
 					if (queue[i] === listener) {
 						queue.splice(i, 1);
@@ -951,7 +947,7 @@ interface ListenerQueueMap {
 						if (!result) {
 							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
 
-							signal(signals.error, makeSignalError('moduleLoadFail', {
+							signal(SignalType.Error, makeSignalError('moduleLoadFail', {
 								module,
 								url,
 								parentMid
@@ -1004,7 +1000,7 @@ interface ListenerQueueMap {
 				else {
 					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
 
-					signal(signals.error, makeSignalError('moduleLoadFail', {
+					signal(SignalType.Error, makeSignalError('moduleLoadFail', {
 						module,
 						url,
 						parentMid
