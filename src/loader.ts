@@ -132,9 +132,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	1: Factory;
 }
 
-export enum SignalType {
-	Error
-};
+type SignalType = 'error';
 
 (function (): void {
 	const EXECUTING: string = 'executing';
@@ -258,8 +256,10 @@ export enum SignalType {
 	const signal = function(type: SignalType, args: {}) {
 		let queue: any[] = listenerQueues[type];
 
-		for (let listener of queue.slice(0)) {
-			listener.apply(null, Array.isArray(args) ? args : [args]);
+		if (queue && queue.length) {
+			for (let listener of queue.slice(0)) {
+				listener.apply(null, Array.isArray(args) ? args : [args]);
+			}
 		}
 	};
 
@@ -947,7 +947,7 @@ export enum SignalType {
 						if (!result) {
 							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
 
-							signal(SignalType.Error, makeSignalError('moduleLoadFail', {
+							signal('error', makeSignalError('moduleLoadFail', {
 								module,
 								url,
 								parentMid
@@ -1000,7 +1000,7 @@ export enum SignalType {
 				else {
 					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
 
-					signal(SignalType.Error, makeSignalError('moduleLoadFail', {
+					signal('error', makeSignalError('moduleLoadFail', {
 						module,
 						url,
 						parentMid
