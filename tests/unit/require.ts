@@ -7,6 +7,7 @@ let globalErrorHandler: any;
 let nodeRequire: Function;
 let originalDefine: any;
 let originalRequire: any;
+let onErrorHandler: any;
 
 function setErrorHandler(dfd: any) {
 	(<any> process)._events.uncaughtException = function (error: Error) {
@@ -50,6 +51,10 @@ registerSuite({
 
 	afterEach() {
 		(<any> process)._events.uncaughtException = globalErrorHandler;
+		if (onErrorHandler) {
+			onErrorHandler.remove();
+			onErrorHandler = undefined;
+		}
 	},
 
 	'node modules'() {
@@ -108,6 +113,20 @@ registerSuite({
 		assert.throws(function () {
 			global.require('thisIsNotAValidNodeModule');
 		});
+	},
+
+	'non-existent module with on-error'() {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+
+		(<any> process)._events.uncaughtException = function noop(error: Error): void {};
+
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: Error) {
+			assert.strictEqual('badger', 'Badger');
+		}));
+
+		global.require([
+			'bad/module/id'
+		]);
 	},
 
 	'only factory AMD require'() {
