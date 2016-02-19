@@ -116,9 +116,11 @@ export interface RequireCallback {
 	(...modules: any[]): void;
 }
 
+type SignalType = 'error';
+
 export interface RootRequire extends Require {
 	has: Has;
-	on(type: string, listener: any): { remove: () => void };
+	on(type: SignalType, listener: any): { remove: () => void };
 	config(config: Config): void;
 	inspect?(name: string): any;
 	nodeRequire?(id: string): any;
@@ -131,8 +133,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 	0: string[];
 	1: Factory;
 }
-
-type SignalType = 'error';
 
 (function (): void {
 	const EXECUTING: string = 'executing';
