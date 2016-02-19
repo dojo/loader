@@ -118,6 +118,7 @@ export interface RequireCallback {
 
 export interface RootRequire extends Require {
 	has: Has;
+	on(type: string, listener: any): { remove: () => void };
 	config(config: Config): void;
 	inspect?(name: string): any;
 	nodeRequire?(id: string): any;
@@ -129,6 +130,10 @@ interface ObjectMap { [ key: string ]: any; }
 interface ModuleDefinitionArguments extends Array<any> {
 	0: string[];
 	1: Factory;
+}
+
+interface ListenerQueueMap {
+	[type: string]: any[];
 }
 
 (function (): void {
@@ -241,6 +246,44 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return has;
 	})();
 
+	let listenerQueues: ListenerQueueMap = {};
+
+	const makeSignalError = function (type: string, args: ObjectMap): Object {
+		return mix(new Error(type), {
+			src: 'dojo/loader',
+			info: args
+		});
+	};
+
+	const signals = {
+		error: 'error'
+	};
+
+	const signal = function(type: string, args: Object) {
+		let queue: any[] = listenerQueues[type];
+
+		for (let listener of queue.slice(0)) {
+			listener.apply(null, Array.isArray(args) ? args : [args]);
+		}
+	};
+
+	const on = function(type: string, listener: () => any): { remove: () => void } {
+		let queue = listenerQueues[type] || (listenerQueues[type] = []);
+
+		queue.push(listener);
+
+		return {
+			remove: function() : void {
+				for (let i = 0; i < queue.length; i++) {
+					if (queue[i] === listener) {
+						queue.splice(i, 1);
+						return;
+					}
+				}
+			}
+		};
+	};
+
 	const requireModule: RootRequire =
 		<RootRequire> function (configuration: any, dependencies?: any, callback?: RequireCallback): Module {
 		if (Array.isArray(configuration) || /* require(mid) */ typeof configuration === 'string') {
@@ -254,6 +297,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return contextRequire(dependencies, callback);
 	};
 	requireModule.has = has;
+	requireModule.on = on;
 
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
 	has.add('host-node', typeof process === 'object' && process.versions && process.versions.node);
@@ -906,6 +950,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 						if (!result) {
 							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
+
+							signal(signals.error, makeSignalError('moduleLoadFail', {
+								module,
+								url,
+								parentMid
+							}));
+
 							throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
 						}
 
@@ -952,6 +1003,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 				}
 				else {
 					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
+
+					signal(signals.error, makeSignalError('moduleLoadFail', {
+						module,
+						url,
+						parentMid
+					}));
+
 					throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
 				}
 			};
