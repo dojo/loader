@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.undef Test</title>
+	</head>
+
+	<body>
+		<script src="../../../../src/loader.js"></script>
+		<script>
+			require.config({
+				baseUrl: '../..',
+				packages: [
+					{
+						name: 'chai',
+						location: '../../../node_modules/intern/node_modules/chai',
+						main: 'chai'
+					}
+				]
+			});
+
+			require(['chai/chai'], function (chai) {
+				var assert = chai.assert;
+				var badMid = 'bad/module';
+
+				require.on('error', function (error) {
+					try {
+						assert.strictEqual(error.src, 'dojo/loader', 'Error should be marked as from the loader');
+						assert.isObject(error.info, 'Error should be supplemented with info');
+						assert.strictEqual(error.info.module.mid, badMid, 'Error should be related to the bad module');
+						assert.include(error.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
+					} catch (error) {
+						window.loaderTestResults = error.message;
+					} finally {
+						if (window.loaderTestResults === undefined) {
+							window.loaderTestResults = 'success';
+						}
+					}
+				});
+
+				require([badMid]);
+			});
+		</script>
+	</body>
+</html>
