@@ -1,6 +1,11 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
 
+interface LoaderError extends Error {
+	src: string;
+	info: any;
+}
+
 const DEFAULT_TIMEOUT = 1000;
 
 let globalErrorHandler: any;
@@ -115,18 +120,77 @@ registerSuite({
 		});
 	},
 
-	'non-existent module with on-error'() {
+	'non-existent module with on-error listener should not throw error'() {
 		let dfd = this.async(DEFAULT_TIMEOUT);
+		let badMid = 'bad/module/id';
 
-		(<any> process)._events.uncaughtException = function noop(error: Error): void {};
+		(<any> process)._events.uncaughtException = function (error: Error) {
+			if (error.message.indexOf(badMid) > -1) {
+				dfd.reject(error);
+			}
+		};
 
-		onErrorHandler = global.require.on('error', dfd.callback(function (error: Error) {
-			assert.strictEqual('badger', 'Badger');
+		onErrorHandler = global.require.on('error', dfd.callback(function noop(error: LoaderError) {}));
+
+		global.require([
+			badMid
+		], dfd.rejectOnError(function (gruntOption: any, app: any) {
+			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
+		}));
+	},
+
+	'non-existent module with on-error listener should fire callback'() {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+		let badMid = 'bad/module/id';
+
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: LoaderError) {
+			assert.isTrue(error.message.indexOf(badMid) > -1,
+				'Callback should fire and message should contain bad mid');
 		}));
 
 		global.require([
-			'bad/module/id'
-		]);
+			badMid
+		], dfd.rejectOnError(function (gruntOption: any, app: any) {
+			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
+		}));
+	},
+
+	'non-existent module with on-error listener should provide info'() {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+		let badMid = 'bad/module/id';
+
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: LoaderError) {
+			assert.strictEqual(error.src, 'dojo/loader', 'Error should be marked as from the loader');
+			assert.isObject(error.info, 'Error should be supplemented with info');
+			assert.strictEqual(error.info.module.mid, badMid, 'Error should be related to the bad module');
+			assert.strictEqual(error.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
+		}));
+
+		global.require([
+			badMid
+		], dfd.rejectOnError(function (gruntOption: any, app: any) {
+			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
+		}));
+	},
+
+	'on-error listener should be removable'() {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+		let badMid = 'bad/module/id';
+
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: LoaderError) {
+			assert.fail(null, null, 'on-error callback should not have fired');
+		}));
+		onErrorHandler.remove();
+
+		(<any> process)._events.uncaughtException = dfd.callback(function (error: LoaderError) {
+			assert.isTrue(error.message.indexOf(badMid) > -1, 'Error should be related to bad module');
+		});
+
+		global.require([
+			badMid
+		], dfd.rejectOnError(function (gruntOption: any, app: any) {
+			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
+		}));
 	},
 
 	'only factory AMD require'() {

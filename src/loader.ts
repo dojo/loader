@@ -28,6 +28,11 @@ export interface Has {
 	add(name: string, value: any, now?: boolean, force?: boolean): void;
 }
 
+export interface LoaderError extends Error {
+	src: string;
+	info: any;
+}
+
 export interface LoaderPlugin {
 	load?: (resourceId: string, require: Require, load: (value?: any) => void, config?: Object) => void;
 	normalize?: (moduleId: string, normalize: (moduleId: string) => string) => string;
@@ -246,24 +251,27 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 	let listenerQueues = {};
 
-	const makeSignalError = function (type: string, args: ObjectMap): {} {
-		return mix(new Error(type), {
+	const makeSignalError = function (message: string, info: ObjectMap): LoaderError {
+		return mix<LoaderError>(new Error(message), {
 			src: 'dojo/loader',
-			info: args
+			info
 		});
 	};
 
-	const signal = function(type: SignalType, args: {}) {
+	const signal = function(type: SignalType, args: {}): number | boolean {
 		let queue: any[] = listenerQueues[type];
+		let hasListeners = queue && queue.length;
 
-		if (queue && queue.length) {
+		if (hasListeners) {
 			for (let listener of queue.slice(0)) {
 				listener.apply(null, Array.isArray(args) ? args : [args]);
 			}
 		}
+
+		return hasListeners;
 	};
 
-	const on = function(type: string, listener: () => any): { remove: () => void } {
+	const on = function(type: string, listener: (error: LoaderError) => any): { remove: () => void } {
 		let queue = listenerQueues[type] || (listenerQueues[type] = []);
 
 		queue.push(listener);
@@ -404,11 +412,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 		array && array.forEach(callback);
 	}
 
-	function mix(target: {}, source: {}): {} {
+	function mix<T extends {}>(target: {}, source: {}): T {
 		for (let key in source) {
 			(<ObjectMap> target)[key] = (<ObjectMap> source)[key];
 		}
-		return target;
+		return <T> target;
 	}
 
 	function consumePendingCacheInsert(referenceModule?: Module): void {
@@ -946,14 +954,14 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 						if (!result) {
 							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-
-							signal('error', makeSignalError('moduleLoadFail', {
+							let message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
+							let error = makeSignalError(message, {
 								module,
 								url,
 								parentMid
-							}));
+							});
 
-							throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
+							if (!signal('error', error)) { throw error; };
 						}
 
 						return result;
@@ -999,14 +1007,14 @@ interface ModuleDefinitionArguments extends Array<any> {
 				}
 				else {
 					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-
-					signal('error', makeSignalError('moduleLoadFail', {
+					let message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
+					let error = makeSignalError(message, {
 						module,
 						url,
 						parentMid
-					}));
+					});
 
-					throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
+					if (!signal('error', error)) { throw error; };
 				}
 			};
 
