@@ -321,7 +321,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 				//     RegExp that matches on original module id,
 				//     original module id length
 				// ]
-
 				const result: MapItem[] = [];
 
 				for (let moduleId in map) {
@@ -482,6 +481,31 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return absolutePathSegments.join('/');
 	}
 
+	function getPluginInformation(moduleId: string, match: string[], referenceModule?: Module): Module {
+		const plugin = getModule(match[1], referenceModule);
+		const isPluginLoaded = Boolean(plugin.load);
+
+		const contextRequire = createRequire(referenceModule);
+
+		let pluginResourceId: string;
+		if (isPluginLoaded) {
+			pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
+			moduleId = (plugin.mid + '!' + pluginResourceId);
+		}
+		else {
+			// if not loaded, need to mark in a way that it will get properly resolved later
+			pluginResourceId = match[2];
+			moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
+		}
+		return <Module> <any> {
+			plugin: plugin,
+			mid: moduleId,
+			req: contextRequire,
+			prid: pluginResourceId,
+			fix: !isPluginLoaded
+		};
+	}
+
 	function getModuleInformation(moduleId: string, referenceModule?: Module): Module {
 		// relative module ids are relative to the referenceModule; get rid of any dots
 		moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
@@ -539,32 +563,17 @@ interface ModuleDefinitionArguments extends Array<any> {
 	function getModule(moduleId: string, referenceModule?: Module): Module {
 		// compute and construct (if necessary) the module implied by the moduleId with respect to referenceModule
 		let module: Module;
+		const pluginRegEx = /^(.+?)\!(.*)$/;
+		// check if module is a plugin-module
+		// check if is a mapped module and if THAT is a plugin-module
+		const match = moduleId.match(pluginRegEx);
 
-		const match = moduleId.match(/^(.+?)\!(.*)$/);
+		// TMDYE: https://github.com/dojo/loader/issues/21
+		// Plugin work
+
 		if (match) {
 			// name was <plugin-module>!<plugin-resource-id>
-			const plugin = getModule(match[1], referenceModule);
-			const isPluginLoaded = Boolean(plugin.load);
-
-			const contextRequire = createRequire(referenceModule);
-
-			let pluginResourceId: string;
-			if (isPluginLoaded) {
-				pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
-				moduleId = (plugin.mid + '!' + pluginResourceId);
-			}
-			else {
-				// if not loaded, need to mark in a way that it will get properly resolved later
-				pluginResourceId = match[2];
-				moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
-			}
-			module = <Module> <any> {
-				plugin: plugin,
-				mid: moduleId,
-				req: contextRequire,
-				prid: pluginResourceId,
-				fix: !isPluginLoaded
-			};
+			module = getPluginInformation(moduleId, match, referenceModule);
 		}
 		else {
 			module = getModuleInformation(moduleId, referenceModule);

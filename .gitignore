@@ -14,3 +14,5 @@ tests/typings/dist/
 html-report
 coverage*.json
 lcov.info
+.idea
+.DS_Store
