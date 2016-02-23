@@ -37,10 +37,16 @@
 
 				window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
 					try {
-						assert.strictEqual(errorObj.src, 'dojo/loader', 'Error should be marked as from the loader');
-						assert.isObject(errorObj.info, 'Error should be supplemented with info');
-						assert.strictEqual(errorObj.info.module.mid, badMid, 'Error should be related to the bad module');
-						assert.include(errorObj.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
+						assert.include(errorMsg, 'Failed to load module', 'Message should indicate module failed to load');
+						assert.include(errorMsg, badMid, 'Message should contain bad mid');
+
+						// errorObj not present for IE9/10
+						if (errorObj) {
+							assert.strictEqual(errorObj.src, 'dojo/loader', 'Error should be marked as from the loader');
+							assert.isObject(errorObj.info, 'Error should be supplemented with info');
+							assert.strictEqual(errorObj.info.module.mid, badMid, 'Error should be related to the bad module');
+							assert.include(errorObj.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
+						}
 					} catch (assertionError) {
 						window.loaderTestResults = assertionError.message;
 					} finally {

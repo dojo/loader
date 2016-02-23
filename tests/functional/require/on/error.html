@@ -23,12 +23,12 @@
 				var assert = chai.assert;
 				var badMid = 'bad/module';
 
-				require.on('error', function (error) {
+				require.on('error', function (loaderError) {
 					try {
-						assert.strictEqual(error.src, 'dojo/loader', 'Error should be marked as from the loader');
-						assert.isObject(error.info, 'Error should be supplemented with info');
-						assert.strictEqual(error.info.module.mid, badMid, 'Error should be related to the bad module');
-						assert.include(error.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
+						assert.strictEqual(loaderError.src, 'dojo/loader', 'Error should be marked as from the loader');
+						assert.isObject(loaderError.info, 'Error should be supplemented with info');
+						assert.strictEqual(loaderError.info.module.mid, badMid, 'Error should be related to the bad module');
+						assert.include(loaderError.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
 					} catch (error) {
 						window.loaderTestResults = error.message;
 					} finally {
