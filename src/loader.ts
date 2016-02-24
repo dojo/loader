@@ -526,23 +526,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 	}
 
 	function getModuleInformation(moduleId: string, referenceModule?: Module): Module {
-		// // relative module ids are relative to the referenceModule; get rid of any dots
-		// moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
-		// 	(referenceModule.mid + '/../' + moduleId) : moduleId);
-		// // at this point, moduleId is an absolute moduleId
-		//
-		// // if there is a reference module, then use its module map, if one exists; otherwise, use the global map.
-		// // see computeMapProg for more information on the structure of the map arrays
-		// let moduleMap: MapItem = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
-		// moduleMap = moduleMap ? moduleMap[1] : mapPrograms.star;
-		//
-		// let mapItem: MapItem;
-		// if ((mapItem = runMapProgram(moduleId, moduleMap))) {
-		// 	moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
-		// }
-
-		// moduleId = updateModuleIdFromMap(moduleId, referenceModule);
-
 		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
 		let pack = packageMap[packageId];
@@ -586,16 +569,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 		let module: Module;
 		const pluginRegEx = /^(.+?)\!(.*)$/;
 
+		// Update moduleId from map if exists
 		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 
 		// check if module is a plugin-module
-		// check if is a mapped module and if THAT is a plugin-module
 		const match = moduleId.match(pluginRegEx);
-
-		// TMDYE: https://github.com/dojo/loader/issues/21
-		// Plugin work
-
-		// See if plugin / module is in the map
 
 		if (match) {
 			// name was <plugin-module>!<plugin-resource-id>
