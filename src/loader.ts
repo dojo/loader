@@ -481,6 +481,25 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return absolutePathSegments.join('/');
 	}
 
+	function updateModuleIdFromMap(moduleId: string, referenceModule?: Module): string {
+		// relative module ids are relative to the referenceModule; get rid of any dots
+		moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
+			(referenceModule.mid + '/../' + moduleId) : moduleId);
+		// at this point, moduleId is an absolute moduleId
+
+		// if there is a reference module, then use its module map, if one exists; otherwise, use the global map.
+		// see computeMapProg for more information on the structure of the map arrays
+		let moduleMap: MapItem = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
+		moduleMap = moduleMap ? moduleMap[1] : mapPrograms.star;
+
+		let mapItem: MapItem;
+		if ((mapItem = runMapProgram(moduleId, moduleMap))) {
+			moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
+		}
+
+		return moduleId;
+	}
+
 	function getPluginInformation(moduleId: string, match: string[], referenceModule?: Module): Module {
 		const plugin = getModule(match[1], referenceModule);
 		const isPluginLoaded = Boolean(plugin.load);
@@ -507,20 +526,22 @@ interface ModuleDefinitionArguments extends Array<any> {
 	}
 
 	function getModuleInformation(moduleId: string, referenceModule?: Module): Module {
-		// relative module ids are relative to the referenceModule; get rid of any dots
-		moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
-			(referenceModule.mid + '/../' + moduleId) : moduleId);
-		// at this point, moduleId is an absolute moduleId
+		// // relative module ids are relative to the referenceModule; get rid of any dots
+		// moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
+		// 	(referenceModule.mid + '/../' + moduleId) : moduleId);
+		// // at this point, moduleId is an absolute moduleId
+		//
+		// // if there is a reference module, then use its module map, if one exists; otherwise, use the global map.
+		// // see computeMapProg for more information on the structure of the map arrays
+		// let moduleMap: MapItem = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
+		// moduleMap = moduleMap ? moduleMap[1] : mapPrograms.star;
+		//
+		// let mapItem: MapItem;
+		// if ((mapItem = runMapProgram(moduleId, moduleMap))) {
+		// 	moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
+		// }
 
-		// if there is a reference module, then use its module map, if one exists; otherwise, use the global map.
-		// see computeMapProg for more information on the structure of the map arrays
-		let moduleMap: MapItem = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
-		moduleMap = moduleMap ? moduleMap[1] : mapPrograms.star;
-
-		let mapItem: MapItem;
-		if ((mapItem = runMapProgram(moduleId, moduleMap))) {
-			moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
-		}
+		// moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 
 		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
@@ -536,7 +557,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		let module = modules[moduleId];
 		if (!(module)) {
-			mapItem = runMapProgram(moduleId, pathMapPrograms);
+			let mapItem = runMapProgram(moduleId, pathMapPrograms);
 			let url = mapItem ? mapItem[1] + moduleId.slice(mapItem[3]) : (packageId ? pack.location + moduleIdInPackage : moduleId);
 			module = <Module> <any> {
 				pid: packageId,
@@ -564,12 +585,17 @@ interface ModuleDefinitionArguments extends Array<any> {
 		// compute and construct (if necessary) the module implied by the moduleId with respect to referenceModule
 		let module: Module;
 		const pluginRegEx = /^(.+?)\!(.*)$/;
+
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+
 		// check if module is a plugin-module
 		// check if is a mapped module and if THAT is a plugin-module
 		const match = moduleId.match(pluginRegEx);
 
 		// TMDYE: https://github.com/dojo/loader/issues/21
 		// Plugin work
+
+		// See if plugin / module is in the map
 
 		if (match) {
 			// name was <plugin-module>!<plugin-resource-id>
@@ -582,11 +608,14 @@ interface ModuleDefinitionArguments extends Array<any> {
 	}
 
 	function toAbsMid(moduleId: string, referenceModule: Module): string {
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 		return getModuleInformation(moduleId, referenceModule).mid;
 	}
 
 	function toUrl(name: string, referenceModule: Module): string {
-		const moduleInfo: Module = getModuleInformation(name + '/x', referenceModule);
+		let moduleId = name + '/x';
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+		const moduleInfo: Module = getModuleInformation(moduleId, referenceModule);
 		const url: string = moduleInfo.url;
 
 		// "/x.js" since getModuleInfo automatically appends ".js" and we appended "/x" to make name look like a
