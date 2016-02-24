@@ -29,7 +29,8 @@ module.exports = function (grunt) {
 	var tsconfig = JSON.parse(tsconfigContent);
 	var tsOptions = mixin({}, tsconfig.compilerOptions, {
 		failOnTypeErrors: true,
-		fast: 'never'
+		fast: 'never',
+		additionalFlags: '--noImplicitUseStrict'
 	});
 	tsconfig.filesGlob = tsconfig.filesGlob.map(function (glob) {
 		if (/^\.\//.test(glob)) {
