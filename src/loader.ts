@@ -222,6 +222,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 	// the number of modules the loader has injected but has not seen defined
 	let waitingCount: number = 0;
 
+	let configure: (configuration: Config) => void;
+
 	const has: Has = (function (): Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
 		const global: Window = this;
@@ -272,7 +274,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		var configure: (configuration: Config) => void = requireModule.config = function (configuration: Config): void {
+		configure = requireModule.config = function (configuration: Config): void {
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');
@@ -595,10 +597,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 	const commonJsRequireModule: Module = makeCommonJs('require');
 	const commonJsExportsModule: Module = makeCommonJs('exports');
 	const commonJsModuleModule: Module = makeCommonJs('module');
+	let circularTrace: string[];
 
 	has.add('loader-debug-circular-dependencies', true);
 	if (has('loader-debug-circular-dependencies')) {
-		var circularTrace: string[] = [];
+		circularTrace = [];
 	}
 
 	function executeModule(module: Module): any {
@@ -919,7 +922,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 					// webview; in Node.js the `module` variable does not exist when using `vm.runInThisContext`,
 					// but in Electron it exists in the webview when Node.js integration is enabled which causes loaded
 					// modules to register with Node.js and break the loader
-					var oldModule = this.module;
+					let oldModule = this.module;
 					this.module = undefined;
 					try {
 						vm.runInThisContext(data, url);
@@ -1011,9 +1014,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 	});
 
 	has.add('loader-cjs-wrapping', true);
+
+	let comments: RegExp;
+	let requireCall: RegExp;
+
 	if (has('loader-cjs-wrapping')) {
-		var comments: RegExp = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
-		var requireCall: RegExp = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
+		comments = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
+		requireCall = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
 	}
 
 	has.add('loader-explicit-mid', true);
@@ -1022,7 +1029,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	 * @param deps //(array of commonjs.moduleId, optional)
 	 * @param factory //(any)
 	 */
-	var define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
+	let define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
 		let originalFactory: any;
 		if (has('loader-explicit-mid') && arguments.length > 1 && typeof dependencies === 'string') {
 			let id: string = <any> dependencies;

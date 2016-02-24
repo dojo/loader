@@ -1,5 +1,5 @@
 {
-	"version": "1.7.3",
+	"version": "1.8.2",
 	"compilerOptions": {
 		"declaration": false,
 		"module": "commonjs",
@@ -8,7 +8,8 @@
 		"removeComments": false,
 		"sourceMap": true,
 		"target": "es5",
-		"moduleResolution": "classic"
+		"moduleResolution": "classic",
+		"noImplicitUseStrict": true
 	},
 	"filesGlob": [
 		"./typings/tsd.d.ts",
