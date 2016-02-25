@@ -971,8 +971,8 @@ const globalObject: any = Function('return this')();
 		};
 
 		setGlobals = function (require: Require, define: Define): void {
-			this.require = require;
-			this.define = define;
+			globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else {
