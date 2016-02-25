@@ -131,6 +131,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 	1: Factory;
 }
 
+const globalObject: any = Function('return this')();
+
 (function (): void {
 	const EXECUTING: string = 'executing';
 	const ABORT_EXECUTION: Object = {};
@@ -226,7 +228,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 	const has: Has = (function (): Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
-		const global: Window = this;
+		const global: Window = globalObject;
 		const document: HTMLDocument = global.document;
 		const element: HTMLDivElement = document && document.createElement('div');
 
@@ -386,6 +388,40 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		pendingCacheInsert = {};
 	}
+
+	function loadNodeModule(moduleId: string, parent?: Module): any {
+		let module: any = require('module');
+		let amdDefine = define;
+		let result: any;
+
+		if (module._findPath && module._nodeModulePaths) {
+			let localModulePath = module._findPath(moduleId, module._nodeModulePaths(toUrl('.', parent)));
+
+			if (localModulePath !== false) {
+				moduleId = localModulePath;
+			}
+		}
+
+		// Some modules attempt to detect an AMD loader by looking for global AMD `define`. This causes issues
+		// when other CommonJS modules attempt to load them via the standard Node.js `require`, so hide it
+		// during the load
+		define = undefined;
+
+		try {
+			result = requireModule.nodeRequire(moduleId);
+		}
+		catch (error) {
+			// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
+			// Leave it to the caller of this function to handle a non-existent module
+			// (and throw an error if desired)
+			result = undefined;
+		}
+		finally {
+			define = amdDefine;
+		}
+
+		return result;
+	};
 
 	function contextRequire(moduleId: string, unused?: void, referenceModule?: Module): Module;
 	function contextRequire(dependencies: string[], callback: RequireCallback, referenceModule?: Module): Module;
@@ -861,40 +897,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 	}
 
 	if (has('host-node')) {
-		function loadNodeModule(moduleId: string, parent?: Module): any {
-			let module: any = require('module');
-			let amdDefine = define;
-			let result: any;
-
-			if (module._findPath && module._nodeModulePaths) {
-				let localModulePath = module._findPath(moduleId, module._nodeModulePaths(toUrl('.', parent)));
-
-				if (localModulePath !== false) {
-					moduleId = localModulePath;
-				}
-			}
-
-			// Some modules attempt to detect an AMD loader by looking for global AMD `define`. This causes issues
-			// when other CommonJS modules attempt to load them via the standard Node.js `require`, so hide it
-			// during the load
-			define = undefined;
-
-			try {
-				result = requireModule.nodeRequire(moduleId);
-			}
-			catch (error) {
-				// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
-				// Leave it to the caller of this function to handle a non-existent module
-				// (and throw an error if desired)
-				result = undefined;
-			}
-			finally {
-				define = amdDefine;
-			}
-
-			return result;
-		}
-
 		const vm: any = require('vm');
 		const fs: any = require('fs');
 
@@ -922,13 +924,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 					// webview; in Node.js the `module` variable does not exist when using `vm.runInThisContext`,
 					// but in Electron it exists in the webview when Node.js integration is enabled which causes loaded
 					// modules to register with Node.js and break the loader
-					let oldModule = this.module;
-					this.module = undefined;
+					let oldModule = globalObject.module;
+					globalObject.module = undefined;
 					try {
 						vm.runInThisContext(data, url);
 					}
 					finally {
-						this.module = oldModule;
+						globalObject.module = oldModule;
 					}
 				}
 
@@ -937,8 +939,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 		};
 
 		setGlobals = function (require: Require, define: Define): void {
-			module.exports = this.require = require;
-			this.define = define;
+			module.exports = globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else if (has('host-browser')) {
