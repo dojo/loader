@@ -550,5 +550,41 @@ registerSuite({
 			global.require('common/app');
 			dfd.reject('Loading undefined module should throw an error');
 		});
+	},
+
+	plugin: {
+		load() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+
+			global.require.config({
+				paths: {
+					common: '_build/tests/common'
+				}
+			});
+
+			global.require([
+				'common/plugin!one'
+			], dfd.callback(function (pluginOne: any) {
+				assert.strictEqual(pluginOne, 'one', 'Plugin should return one');
+			}));
+		},
+
+		config() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+			let requireConfig = {
+				paths: {
+					common: '_build/tests/common'
+				}
+			};
+
+			global.require.config(requireConfig);
+
+			global.require([
+				'common/pluginConfig!one'
+			], dfd.callback(function (pluginConfig: any) {
+				assert.deepEqual(pluginConfig, requireConfig,
+					'Plugin should have received config param equal to require config');
+			}));
+		}
 	}
 });
