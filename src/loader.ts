@@ -30,7 +30,7 @@ export interface Has {
 
 export interface LoaderError extends Error {
 	src: string;
-	info: any;
+	info: { module: Module, url: string };
 }
 
 export interface LoaderPlugin {
@@ -251,14 +251,22 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 	let listenerQueues = {};
 
-	const makeSignalError = function (message: string, info: ObjectMap): LoaderError {
-		return mix<LoaderError>(new Error(message), {
+	const reportModuleLoadError = function (parent: Module, module: Module, url: string): void {
+		let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
+		let message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
+		let error = mix<LoaderError>(new Error(message), {
 			src: 'dojo/loader',
-			info
+			info: {
+				module,
+				url,
+				parentMid
+			}
 		});
+
+		if (!emit('error', error)) { throw error; };
 	};
 
-	const signal = function(type: SignalType, args: {}): number | boolean {
+	const emit = function(type: SignalType, args: {}): number | boolean {
 		let queue: any[] = listenerQueues[type];
 		let hasListeners = queue && queue.length;
 
@@ -953,15 +961,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 						let result = loadNodeModule(module.mid, parent);
 
 						if (!result) {
-							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-							let message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
-							let error = makeSignalError(message, {
-								module,
-								url,
-								parentMid
-							});
-
-							if (!signal('error', error)) { throw error; };
+							reportModuleLoadError(parent, module, url);
 						}
 
 						return result;
@@ -1006,15 +1006,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 					has('loader-ie9-compat') ? callback(node) : callback();
 				}
 				else {
-					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-					let message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
-					let error = makeSignalError(message, {
-						module,
-						url,
-						parentMid
-					});
-
-					if (!signal('error', error)) { throw error; };
+					reportModuleLoadError(parent, module, url);
 				}
 			};
 

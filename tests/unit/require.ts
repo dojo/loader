@@ -1,10 +1,6 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
-
-interface LoaderError extends Error {
-	src: string;
-	info: any;
-}
+import { LoaderError } from 'src/loader';
 
 const DEFAULT_TIMEOUT = 1000;
 
@@ -134,9 +130,9 @@ registerSuite({
 
 		global.require([
 			badMid
-		], dfd.rejectOnError(function (gruntOption: any, app: any) {
-			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
-		}));
+		], function () {
+			dfd.reject(new Error('Dependency with bad module id should not be resolved'));
+		});
 	},
 
 	'non-existent module with on-error listener should fire callback'() {
@@ -150,9 +146,9 @@ registerSuite({
 
 		global.require([
 			badMid
-		], dfd.rejectOnError(function (gruntOption: any, app: any) {
-			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
-		}));
+		], function () {
+			dfd.reject(new Error('Dependency with bad module id should not be resolved'));
+		});
 	},
 
 	'non-existent module with on-error listener should provide info'() {
@@ -168,9 +164,9 @@ registerSuite({
 
 		global.require([
 			badMid
-		], dfd.rejectOnError(function (gruntOption: any, app: any) {
-			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
-		}));
+		], function () {
+			dfd.reject(new Error('Dependency with bad module id should not be resolved'));
+		});
 	},
 
 	'on-error listener should be removable'() {
@@ -188,9 +184,9 @@ registerSuite({
 
 		global.require([
 			badMid
-		], dfd.rejectOnError(function (gruntOption: any, app: any) {
-			assert.fail(null, null, 'Dependency with bad module id should not be resolved');
-		}));
+		], function () {
+			dfd.reject(new Error('Dependency with bad module id should not be resolved'));
+		});
 	},
 
 	'only factory AMD require'() {
