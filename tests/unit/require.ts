@@ -1,6 +1,6 @@
 import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
-import { LoaderError } from 'src/loader';
+import { LoaderError } from 'src/interfaces';
 
 const DEFAULT_TIMEOUT = 1000;
 
