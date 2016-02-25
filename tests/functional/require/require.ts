@@ -109,6 +109,21 @@ registerSuite({
 		}
 	},
 
+	plugin : {
+		load() {
+			return executeTest(this, './plugin-load.html', function (results: any) {
+				assert.strictEqual(results, 'one', 'Plug-in module should load');
+			});
+		},
+		config() {
+			return executeTest(this, './plugin-config.html', function (results: any) {
+				if (results !== 'success') {
+					assert.fail(null, null, results);
+				}
+			});
+		}
+	},
+
 	has() {
 		return executeTest(this, './has.html', function (results: any) {
 			if (results !== 'success') {

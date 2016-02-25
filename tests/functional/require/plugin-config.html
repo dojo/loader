@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.config Test</title>
+	</head>
+
+	<body>
+		<script src="../../../src/loader.js"></script>
+		<script>
+			var requireConfig = {
+				baseUrl: '../..',
+				packages: [
+					{
+						name: 'chai',
+						location: '../../node_modules/intern/node_modules/chai',
+						main: 'chai'
+					}
+				]
+			};
+			require.config(requireConfig);
+
+			require([
+				'common/pluginConfig!one',
+				'chai'
+			], function (pluginConfig, chai) {
+				var assert = chai.assert;
+
+				try {
+					assert.deepEqual(plugin1, requireConfig,
+						'Plugin should have received config param equal to require config');
+				}
+				catch (error) {
+					window.loaderTestResults = error.message;
+				}
+				finally {
+					if (window.loaderTestResults === undefined) {
+						window.loaderTestResults = 'success';
+					}
+				}
+			});
+		</script>
+	</body>
+</html>

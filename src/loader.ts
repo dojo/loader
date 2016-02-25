@@ -154,7 +154,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	let checkCompleteGuard: number = 0;
 
 	// The configuration passed to the loader
-	let config = {};
+	let config: {};
 
 	// The arguments sent to loader via AMD define().
 	let moduleDefinitionArguments: ModuleDefinitionArguments = null;
