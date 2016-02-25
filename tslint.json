@@ -7,7 +7,7 @@
 		"curly": true,
 		"eofline": true,
 		"forin": false,
-		"ident": [ true, "tabs" ],
+		"indent": [ true, "tabs" ],
 		"interface-name": false,
 		"jsdoc-format": true,
 		"label-position": true,

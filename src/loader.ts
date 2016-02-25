@@ -903,7 +903,7 @@ const globalObject: any = Function('return this')();
 		// retain the ability to get node's require
 		requireModule.nodeRequire = require;
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void,
-							  module: Module, parent?: Module): void {
+							module: Module, parent?: Module): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
 				if (error) {
 					function loadCallback () {
@@ -945,7 +945,7 @@ const globalObject: any = Function('return this')();
 	}
 	else if (has('host-browser')) {
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: Module,
-							  parent?: Module): void {
+							parent?: Module): void {
 			// insert a script element to the insert-point element with src=url;
 			// apply callback upon detecting the script has loaded.
 			const node: HTMLScriptElement = document.createElement('script');
@@ -1099,8 +1099,8 @@ const globalObject: any = Function('return this')();
 
 		if (has('loader-ie9-compat')) {
 			for (let i = document.scripts.length - 1, script: HTMLScriptElement;
-				 script = <HTMLScriptElement> document.scripts[i];
-				 --i) {
+				script = <HTMLScriptElement> document.scripts[i];
+				--i) {
 				if ((<any> script).readyState === 'interactive') {
 					(<any> script).defArgs = [ dependencies, factory ];
 					break;
