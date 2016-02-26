@@ -25,7 +25,7 @@ export interface Has {
 
 export interface LoaderError extends Error {
 	src: string;
-	info: { module: Module, url: string };
+	info: { module: Module, url: string, parentMid: string };
 }
 
 export interface LoaderPlugin {
