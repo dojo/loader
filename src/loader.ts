@@ -136,12 +136,12 @@ declare var module: { exports: any; };
 		return has;
 	})();
 
-	let listenerQueues = {};
+	const listenerQueues: { [queue: string]: ((...args: any[]) => void)[] } = {};
 
 	const reportModuleLoadError = function (parent: Module, module: Module, url: string): void {
-		let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-		let message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
-		let error = mix<LoaderError>(new Error(message), {
+		const parentMid = (parent ? ` (parent: ${parent.mid})` : '');
+		const message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
+		const error = mix<LoaderError>(new Error(message), {
 			src: 'dojo/loader',
 			info: {
 				module,
@@ -154,7 +154,7 @@ declare var module: { exports: any; };
 	};
 
 	const emit = function(type: SignalType, args: {}): number | boolean {
-		let queue: any[] = listenerQueues[type];
+		let queue = listenerQueues[type];
 		let hasListeners = queue && queue.length;
 
 		if (hasListeners) {
@@ -166,19 +166,14 @@ declare var module: { exports: any; };
 		return hasListeners;
 	};
 
-	const on = function(type: string, listener: (error: LoaderError) => any): { remove: () => void } {
+	const on = function(type: string, listener: (error: LoaderError) => void): { remove: () => void } {
 		let queue = listenerQueues[type] || (listenerQueues[type] = []);
 
 		queue.push(listener);
 
 		return {
 			remove() : void {
-				for (let i = 0; i < queue.length; i++) {
-					if (queue[i] === listener) {
-						queue.splice(i, 1);
-						return;
-					}
-				}
+				queue.splice(queue.indexOf(listener), 1);
 			}
 		};
 	};
