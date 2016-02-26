@@ -23,6 +23,11 @@ export interface Has {
 	add(name: string, value: any, now?: boolean, force?: boolean): void;
 }
 
+export interface LoaderError extends Error {
+	src: string;
+	info: { module: Module, url: string };
+}
+
 export interface LoaderPlugin {
 	load?: (resourceId: string, require: Require, load: (value?: any) => void, config?: Object) => void;
 	normalize?: (moduleId: string, normalize: (moduleId: string) => string) => string;
@@ -45,54 +50,6 @@ export interface MapRoot extends Array<MapSource> {
 
 export interface MapSource extends MapItem {
 	/* replacement */ 1: MapReplacement[];
-}
-
-export interface ModuleMap extends ModuleMapItem {
-	[ sourceMid: string ]: ModuleMapReplacement;
-}
-
-export interface ModuleMapItem {
-	[ mid: string ]: /* ModuleMapReplacement | ModuleMap */ any;
-}
-
-export interface ModuleMapReplacement extends ModuleMapItem {
-	[ findMid: string ]: /* replaceMid */ string;
-}
-
-export interface Package {
-	location?: string;
-	main?: string;
-	name?: string;
-}
-
-export interface PackageMap {
-	[ packageId: string ]: Package;
-}
-
-export interface PathMap extends MapReplacement {}
-
-export interface Require {
-	(config: Config, dependencies?: string[], callback?: RequireCallback): void;
-	(dependencies: string[], callback: RequireCallback): void;
-	<ModuleType>(moduleId: string): ModuleType;
-
-	toAbsMid(moduleId: string): string;
-	toUrl(path: string): string;
-}
-
-export interface RequireCallback {
-	(...modules: any[]): void;
-}
-
-export type SignalType = 'error';
-
-export interface RootRequire extends Require {
-	has: Has;
-	on(type: SignalType, listener: any): { remove: () => void };
-	config(config: Config): void;
-	inspect?(name: string): any;
-	nodeRequire?(id: string): any;
-	undef(moduleId: string): void;
 }
 
 // TODO are we still abbreviating these properties?
@@ -122,14 +79,57 @@ export interface Module extends LoaderPlugin {
 	prid: string;
 }
 
-export interface LoaderError extends Error {
-	src: string;
-	info: { module: Module, url: string };
-}
-
-export interface ObjectMap { [ key: string ]: any; }
-
 export interface ModuleDefinitionArguments extends Array<any> {
 	0: string[];
 	1: Factory;
 }
+
+export interface ModuleMap extends ModuleMapItem {
+	[ sourceMid: string ]: ModuleMapReplacement;
+}
+
+export interface ModuleMapItem {
+	[ mid: string ]: /* ModuleMapReplacement | ModuleMap */ any;
+}
+
+export interface ModuleMapReplacement extends ModuleMapItem {
+	[ findMid: string ]: /* replaceMid */ string;
+}
+
+export interface ObjectMap { [ key: string ]: any; }
+
+export interface Package {
+	location?: string;
+	main?: string;
+	name?: string;
+}
+
+export interface PackageMap {
+	[ packageId: string ]: Package;
+}
+
+export interface PathMap extends MapReplacement {}
+
+export interface Require {
+	(config: Config, dependencies?: string[], callback?: RequireCallback): void;
+	(dependencies: string[], callback: RequireCallback): void;
+	<ModuleType>(moduleId: string): ModuleType;
+
+	toAbsMid(moduleId: string): string;
+	toUrl(path: string): string;
+}
+
+export interface RequireCallback {
+	(...modules: any[]): void;
+}
+
+export interface RootRequire extends Require {
+	has: Has;
+	on(type: SignalType, listener: any): { remove: () => void };
+	config(config: Config): void;
+	inspect?(name: string): any;
+	nodeRequire?(id: string): any;
+	undef(moduleId: string): void;
+}
+
+export type SignalType = 'error';
