@@ -248,13 +248,15 @@ registerSuite({
 					]
 				});
 
-				global.require({
+				global.require.config({
 					map: {
 						'common/a': {
 							mapped: './_build/tests/common/a'
 						}
 					}
-				}, [
+				});
+
+				global.require([
 					'common/map1',
 					'common/a/map2'
 				], dfd.callback(function (map1: any, map2: any) {

@@ -241,7 +241,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	})();
 
 	const requireModule: RootRequire =
-		<RootRequire> function (dependencies: string | string[], callback?: RequireCallback): Module {
+		<RootRequire> function (dependencies: any, callback?: RequireCallback): Module {
 			return contextRequire(dependencies, callback);
 		};
 	requireModule.has = has;
