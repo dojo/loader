@@ -154,7 +154,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	let checkCompleteGuard: number = 0;
 
 	// The configuration passed to the loader
-	let config: {};
+	let config: Config;
 
 	// The arguments sent to loader via AMD define().
 	let moduleDefinitionArguments: ModuleDefinitionArguments = null;
@@ -249,10 +249,10 @@ interface ModuleDefinitionArguments extends Array<any> {
 		if (Array.isArray(configuration) || /* require(mid) */ typeof configuration === 'string') {
 			callback = <RequireCallback> dependencies;
 			dependencies = <string[]> configuration;
-			configuration = {};
+			configuration = undefined;
 		}
 
-		has('loader-configurable') && configure(configuration);
+		configuration && has('loader-configurable') && configure(configuration);
 
 		return contextRequire(dependencies, callback);
 	};
