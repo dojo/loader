@@ -104,7 +104,6 @@ export interface PackageMap {
 export interface PathMap extends MapReplacement {}
 
 export interface Require {
-	(config: Config, dependencies?: string[], callback?: RequireCallback): void;
 	(dependencies: string[], callback: RequireCallback): void;
 	<ModuleType>(moduleId: string): ModuleType;
 
@@ -242,17 +241,9 @@ interface ModuleDefinitionArguments extends Array<any> {
 	})();
 
 	const requireModule: RootRequire =
-		<RootRequire> function (configuration: any, dependencies?: any, callback?: RequireCallback): Module {
-		if (Array.isArray(configuration) || /* require(mid) */ typeof configuration === 'string') {
-			callback = <RequireCallback> dependencies;
-			dependencies = <string[]> configuration;
-			configuration = {};
-		}
-
-		has('loader-configurable') && configure(configuration);
-
-		return contextRequire(dependencies, callback);
-	};
+		<RootRequire> function (dependencies: string | string[], callback?: RequireCallback): Module {
+			return contextRequire(dependencies, callback);
+		};
 	requireModule.has = has;
 
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
@@ -272,7 +263,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		var configure: (configuration: Config) => void = requireModule.config = function (configuration: Config): void {
+		requireModule.config = function (configuration: Config): void {
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');
