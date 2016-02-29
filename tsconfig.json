@@ -48,6 +48,6 @@
 		"./tests/unit/require.ts"
 	],
 	"atom": {
-		"rewriteTsconfig": true
+		"rewriteTsconfig": false
 	}
 }
