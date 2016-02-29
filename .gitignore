@@ -14,3 +14,4 @@ tests/typings/dist/
 html-report
 coverage*.json
 lcov.info
+.vscode

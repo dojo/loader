@@ -154,7 +154,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	let checkCompleteGuard: number = 0;
 
 	// The configuration passed to the loader
-	let config: Config;
+	let config: Config = {};
 
 	// The arguments sent to loader via AMD define().
 	let moduleDefinitionArguments: ModuleDefinitionArguments = null;
@@ -277,7 +277,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 		 */
 		var configure: (configuration: Config) => void = requireModule.config = function (configuration: Config): void {
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
-			config = configuration;
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');
 
@@ -361,6 +360,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 			// Note that old paths will get destroyed if reconfigured
 			configuration.paths && (pathMapPrograms = computeMapProgram(configuration.paths));
+
+			config = {
+				baseUrl,
+				map,
+				paths: configuration.paths || config.paths || {},
+				packages: <Package[]> mix(config.packages || {}, configuration.packages)
+			};
 		};
 	}
 

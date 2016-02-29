@@ -571,19 +571,38 @@ registerSuite({
 
 		config() {
 			let dfd = this.async(DEFAULT_TIMEOUT);
-			let requireConfig = {
-				paths: {
-					common: '_build/tests/common'
-				}
+			let paths = {
+				common: '_build/tests/common'
 			};
 
-			global.require.config(requireConfig);
+			global.require.config({ paths });
 
 			global.require([
 				'common/pluginConfig!one'
 			], dfd.callback(function (pluginConfig: any) {
-				assert.deepEqual(pluginConfig, requireConfig,
+				assert.property(pluginConfig, 'baseUrl', 'Base URL should be present');
+				assert.deepEqual(pluginConfig.paths, paths,
 					'Plugin should have received config param equal to require config');
+			}));
+		},
+
+		mergedConfig() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+			let paths = {
+				common: '_build/tests/common'
+			};
+			let map = {
+				foo: 'bar'
+			};
+
+			global.require.config({ paths });
+			global.require.config({ map });
+
+			global.require([
+				'common/pluginConfig!one'
+			], dfd.callback(function (pluginConfig: any) {
+				assert.deepEqual(pluginConfig.paths, paths, 'Paths should be equal');
+				assert.deepEqual(pluginConfig.map, map, 'Map should be equal');
 			}));
 		}
 	}
