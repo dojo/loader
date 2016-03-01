@@ -27,8 +27,10 @@
 				var assert = chai.assert;
 
 				try {
-					assert.deepEqual(pluginConfig, requireConfig,
-						'Plugin should have received config param equal to require config');
+					assert.equal(pluginConfig.baseUrl, requireConfig.baseUrl,
+						'Plugin config should contain the BaseUrl');
+					assert.deepEqual(pluginConfig.packages, requireConfig.packages,
+						'Plugin should have received cpackages equal to require config packages');
 				}
 				catch (error) {
 					window.loaderTestResults = error.message;
