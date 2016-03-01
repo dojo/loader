@@ -8,14 +8,15 @@
 	<body>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require({
+			require.config({
 				packages: [
 					{
 						name: 'commonJs',
 						location: '../common/commonJs'
 					}
 				]
-			}, [
+			});
+			require([
 				'commonJs/circular2'
 			], function (circular2) {
 				window.loaderTestResults = {

@@ -22,13 +22,15 @@
 				]
 			});
 
-			require({
+			require.config({
 				map: {
 					'common/a': {
 						mapped: '../../../common/a'
 					}
 				}
-			}, [
+			});
+			
+			require([
 				'common/map1',
 				'common/a/map2'
 			], function (map1, map2) {
