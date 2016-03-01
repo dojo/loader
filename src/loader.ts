@@ -34,10 +34,10 @@ export interface LoaderPlugin {
 }
 
 export interface MapItem extends Array<any> {
-	/* prefix */      0: string;
+	/* prefix */	  0: string;
 	/* replacement */ 1: any;
-	/* regExp */      2: RegExp;
-	/* length */      3: number;
+	/* regExp */	  2: RegExp;
+	/* length */	  3: number;
 }
 
 export interface MapReplacement extends MapItem {
@@ -302,7 +302,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 				// Maps look like this:
 				//
 				// map: { C: { D: E } }
-				//      A    B
+				//    A	B
 				//
 				// The computed mapping is a 4-array deep tree, where the outermost array corresponds to the source
 				// mapping object A, the 2nd level arrays each correspond to one of the source mappings C -> B, the 3rd
@@ -374,9 +374,22 @@ interface ModuleDefinitionArguments extends Array<any> {
 		array && array.forEach(callback);
 	}
 
-	function mix(target: {}, source: {}): {} {
-		for (let key in source) {
-			(<ObjectMap> target)[key] = (<ObjectMap> source)[key];
+	function mix(target: {}, source: {}, deep?: boolean): {} {
+		if (source) {
+			for (let key in source) {
+				let sourceValue = (<ObjectMap> source)[key];
+
+				if (deep && typeof sourceValue === 'object' &&
+					!Array.isArray(sourceValue) && !(sourceValue instanceof RegExp)) {
+
+					if (!(<ObjectMap> target)[key]) {
+						(<ObjectMap> target)[key] = {};
+					}
+					mix((<ObjectMap> target)[key], sourceValue, true);
+				} else {
+					(<ObjectMap> target)[key] = sourceValue;
+				}
+			}
 		}
 		return target;
 	}
