@@ -170,9 +170,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 	let injectUrl: (url: string, callback: (node?: HTMLScriptElement) => void, module: Module, parent?: Module) => void;
 
-	// AMD map config variable
-	let map: ModuleMap = {};
-
 	// array of quads as described by computeMapProg; map-key is AMD map key, map-value is AMD map value
 	let mapPrograms: MapRoot = [];
 
@@ -379,7 +376,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 			// FIXME this is a down-cast.
 			// computeMapProgram => MapItem[] => mapPrograms: MapSource[]
 			// MapSource[1] => MapReplacement[] is more specific than MapItems[1] => any
-			mapPrograms = computeMapProgram(map);
+			mapPrograms = computeMapProgram(config.map);
 
 			// Note that old paths will get destroyed if reconfigured
 			configuration.paths && (pathMapPrograms = computeMapProgram(configuration.paths));
