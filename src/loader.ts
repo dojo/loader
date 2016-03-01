@@ -8,6 +8,7 @@ export interface Config {
 	map?: ModuleMap;
 	packages?: Package[];
 	paths?: { [ path: string ]: string; };
+	pkgs?: { [ path: string ]: Package; };
 }
 
 export interface Define {
@@ -138,8 +139,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 	//
 	// loader state data
 	//
-	// AMD baseUrl config
-	let baseUrl: string = './';
 
 	// hash: (mid | url)-->(function | string)
 	//
@@ -154,7 +153,12 @@ interface ModuleDefinitionArguments extends Array<any> {
 	let checkCompleteGuard: number = 0;
 
 	// The configuration passed to the loader
-	let config: Config = {};
+	let config: Config = {
+		baseUrl: './',
+		packages: [],
+		paths: {},
+		pkgs: {}
+	};
 
 	// The arguments sent to loader via AMD define().
 	let moduleDefinitionArguments: ModuleDefinitionArguments = null;
@@ -202,9 +206,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 	//
 	// 5. Evaluated: the module was defined via define and the loader has evaluated the factory and computed a result.
 	let modules: { [ moduleId: string ]: Module; } = {};
-
-	// a map from pid to package configuration object
-	let packageMap: PackageMap = {};
 
 	// list of (from-path, to-path, regex, length) derived from paths;
 	// a "program" to apply paths; see computeMapProg
@@ -276,9 +277,33 @@ interface ModuleDefinitionArguments extends Array<any> {
 		 * The configuration data.
 		 */
 		var configure: (configuration: Config) => void = requireModule.config = function (configuration: Config): void {
+			// Make sure baseUrl ends in a slash
+			if (configuration.baseUrl) {
+				configuration.baseUrl = configuration.baseUrl.replace(/\/*$/, '/');
+			}
+
+			const mergeProps: ObjectMap = {
+				paths: true,
+				bundles: true,
+				config: true,
+				map: true
+			};
+
+			// Copy configuration over to config object
+			for (let key in configuration) {
+				const value = (<ObjectMap> configuration)[key];
+				if (mergeProps[key]) {
+					if (!(<ObjectMap> config)[key]) {
+						(<ObjectMap> config)[key] = {};
+					}
+					mix((<ObjectMap> config)[key], value, true);
+				} else {
+					(<ObjectMap> config)[key] = value;
+				}
+			}
+
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
-			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');
 
 			forEach(configuration.packages, function (packageDescriptor: Package): void {
 				// Allow shorthand package definition, where name and location are the same
@@ -290,7 +315,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 					packageDescriptor.location = packageDescriptor.location.replace(/\/*$/, '/');
 				}
 
-				packageMap[packageDescriptor.name] = packageDescriptor;
+				config.pkgs[packageDescriptor.name] = packageDescriptor;
 			});
 
 			function computeMapProgram(map: ModuleMapItem): MapItem[] {
@@ -351,8 +376,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 				return result;
 			}
 
-			mix(map, configuration.map);
-
 			// FIXME this is a down-cast.
 			// computeMapProgram => MapItem[] => mapPrograms: MapSource[]
 			// MapSource[1] => MapReplacement[] is more specific than MapItems[1] => any
@@ -360,13 +383,6 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 			// Note that old paths will get destroyed if reconfigured
 			configuration.paths && (pathMapPrograms = computeMapProgram(configuration.paths));
-
-			config = {
-				baseUrl,
-				map,
-				paths: configuration.paths || config.paths || {},
-				packages: <Package[]> mix(config.packages || {}, configuration.packages)
-			};
 		};
 	}
 
@@ -523,7 +539,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
-		let pack = packageMap[packageId];
+		let pack = config.pkgs[packageId];
 		let moduleIdInPackage: string;
 
 		if (pack) {
@@ -543,7 +559,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 				pack: pack,
 				url: compactPath(
 					// absolute urls should not be prefixed with baseUrl
-					(/^(?:\/|\w+:)/.test(url) ? '' : baseUrl) +
+					(/^(?:\/|\w+:)/.test(url) ? '' : config.baseUrl) +
 					url +
 					// urls with a javascript extension should not have another one added
 					(/\.js(?:\?[^?]*)?$/.test(url) ? '' : '.js')
@@ -1028,7 +1044,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 	Object.defineProperty(requireModule, 'baseUrl', {
 		get: function (): string {
-			return baseUrl;
+			return config.baseUrl;
 		},
 		enumerable: true
 	});
