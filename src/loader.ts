@@ -905,18 +905,17 @@ const globalObject: any = Function('return this')();
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void,
 							module: Module, parent?: Module): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
-				if (error) {
-					function loadCallback () {
-						let result = loadNodeModule(module.mid, parent);
+				function loadCallback () {
+					let result = loadNodeModule(module.mid, parent);
 
-						if (!result) {
-							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-							throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
-						}
-
-						return result;
+					if (!result) {
+						let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
+						throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
 					}
 
+					return result;
+				}
+				if (error) {
 					moduleDefinitionArguments = [ [], loadCallback ];
 				}
 				else {
