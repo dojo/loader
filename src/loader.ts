@@ -1,135 +1,32 @@
+import {
+	Config,
+	Define,
+	Factory,
+	Has,
+	MapItem,
+	MapRoot,
+	MapSource,
+	ModuleMap,
+	ModuleMapItem,
+	Package,
+	PackageMap,
+	PathMap,
+	Require,
+	RequireCallback,
+	SignalType,
+	RootRequire,
+	Module,
+	LoaderError,
+	ObjectMap,
+	ModuleDefinitionArguments
+} from 'interfaces';
+
 // Create ambient declarations for global node.js variables.
 declare var process: any;
 declare var require: <ModuleType>(moduleId: string) => ModuleType;
 declare var module: { exports: any; };
 
-export interface Config {
-	baseUrl?: string;
-	map?: ModuleMap;
-	packages?: Package[];
-	paths?: { [ path: string ]: string; };
-}
-
-export interface Define {
-	(moduleId: string, dependencies: string[], factory: Factory): void;
-	(dependencies: string[], factory: Factory): void;
-	(factory: Factory): void;
-	(value: any): void;
-}
-
-export interface Factory {
-	(...modules: any[]): any;
-}
-
-export interface Has {
-	(name: string): any;
-	add(name: string, value: (global: Window, document?: HTMLDocument, element?: HTMLDivElement) => any,
-		now?: boolean, force?: boolean): void;
-	add(name: string, value: any, now?: boolean, force?: boolean): void;
-}
-
-export interface LoaderPlugin {
-	load?: (resourceId: string, require: Require, load: (value?: any) => void, config?: Object) => void;
-	normalize?: (moduleId: string, normalize: (moduleId: string) => string) => string;
-}
-
-export interface MapItem extends Array<any> {
-	/* prefix */      0: string;
-	/* replacement */ 1: any;
-	/* regExp */      2: RegExp;
-	/* length */      3: number;
-}
-
-export interface MapReplacement extends MapItem {
-	/* replacement */ 1: string;
-}
-
-export interface MapRoot extends Array<MapSource> {
-	star?: MapSource;
-}
-
-export interface MapSource extends MapItem {
-	/* replacement */ 1: MapReplacement[];
-}
-
-// TODO are we still abbreviating these properties?
-export interface Module extends LoaderPlugin {
-	cjs: {
-		exports: any;
-		id: string;
-		setExports: (exports: any) => void;
-		uri: string;
-	};
-	def: Factory;
-	deps: Module[];
-	executed: any; // TODO: enum
-	injected: boolean;
-	fix?: (module: Module) => void;
-	gc: boolean;
-	mid: string;
-	pack: Package;
-	req: Require;
-	require?: Require; // TODO: WTF?
-	result: any;
-	url: string;
-
-	// plugin interface
-	loadQ?: Module[];
-	plugin?: Module;
-	prid: string;
-}
-
-export interface ModuleMap extends ModuleMapItem {
-	[ sourceMid: string ]: ModuleMapReplacement;
-}
-
-export interface ModuleMapItem {
-	[ mid: string ]: /* ModuleMapReplacement | ModuleMap */ any;
-}
-
-export interface ModuleMapReplacement extends ModuleMapItem {
-	[ findMid: string ]: /* replaceMid */ string;
-}
-
-export interface Package {
-	location?: string;
-	main?: string;
-	name?: string;
-}
-
-export interface PackageMap {
-	[ packageId: string ]: Package;
-}
-
-export interface PathMap extends MapReplacement {}
-
-export interface Require {
-	(config: Config, dependencies?: string[], callback?: RequireCallback): void;
-	(dependencies: string[], callback: RequireCallback): void;
-	<ModuleType>(moduleId: string): ModuleType;
-
-	toAbsMid(moduleId: string): string;
-	toUrl(path: string): string;
-}
-
-export interface RequireCallback {
-	(...modules: any[]): void;
-}
-
-export interface RootRequire extends Require {
-	has: Has;
-	config(config: Config): void;
-	inspect?(name: string): any;
-	nodeRequire?(id: string): any;
-	undef(moduleId: string): void;
-}
-
-interface ObjectMap { [ key: string ]: any; }
-
-interface ModuleDefinitionArguments extends Array<any> {
-	0: string[];
-	1: Factory;
-}
+const globalObject: any = Function('return this')();
 
 (function (): void {
 	const EXECUTING: string = 'executing';
@@ -222,9 +119,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 	// the number of modules the loader has injected but has not seen defined
 	let waitingCount: number = 0;
 
+	let configure: (configuration: Config) => void;
+
 	const has: Has = (function (): Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
-		const global: Window = this;
+		const global: Window = globalObject;
 		const document: HTMLDocument = global.document;
 		const element: HTMLDivElement = document && document.createElement('div');
 
@@ -241,6 +140,48 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return has;
 	})();
 
+	const listenerQueues: { [queue: string]: ((...args: any[]) => void)[] } = {};
+
+	const reportModuleLoadError = function (parent: Module, module: Module, url: string): void {
+		const parentMid = (parent ? ` (parent: ${parent.mid})` : '');
+		const message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
+		const error = mix<LoaderError>(new Error(message), {
+			src: 'dojo/loader',
+			info: {
+				module,
+				url,
+				parentMid
+			}
+		});
+
+		if (!emit('error', error)) { throw error; };
+	};
+
+	const emit = function(type: SignalType, args: {}): number | boolean {
+		let queue = listenerQueues[type];
+		let hasListeners = queue && queue.length;
+
+		if (hasListeners) {
+			for (let listener of queue.slice(0)) {
+				listener.apply(null, Array.isArray(args) ? args : [args]);
+			}
+		}
+
+		return hasListeners;
+	};
+
+	const on = function(type: string, listener: (error: LoaderError) => void): { remove: () => void } {
+		let queue = listenerQueues[type] || (listenerQueues[type] = []);
+
+		queue.push(listener);
+
+		return {
+			remove(): void {
+				queue.splice(queue.indexOf(listener), 1);
+			}
+		};
+	};
+
 	const requireModule: RootRequire =
 		<RootRequire> function (configuration: any, dependencies?: any, callback?: RequireCallback): Module {
 		if (Array.isArray(configuration) || /* require(mid) */ typeof configuration === 'string') {
@@ -254,6 +195,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return contextRequire(dependencies, callback);
 	};
 	requireModule.has = has;
+	requireModule.on = on;
 
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
 	has.add('host-node', typeof process === 'object' && process.versions && process.versions.node);
@@ -272,7 +214,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		var configure: (configuration: Config) => void = requireModule.config = function (configuration: Config): void {
+		configure = requireModule.config = function (configuration: Config): void {
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');
@@ -364,11 +306,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 		array && array.forEach(callback);
 	}
 
-	function mix(target: {}, source: {}): {} {
+	function mix<T extends {}>(target: {}, source: {}): T {
 		for (let key in source) {
 			(<ObjectMap> target)[key] = (<ObjectMap> source)[key];
 		}
-		return target;
+		return <T> target;
 	}
 
 	function consumePendingCacheInsert(referenceModule?: Module): void {
@@ -384,6 +326,10 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		pendingCacheInsert = {};
 	}
+
+	function noop(): void {};
+
+	let loadNodeModule: (moduleId: string, parent?: Module) => any = noop;
 
 	function contextRequire(moduleId: string, unused?: void, referenceModule?: Module): Module;
 	function contextRequire(dependencies: string[], callback: RequireCallback, referenceModule?: Module): Module;
@@ -595,10 +541,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 	const commonJsRequireModule: Module = makeCommonJs('require');
 	const commonJsExportsModule: Module = makeCommonJs('exports');
 	const commonJsModuleModule: Module = makeCommonJs('module');
+	let circularTrace: string[];
 
 	has.add('loader-debug-circular-dependencies', true);
 	if (has('loader-debug-circular-dependencies')) {
-		var circularTrace: string[] = [];
+		circularTrace = [];
 	}
 
 	function executeModule(module: Module): any {
@@ -858,7 +805,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	}
 
 	if (has('host-node')) {
-		function loadNodeModule(moduleId: string, parent?: Module): any {
+		loadNodeModule = (moduleId: string, parent?: Module): any => {
 			let module: any = require('module');
 			let amdDefine = define;
 			let result: any;
@@ -890,7 +837,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 			}
 
 			return result;
-		}
+		};
 
 		const vm: any = require('vm');
 		const fs: any = require('fs');
@@ -898,20 +845,18 @@ interface ModuleDefinitionArguments extends Array<any> {
 		// retain the ability to get node's require
 		requireModule.nodeRequire = require;
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void,
-							  module: Module, parent?: Module): void {
+							module: Module, parent?: Module): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
-				if (error) {
-					function loadCallback () {
-						let result = loadNodeModule(module.mid, parent);
+				function loadCallback () {
+					let result = loadNodeModule(module.mid, parent);
 
 						if (!result) {
-							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-							throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
+							reportModuleLoadError(parent, module, url);
 						}
 
-						return result;
-					}
-
+					return result;
+				}
+				if (error) {
 					moduleDefinitionArguments = [ [], loadCallback ];
 				}
 				else {
@@ -919,13 +864,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 					// webview; in Node.js the `module` variable does not exist when using `vm.runInThisContext`,
 					// but in Electron it exists in the webview when Node.js integration is enabled which causes loaded
 					// modules to register with Node.js and break the loader
-					var oldModule = this.module;
-					this.module = undefined;
+					let oldModule = globalObject.module;
+					globalObject.module = undefined;
 					try {
 						vm.runInThisContext(data, url);
 					}
 					finally {
-						this.module = oldModule;
+						globalObject.module = oldModule;
 					}
 				}
 
@@ -934,13 +879,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 		};
 
 		setGlobals = function (require: Require, define: Define): void {
-			module.exports = this.require = require;
-			this.define = define;
+			module.exports = globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else if (has('host-browser')) {
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: Module,
-							  parent?: Module): void {
+							parent?: Module): void {
 			// insert a script element to the insert-point element with src=url;
 			// apply callback upon detecting the script has loaded.
 			const node: HTMLScriptElement = document.createElement('script');
@@ -951,8 +896,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 					has('loader-ie9-compat') ? callback(node) : callback();
 				}
 				else {
-					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-					throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
+					reportModuleLoadError(parent, module, url);
 				}
 			};
 
@@ -966,8 +910,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 		};
 
 		setGlobals = function (require: Require, define: Define): void {
-			this.require = require;
-			this.define = define;
+			globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else {
@@ -1011,9 +955,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 	});
 
 	has.add('loader-cjs-wrapping', true);
+
+	let comments: RegExp;
+	let requireCall: RegExp;
+
 	if (has('loader-cjs-wrapping')) {
-		var comments: RegExp = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
-		var requireCall: RegExp = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
+		comments = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
+		requireCall = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
 	}
 
 	has.add('loader-explicit-mid', true);
@@ -1022,7 +970,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	 * @param deps //(array of commonjs.moduleId, optional)
 	 * @param factory //(any)
 	 */
-	var define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
+	let define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
 		let originalFactory: any;
 		if (has('loader-explicit-mid') && arguments.length > 1 && typeof dependencies === 'string') {
 			let id: string = <any> dependencies;
@@ -1090,8 +1038,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		if (has('loader-ie9-compat')) {
 			for (let i = document.scripts.length - 1, script: HTMLScriptElement;
-				 script = <HTMLScriptElement> document.scripts[i];
-				 --i) {
+				script = <HTMLScriptElement> document.scripts[i];
+				--i) {
 				if ((<any> script).readyState === 'interactive') {
 					(<any> script).defArgs = [ dependencies, factory ];
 					break;
