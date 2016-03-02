@@ -389,39 +389,9 @@ const globalObject: any = Function('return this')();
 		pendingCacheInsert = {};
 	}
 
-	function loadNodeModule(moduleId: string, parent?: Module): any {
-		let module: any = require('module');
-		let amdDefine = define;
-		let result: any;
+	function noop(): void {};
 
-		if (module._findPath && module._nodeModulePaths) {
-			let localModulePath = module._findPath(moduleId, module._nodeModulePaths(toUrl('.', parent)));
-
-			if (localModulePath !== false) {
-				moduleId = localModulePath;
-			}
-		}
-
-		// Some modules attempt to detect an AMD loader by looking for global AMD `define`. This causes issues
-		// when other CommonJS modules attempt to load them via the standard Node.js `require`, so hide it
-		// during the load
-		define = undefined;
-
-		try {
-			result = requireModule.nodeRequire(moduleId);
-		}
-		catch (error) {
-			// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
-			// Leave it to the caller of this function to handle a non-existent module
-			// (and throw an error if desired)
-			result = undefined;
-		}
-		finally {
-			define = amdDefine;
-		}
-
-		return result;
-	};
+	let loadNodeModule: (moduleId: string, parent?: Module) => any = noop;
 
 	function contextRequire(moduleId: string, unused?: void, referenceModule?: Module): Module;
 	function contextRequire(dependencies: string[], callback: RequireCallback, referenceModule?: Module): Module;
@@ -897,6 +867,40 @@ const globalObject: any = Function('return this')();
 	}
 
 	if (has('host-node')) {
+		loadNodeModule = (moduleId: string, parent?: Module): any => {
+			let module: any = require('module');
+			let amdDefine = define;
+			let result: any;
+
+			if (module._findPath && module._nodeModulePaths) {
+				let localModulePath = module._findPath(moduleId, module._nodeModulePaths(toUrl('.', parent)));
+
+				if (localModulePath !== false) {
+					moduleId = localModulePath;
+				}
+			}
+
+			// Some modules attempt to detect an AMD loader by looking for global AMD `define`. This causes issues
+			// when other CommonJS modules attempt to load them via the standard Node.js `require`, so hide it
+			// during the load
+			define = undefined;
+
+			try {
+				result = requireModule.nodeRequire(moduleId);
+			}
+			catch (error) {
+				// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
+				// Leave it to the caller of this function to handle a non-existent module
+				// (and throw an error if desired)
+				result = undefined;
+			}
+			finally {
+				define = amdDefine;
+			}
+
+			return result;
+		};
+
 		const vm: any = require('vm');
 		const fs: any = require('fs');
 
