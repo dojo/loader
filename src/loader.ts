@@ -26,6 +26,8 @@ declare var process: any;
 declare var require: <ModuleType>(moduleId: string) => ModuleType;
 declare var module: { exports: any; };
 
+const globalObject: any = Function('return this')();
+
 (function (): void {
 	const EXECUTING: string = 'executing';
 	const ABORT_EXECUTION: Object = {};
@@ -117,9 +119,11 @@ declare var module: { exports: any; };
 	// the number of modules the loader has injected but has not seen defined
 	let waitingCount: number = 0;
 
+	let configure: (configuration: Config) => void;
+
 	const has: Has = (function (): Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
-		const global: Window = this;
+		const global: Window = globalObject;
 		const document: HTMLDocument = global.document;
 		const element: HTMLDivElement = document && document.createElement('div');
 
@@ -210,7 +214,7 @@ declare var module: { exports: any; };
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		var configure: (configuration: Config) => void = requireModule.config = function (configuration: Config): void {
+		configure = requireModule.config = function (configuration: Config): void {
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');
@@ -322,6 +326,10 @@ declare var module: { exports: any; };
 
 		pendingCacheInsert = {};
 	}
+
+	function noop(): void {};
+
+	let loadNodeModule: (moduleId: string, parent?: Module) => any = noop;
 
 	function contextRequire(moduleId: string, unused?: void, referenceModule?: Module): Module;
 	function contextRequire(dependencies: string[], callback: RequireCallback, referenceModule?: Module): Module;
@@ -533,10 +541,11 @@ declare var module: { exports: any; };
 	const commonJsRequireModule: Module = makeCommonJs('require');
 	const commonJsExportsModule: Module = makeCommonJs('exports');
 	const commonJsModuleModule: Module = makeCommonJs('module');
+	let circularTrace: string[];
 
 	has.add('loader-debug-circular-dependencies', true);
 	if (has('loader-debug-circular-dependencies')) {
-		var circularTrace: string[] = [];
+		circularTrace = [];
 	}
 
 	function executeModule(module: Module): any {
@@ -796,7 +805,7 @@ declare var module: { exports: any; };
 	}
 
 	if (has('host-node')) {
-		function loadNodeModule(moduleId: string, parent?: Module): any {
+		loadNodeModule = (moduleId: string, parent?: Module): any => {
 			let module: any = require('module');
 			let amdDefine = define;
 			let result: any;
@@ -828,7 +837,7 @@ declare var module: { exports: any; };
 			}
 
 			return result;
-		}
+		};
 
 		const vm: any = require('vm');
 		const fs: any = require('fs');
@@ -836,19 +845,18 @@ declare var module: { exports: any; };
 		// retain the ability to get node's require
 		requireModule.nodeRequire = require;
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void,
-							  module: Module, parent?: Module): void {
+							module: Module, parent?: Module): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
-				if (error) {
-					function loadCallback () {
-						let result = loadNodeModule(module.mid, parent);
+				function loadCallback () {
+					let result = loadNodeModule(module.mid, parent);
 
 						if (!result) {
 							reportModuleLoadError(parent, module, url);
 						}
 
-						return result;
-					}
-
+					return result;
+				}
+				if (error) {
 					moduleDefinitionArguments = [ [], loadCallback ];
 				}
 				else {
@@ -856,13 +864,13 @@ declare var module: { exports: any; };
 					// webview; in Node.js the `module` variable does not exist when using `vm.runInThisContext`,
 					// but in Electron it exists in the webview when Node.js integration is enabled which causes loaded
 					// modules to register with Node.js and break the loader
-					var oldModule = this.module;
-					this.module = undefined;
+					let oldModule = globalObject.module;
+					globalObject.module = undefined;
 					try {
 						vm.runInThisContext(data, url);
 					}
 					finally {
-						this.module = oldModule;
+						globalObject.module = oldModule;
 					}
 				}
 
@@ -871,13 +879,13 @@ declare var module: { exports: any; };
 		};
 
 		setGlobals = function (require: Require, define: Define): void {
-			module.exports = this.require = require;
-			this.define = define;
+			module.exports = globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else if (has('host-browser')) {
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: Module,
-							  parent?: Module): void {
+							parent?: Module): void {
 			// insert a script element to the insert-point element with src=url;
 			// apply callback upon detecting the script has loaded.
 			const node: HTMLScriptElement = document.createElement('script');
@@ -902,8 +910,8 @@ declare var module: { exports: any; };
 		};
 
 		setGlobals = function (require: Require, define: Define): void {
-			this.require = require;
-			this.define = define;
+			globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else {
@@ -947,9 +955,13 @@ declare var module: { exports: any; };
 	});
 
 	has.add('loader-cjs-wrapping', true);
+
+	let comments: RegExp;
+	let requireCall: RegExp;
+
 	if (has('loader-cjs-wrapping')) {
-		var comments: RegExp = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
-		var requireCall: RegExp = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
+		comments = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
+		requireCall = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
 	}
 
 	has.add('loader-explicit-mid', true);
@@ -958,7 +970,7 @@ declare var module: { exports: any; };
 	 * @param deps //(array of commonjs.moduleId, optional)
 	 * @param factory //(any)
 	 */
-	var define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
+	let define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
 		let originalFactory: any;
 		if (has('loader-explicit-mid') && arguments.length > 1 && typeof dependencies === 'string') {
 			let id: string = <any> dependencies;
@@ -1026,8 +1038,8 @@ declare var module: { exports: any; };
 
 		if (has('loader-ie9-compat')) {
 			for (let i = document.scripts.length - 1, script: HTMLScriptElement;
-				 script = <HTMLScriptElement> document.scripts[i];
-				 --i) {
+				script = <HTMLScriptElement> document.scripts[i];
+				--i) {
 				if ((<any> script).readyState === 'interactive') {
 					(<any> script).defArgs = [ dependencies, factory ];
 					break;
