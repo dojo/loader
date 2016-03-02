@@ -176,7 +176,7 @@ const globalObject: any = Function('return this')();
 		queue.push(listener);
 
 		return {
-			remove() : void {
+			remove(): void {
 				queue.splice(queue.indexOf(listener), 1);
 			}
 		};
