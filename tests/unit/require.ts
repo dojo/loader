@@ -125,7 +125,7 @@ registerSuite({
 			}
 		};
 
-		onErrorHandler = global.require.on('error', dfd.callback(function noop(error: LoaderError) {}));
+		onErrorHandler = global.require.on('error', dfd.callback(function noop(error: DojoLoader.LoaderError) {}));
 
 		global.require([
 			badMid
@@ -138,7 +138,7 @@ registerSuite({
 		let dfd = this.async(DEFAULT_TIMEOUT);
 		let badMid = 'bad/module/id';
 
-		onErrorHandler = global.require.on('error', dfd.callback(function (error: LoaderError) {
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: DojoLoader.LoaderError) {
 			assert.isTrue(error.message.indexOf(badMid) > -1,
 				'Callback should fire and message should contain bad mid');
 		}));
@@ -154,7 +154,7 @@ registerSuite({
 		let dfd = this.async(DEFAULT_TIMEOUT);
 		let badMid = 'bad/module/id';
 
-		onErrorHandler = global.require.on('error', dfd.callback(function (error: LoaderError) {
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: DojoLoader.LoaderError) {
 			assert.strictEqual(error.src, 'dojo/loader', 'Error should be marked as from the loader');
 			assert.isObject(error.info, 'Error should be supplemented with info');
 			assert.strictEqual(error.info.module.mid, badMid, 'Error should be related to the bad module');
@@ -172,12 +172,12 @@ registerSuite({
 		let dfd = this.async(DEFAULT_TIMEOUT);
 		let badMid = 'bad/module/id';
 
-		onErrorHandler = global.require.on('error', dfd.callback(function (error: LoaderError) {
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: DojoLoader.LoaderError) {
 			assert.fail(null, null, 'on-error callback should not have fired');
 		}));
 		onErrorHandler.remove();
 
-		(<any> process)._events.uncaughtException = dfd.callback(function (error: LoaderError) {
+		(<any> process)._events.uncaughtException = dfd.callback(function (error: DojoLoader.LoaderError) {
 			assert.isTrue(error.message.indexOf(badMid) > -1, 'Error should be related to bad module');
 		});
 
