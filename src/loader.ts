@@ -91,8 +91,6 @@ const globalObject: any = Function('return this')();
 	// the number of modules the loader has injected but has not seen defined
 	let waitingCount: number = 0;
 
-	let configure: (configuration: DojoLoader.Config) => void;
-
 	const has: DojoLoader.Has = (function (): DojoLoader.Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
 		const global: Window = globalObject;
@@ -112,8 +110,8 @@ const globalObject: any = Function('return this')();
 		return has;
 	})();
 
-	const requireModule: RootRequire =
-		<RootRequire> function (dependencies: any, callback?: RequireCallback): Module {
+	const requireModule: DojoLoader.RootRequire =
+		<DojoLoader.RootRequire> function (dependencies: any, callback?: DojoLoader.RequireCallback): DojoLoader.Module {
 			return contextRequire(dependencies, callback);
 		};
 
@@ -179,7 +177,7 @@ const globalObject: any = Function('return this')();
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		requireModule.config = function (configuration: Config): void {
+		requireModule.config = function (configuration: DojoLoader.Config): void {
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');

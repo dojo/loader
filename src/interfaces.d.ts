@@ -112,7 +112,6 @@ declare namespace DojoLoader {
 	interface PathMap extends MapReplacement {}
 
 	interface Require {
-		(config: Config, dependencies?: string[], callback?: RequireCallback): void;
 		(dependencies: string[], callback: RequireCallback): void;
 		<ModuleType>(moduleId: string): ModuleType;
 
