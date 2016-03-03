@@ -400,7 +400,7 @@ const globalObject: any = Function('return this')();
 		return absolutePathSegments.join('/');
 	}
 
-	function updateModuleIdFromMap(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
+	function updateModuleIdFromMap(moduleId: string, referenceModule?: DojoLoader.Module): string {
 		// relative module ids are relative to the referenceModule; get rid of any dots
 		moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
 			(referenceModule.mid + '/../' + moduleId) : moduleId);
@@ -419,7 +419,7 @@ const globalObject: any = Function('return this')();
 		return moduleId;
 	}
 
-	function getPluginInformation(moduleId: string, match: string[], referenceModule?: Module): Module {
+	function getPluginInformation(moduleId: string, match: string[], referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		const plugin = getModule(match[1], referenceModule);
 		const isPluginLoaded = Boolean(plugin.load);
 
@@ -435,7 +435,7 @@ const globalObject: any = Function('return this')();
 			pluginResourceId = match[2];
 			moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
 		}
-		return <Module> <any> {
+		return <DojoLoader.Module> <any> {
 			plugin: plugin,
 			mid: moduleId,
 			req: contextRequire,
@@ -444,7 +444,7 @@ const globalObject: any = Function('return this')();
 		};
 	}
 
-	function getModuleInformation(moduleId: string, referenceModule?: Module): Module {
+	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
 		let pack = packageMap[packageId];
@@ -512,7 +512,7 @@ const globalObject: any = Function('return this')();
 	function toUrl(name: string, referenceModule: DojoLoader.Module): string {
 		let moduleId = name + '/x';
 		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
-		const moduleInfo: Module = getModuleInformation(moduleId, referenceModule);
+		const moduleInfo: DojoLoader.Module = getModuleInformation(moduleId, referenceModule);
 		const url: string = moduleInfo.url;
 
 		// "/x.js" since getModuleInfo automatically appends ".js" and we appended "/x" to make name look like a
