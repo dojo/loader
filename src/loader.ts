@@ -1,136 +1,3 @@
-// Create ambient declarations for global node.js variables.
-declare var process: any;
-declare var require: <ModuleType>(moduleId: string) => ModuleType;
-declare var module: { exports: any; };
-
-export interface Config {
-	baseUrl?: string;
-	map?: ModuleMap;
-	packages?: Package[];
-	paths?: { [ path: string ]: string; };
-}
-
-export interface Define {
-	(moduleId: string, dependencies: string[], factory: Factory): void;
-	(dependencies: string[], factory: Factory): void;
-	(factory: Factory): void;
-	(value: any): void;
-}
-
-export interface Factory {
-	(...modules: any[]): any;
-}
-
-export interface Has {
-	(name: string): any;
-	add(name: string, value: (global: Window, document?: HTMLDocument, element?: HTMLDivElement) => any,
-		now?: boolean, force?: boolean): void;
-	add(name: string, value: any, now?: boolean, force?: boolean): void;
-}
-
-export interface LoaderPlugin {
-	load?: (resourceId: string, require: Require, load: (value?: any) => void, config?: Object) => void;
-	normalize?: (moduleId: string, normalize: (moduleId: string) => string) => string;
-}
-
-export interface MapItem extends Array<any> {
-	/* prefix */      0: string;
-	/* replacement */ 1: any;
-	/* regExp */      2: RegExp;
-	/* length */      3: number;
-}
-
-export interface MapReplacement extends MapItem {
-	/* replacement */ 1: string;
-}
-
-export interface MapRoot extends Array<MapSource> {
-	star?: MapSource;
-}
-
-export interface MapSource extends MapItem {
-	/* replacement */ 1: MapReplacement[];
-}
-
-// TODO are we still abbreviating these properties?
-export interface Module extends LoaderPlugin {
-	cjs: {
-		exports: any;
-		id: string;
-		setExports: (exports: any) => void;
-		uri: string;
-	};
-	def: Factory;
-	deps: Module[];
-	executed: any; // TODO: enum
-	injected: boolean;
-	fix?: (module: Module) => void;
-	gc: boolean;
-	mid: string;
-	pack: Package;
-	req: Require;
-	require?: Require; // TODO: WTF?
-	result: any;
-	url: string;
-
-	// plugin interface
-	loadQ?: Module[];
-	plugin?: Module;
-	prid: string;
-}
-
-export interface ModuleMap extends ModuleMapItem {
-	[ sourceMid: string ]: ModuleMapReplacement;
-}
-
-export interface ModuleMapItem {
-	[ mid: string ]: /* ModuleMapReplacement | ModuleMap */ any;
-}
-
-export interface ModuleMapReplacement extends ModuleMapItem {
-	[ findMid: string ]: /* replaceMid */ string;
-}
-
-export interface Package {
-	location?: string;
-	main?: string;
-	name?: string;
-}
-
-export interface PackageMap {
-	[ packageId: string ]: Package;
-}
-
-export interface PathMap extends MapReplacement {}
-
-export interface Require {
-	(config: Config, dependencies?: string[], callback?: RequireCallback): void;
-	(dependencies: string[], callback: RequireCallback): void;
-	<ModuleType>(moduleId: string): ModuleType;
-
-	toAbsMid(moduleId: string): string;
-	toUrl(path: string): string;
-}
-
-export interface RequireCallback {
-	(...modules: any[]): void;
-}
-
-export interface RootRequire extends Require {
-	has: Has;
-	config(config: Config): void;
-	inspect?(name: string): any;
-	nodeRequire?(id: string): any;
-	undef(moduleId: string): void;
-}
-
-interface ObjectMap { [ key: string ]: any; }
-
-interface ModuleDefinitionArguments extends Array<any> {
-	0: string[];
-	1: Factory;
-}
-
 const globalObject: any = Function('return this')();
 
 (function (): void {
@@ -245,6 +112,48 @@ const globalObject: any = Function('return this')();
 		return has;
 	})();
 
+	const listenerQueues: { [queue: string]: ((...args: any[]) => void)[] } = {};
+
+	const reportModuleLoadError = function (parent: Module, module: Module, url: string): void {
+		const parentMid = (parent ? ` (parent: ${parent.mid})` : '');
+		const message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
+		const error = mix<LoaderError>(new Error(message), {
+			src: 'dojo/loader',
+			info: {
+				module,
+				url,
+				parentMid
+			}
+		});
+
+		if (!emit('error', error)) { throw error; };
+	};
+
+	const emit = function(type: SignalType, args: {}): number | boolean {
+		let queue = listenerQueues[type];
+		let hasListeners = queue && queue.length;
+
+		if (hasListeners) {
+			for (let listener of queue.slice(0)) {
+				listener.apply(null, Array.isArray(args) ? args : [args]);
+			}
+		}
+
+		return hasListeners;
+	};
+
+	const on = function(type: string, listener: (error: LoaderError) => void): { remove: () => void } {
+		let queue = listenerQueues[type] || (listenerQueues[type] = []);
+
+		queue.push(listener);
+
+		return {
+			remove(): void {
+				queue.splice(queue.indexOf(listener), 1);
+			}
+		};
+	};
+
 	const requireModule: RootRequire =
 		<RootRequire> function (configuration: any, dependencies?: any, callback?: RequireCallback): Module {
 		if (Array.isArray(configuration) || /* require(mid) */ typeof configuration === 'string') {
@@ -258,6 +167,7 @@ const globalObject: any = Function('return this')();
 		return contextRequire(dependencies, callback);
 	};
 	requireModule.has = has;
+	requireModule.on = on;
 
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
 	has.add('host-node', typeof process === 'object' && process.versions && process.versions.node);
@@ -368,11 +278,11 @@ const globalObject: any = Function('return this')();
 		array && array.forEach(callback);
 	}
 
-	function mix(target: {}, source: {}): {} {
+	function mix<T extends {}>(target: {}, source: {}): T {
 		for (let key in source) {
 			(<ObjectMap> target)[key] = (<ObjectMap> source)[key];
 		}
-		return target;
+		return <T> target;
 	}
 
 	function consumePendingCacheInsert(referenceModule?: Module): void {
@@ -912,10 +822,9 @@ const globalObject: any = Function('return this')();
 				function loadCallback () {
 					let result = loadNodeModule(module.mid, parent);
 
-					if (!result) {
-						let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-						throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
-					}
+						if (!result) {
+							reportModuleLoadError(parent, module, url);
+						}
 
 					return result;
 				}
@@ -959,8 +868,7 @@ const globalObject: any = Function('return this')();
 					has('loader-ie9-compat') ? callback(node) : callback();
 				}
 				else {
-					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-					throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
+					reportModuleLoadError(parent, module, url);
 				}
 			};
 

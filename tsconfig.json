@@ -17,6 +17,7 @@
 	],
 	"files": [
 		"./typings/tsd.d.ts",
+		"./src/interfaces.d.ts",
 		"./src/loader.ts",
 		"./tests/functional/all.ts",
 		"./tests/functional/amdApp/Deep2.ts",
@@ -45,5 +46,8 @@
 		"./tests/unit/all.ts",
 		"./tests/unit/basicCommonJsLoading.ts",
 		"./tests/unit/require.ts"
-	]
+	],
+	"atom": {
+		"rewriteTsconfig": false
+	}
 }

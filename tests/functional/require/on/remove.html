@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>require.undef Test</title>
+	</head>
+
+	<body>
+		<script src="../../../../src/loader.js"></script>
+		<script>
+			require.config({
+				baseUrl: '../..',
+				packages: [
+					{
+						name: 'chai',
+						location: '../../../node_modules/intern/node_modules/chai',
+						main: 'chai'
+					}
+				]
+			});
+
+			require(['chai/chai'], function (chai) {
+				var assert = chai.assert;
+				var badMid = 'bad/module';
+
+				var onErrorHandler = require.on('error', function (error) {
+					try {
+						assert.fail(null, null, 'on-error callback should not have fired');
+					} catch (error) {
+						window.loaderTestResults = error.message;
+					} finally {
+						if (window.loaderTestResults === undefined) {
+							window.loaderTestResults = 'success';
+						}
+					}
+				});
+
+				window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+					try {
+						assert.include(errorMsg, 'Failed to load module', 'Message should indicate module failed to load');
+						assert.include(errorMsg, badMid, 'Message should contain bad mid');
+
+						// errorObj not present for IE9/10
+						if (errorObj) {
+							assert.strictEqual(errorObj.src, 'dojo/loader', 'Error should be marked as from the loader');
+							assert.isObject(errorObj.info, 'Error should be supplemented with info');
+							assert.strictEqual(errorObj.info.module.mid, badMid, 'Error should be related to the bad module');
+							assert.include(errorObj.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
+						}
+					} catch (assertionError) {
+						window.loaderTestResults = assertionError.message;
+					} finally {
+						if (window.loaderTestResults === undefined) {
+							window.loaderTestResults = 'success';
+						}
+					}
+
+					return true;
+				};
+
+				onErrorHandler.remove();
+
+				require([badMid]);
+			});
+		</script>
+	</body>
+</html>
