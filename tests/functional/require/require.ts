@@ -154,5 +154,23 @@ registerSuite({
 				assert.fail(null, null, results);
 			}
 		});
+	},
+
+	on: {
+		error() {
+			return executeTest(this, './on/error.html', function (results: any) {
+				if (results !== 'success') {
+					assert.fail(null, null, results);
+				}
+			});
+		},
+
+		remove() {
+			return executeTest(this, './on/remove.html', function (results: any) {
+				if (results !== 'success') {
+					assert.fail(null, null, results);
+				}
+			});
+		}
 	}
 });

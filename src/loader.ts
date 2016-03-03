@@ -1,136 +1,4 @@
-// Create ambient declarations for global node.js variables.
-declare var process: any;
-declare var require: <ModuleType>(moduleId: string) => ModuleType;
-declare var module: { exports: any; };
-
-export interface Config {
-	baseUrl?: string;
-	map?: ModuleMap;
-	packages?: Package[];
-	paths?: { [ path: string ]: string; };
-	pkgs?: { [ path: string ]: Package; };
-}
-
-export interface Define {
-	(moduleId: string, dependencies: string[], factory: Factory): void;
-	(dependencies: string[], factory: Factory): void;
-	(factory: Factory): void;
-	(value: any): void;
-}
-
-export interface Factory {
-	(...modules: any[]): any;
-}
-
-export interface Has {
-	(name: string): any;
-	add(name: string, value: (global: Window, document?: HTMLDocument, element?: HTMLDivElement) => any,
-		now?: boolean, force?: boolean): void;
-	add(name: string, value: any, now?: boolean, force?: boolean): void;
-}
-
-export interface LoaderPlugin {
-	load?: (resourceId: string, require: Require, load: (value?: any) => void, config?: Object) => void;
-	normalize?: (moduleId: string, normalize: (moduleId: string) => string) => string;
-}
-
-export interface MapItem extends Array<any> {
-	/* prefix */	  0: string;
-	/* replacement */ 1: any;
-	/* regExp */	  2: RegExp;
-	/* length */	  3: number;
-}
-
-export interface MapReplacement extends MapItem {
-	/* replacement */ 1: string;
-}
-
-export interface MapRoot extends Array<MapSource> {
-	star?: MapSource;
-}
-
-export interface MapSource extends MapItem {
-	/* replacement */ 1: MapReplacement[];
-}
-
-// TODO are we still abbreviating these properties?
-export interface Module extends LoaderPlugin {
-	cjs: {
-		exports: any;
-		id: string;
-		setExports: (exports: any) => void;
-		uri: string;
-	};
-	def: Factory;
-	deps: Module[];
-	executed: any; // TODO: enum
-	injected: boolean;
-	fix?: (module: Module) => void;
-	gc: boolean;
-	mid: string;
-	pack: Package;
-	req: Require;
-	require?: Require; // TODO: WTF?
-	result: any;
-	url: string;
-
-	// plugin interface
-	loadQ?: Module[];
-	plugin?: Module;
-	prid: string;
-}
-
-export interface ModuleMap extends ModuleMapItem {
-	[ sourceMid: string ]: ModuleMapReplacement;
-}
-
-export interface ModuleMapItem {
-	[ mid: string ]: /* ModuleMapReplacement | ModuleMap */ any;
-}
-
-export interface ModuleMapReplacement extends ModuleMapItem {
-	[ findMid: string ]: /* replaceMid */ string;
-}
-
-export interface Package {
-	location?: string;
-	main?: string;
-	name?: string;
-}
-
-export interface PackageMap {
-	[ packageId: string ]: Package;
-}
-
-export interface PathMap extends MapReplacement {}
-
-export interface Require {
-	(config: Config, dependencies?: string[], callback?: RequireCallback): void;
-	(dependencies: string[], callback: RequireCallback): void;
-	<ModuleType>(moduleId: string): ModuleType;
-
-	toAbsMid(moduleId: string): string;
-	toUrl(path: string): string;
-}
-
-export interface RequireCallback {
-	(...modules: any[]): void;
-}
-
-export interface RootRequire extends Require {
-	has: Has;
-	config(config: Config): void;
-	inspect?(name: string): any;
-	nodeRequire?(id: string): any;
-	undef(moduleId: string): void;
-}
-
-interface ObjectMap { [ key: string ]: any; }
-
-interface ModuleDefinitionArguments extends Array<any> {
-	0: string[];
-	1: Factory;
-}
+const globalObject: any = Function('return this')();
 
 (function (): void {
 	const EXECUTING: string = 'executing';
@@ -148,7 +16,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	//
 	// Both kinds of key-value pairs are entered into cache via the function consumePendingCache, which may relocate
 	// keys as given by any mappings *iff* the cache was received as part of a module resource request.
-	let cache: ObjectMap = {};
+	let cache: DojoLoader.ObjectMap = {};
 
 	let checkCompleteGuard: number = 0;
 
@@ -161,17 +29,17 @@ interface ModuleDefinitionArguments extends Array<any> {
 	};
 
 	// The arguments sent to loader via AMD define().
-	let moduleDefinitionArguments: ModuleDefinitionArguments = null;
+	let moduleDefinitionArguments: DojoLoader.ModuleDefinitionArguments = null;
 
 	// The list of modules that need to be evaluated.
-	let executionQueue: Module[] = [];
+	let executionQueue: DojoLoader.Module[] = [];
 
 	let executedSomething: boolean = false;
 
-	let injectUrl: (url: string, callback: (node?: HTMLScriptElement) => void, module: Module, parent?: Module) => void;
+	let injectUrl: (url: string, callback: (node?: HTMLScriptElement) => void, module: DojoLoader.Module, parent?: DojoLoader.Module) => void;
 
 	// array of quads as described by computeMapProg; map-key is AMD map key, map-value is AMD map value
-	let mapPrograms: MapRoot = [];
+	let mapPrograms: DojoLoader.MapRoot = [];
 
 	// A hash: (mid) --> (module-object) the module namespace
 	//
@@ -202,11 +70,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 	// 4. Defined: the resource contained a define statement that advised the loader about the module.
 	//
 	// 5. Evaluated: the module was defined via define and the loader has evaluated the factory and computed a result.
-	let modules: { [ moduleId: string ]: Module; } = {};
+	let modules: { [ moduleId: string ]: DojoLoader.Module; } = {};
 
 	// list of (from-path, to-path, regex, length) derived from paths;
 	// a "program" to apply paths; see computeMapProg
-	let pathMapPrograms: PathMap[] = [];
+	let pathMapPrograms: DojoLoader.PathMap[] = [];
 
 	// hash: (mid | url)-->(function | string)
 	//
@@ -216,20 +84,22 @@ interface ModuleDefinitionArguments extends Array<any> {
 	// in the pending cache for the local configuration, possibly relocating modules.
 	let pendingCacheInsert: { [moduleId: string]: any; } = {};
 
-	let setGlobals: (require: Require, define: Define) => void;
+	let setGlobals: (require: DojoLoader.Require, define: DojoLoader.Define) => void;
 
 	let uidGenerator: number = 0;
 
 	// the number of modules the loader has injected but has not seen defined
 	let waitingCount: number = 0;
 
-	const has: Has = (function (): Has {
+	let configure: (configuration: DojoLoader.Config) => void;
+
+	const has: DojoLoader.Has = (function (): DojoLoader.Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
-		const global: Window = this;
+		const global: Window = globalObject;
 		const document: HTMLDocument = global.document;
 		const element: HTMLDivElement = document && document.createElement('div');
 
-		const has: Has = <Has> function(name: string): any {
+		const has: DojoLoader.Has = <DojoLoader.Has> function(name: string): any {
 			return typeof hasCache[name] === 'function' ?
 				(hasCache[name] = hasCache[name](global, document, element)) : hasCache[name];
 		};
@@ -242,10 +112,52 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return has;
 	})();
 
-	const requireModule: RootRequire =
-		<RootRequire> function (configuration: any, dependencies?: any, callback?: RequireCallback): Module {
+	const listenerQueues: { [queue: string]: ((...args: any[]) => void)[] } = {};
+
+	const reportModuleLoadError = function (parent: DojoLoader.Module, module: DojoLoader.Module, url: string): void {
+		const parentMid = (parent ? ` (parent: ${parent.mid})` : '');
+		const message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
+		const error = mix<DojoLoader.LoaderError>(new Error(message), {
+			src: 'dojo/loader',
+			info: {
+				module,
+				url,
+				parentMid
+			}
+		});
+
+		if (!emit('error', error)) { throw error; };
+	};
+
+	const emit = function(type: DojoLoader.SignalType, args: {}): number | boolean {
+		let queue = listenerQueues[type];
+		let hasListeners = queue && queue.length;
+
+		if (hasListeners) {
+			for (let listener of queue.slice(0)) {
+				listener.apply(null, Array.isArray(args) ? args : [args]);
+			}
+		}
+
+		return hasListeners;
+	};
+
+	const on = function(type: string, listener: (error: DojoLoader.LoaderError) => void): { remove: () => void } {
+		let queue = listenerQueues[type] || (listenerQueues[type] = []);
+
+		queue.push(listener);
+
+		return {
+			remove(): void {
+				queue.splice(queue.indexOf(listener), 1);
+			}
+		};
+	};
+
+	const requireModule: DojoLoader.RootRequire =
+		<DojoLoader.RootRequire> function (configuration: any, dependencies?: any, callback?: DojoLoader.RequireCallback): DojoLoader.Module {
 		if (Array.isArray(configuration) || /* require(mid) */ typeof configuration === 'string') {
-			callback = <RequireCallback> dependencies;
+			callback = <DojoLoader.RequireCallback> dependencies;
 			dependencies = <string[]> configuration;
 			configuration = undefined;
 		}
@@ -255,6 +167,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return contextRequire(dependencies, callback);
 	};
 	requireModule.has = has;
+	requireModule.on = on;
 
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
 	has.add('host-node', typeof process === 'object' && process.versions && process.versions.node);
@@ -273,7 +186,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		var configure: (configuration: Config) => void = requireModule.config = function (configuration: Config): void {
+		var configure: (configuration: DojoLoader.Config) => void = requireModule.config = function (configuration: Config): void {
 			// Make sure baseUrl ends in a slash
 			if (configuration.baseUrl) {
 				configuration.baseUrl = configuration.baseUrl.replace(/\/*$/, '/');
@@ -302,7 +215,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 
-			forEach(configuration.packages, function (packageDescriptor: Package): void {
+			forEach(configuration.packages, function (packageDescriptor: DojoLoader.Package): void {
 				// Allow shorthand package definition, where name and location are the same
 				if (typeof packageDescriptor === 'string') {
 					packageDescriptor = { name: <string> packageDescriptor, location: <string> packageDescriptor };
@@ -315,7 +228,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 				config.pkgs[packageDescriptor.name] = packageDescriptor;
 			});
 
-			function computeMapProgram(map: ModuleMapItem): MapItem[] {
+			function computeMapProgram(map: DojoLoader.ModuleMapItem): DojoLoader.MapItem[] {
 				// This method takes a map as represented by a JavaScript object and initializes an array of
 				// arrays of (map-key, map-value, regex-for-map-key, length-of-map-key), sorted decreasing by length-
 				// of-map-key. The regex looks for the map-key followed by either "/" or end-of-string at the beginning
@@ -347,13 +260,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 				//     original module id length
 				// ]
 
-				const result: MapItem[] = [];
+				const result: DojoLoader.MapItem[] = [];
 
 				for (let moduleId in map) {
 					const value: any = (<any> map)[moduleId];
 					const isValueAMapReplacement: boolean = typeof value === 'object';
 
-					const item = <MapItem> {
+					const item = <DojoLoader.MapItem> {
 						0: moduleId,
 						1: isValueAMapReplacement ? computeMapProgram(value) : value,
 						2: new RegExp('^' + moduleId.replace(/[-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&') + '(?:\/|$)'),
@@ -362,11 +275,11 @@ interface ModuleDefinitionArguments extends Array<any> {
 					result.push(item);
 
 					if (isValueAMapReplacement && moduleId === '*') {
-						(<MapRoot> result).star = item[1];
+						(<DojoLoader.MapRoot> result).star = item[1];
 					}
 				}
 
-				result.sort(function (left: MapItem, right: MapItem): number {
+				result.sort(function (left: DojoLoader.MapItem, right: DojoLoader.MapItem): number {
 					return right[3] - left[3];
 				});
 
@@ -404,10 +317,10 @@ interface ModuleDefinitionArguments extends Array<any> {
 				}
 			}
 		}
-		return target;
+		return <T> target;
 	}
 
-	function consumePendingCacheInsert(referenceModule?: Module): void {
+	function consumePendingCacheInsert(referenceModule?: DojoLoader.Module): void {
 		let item: any;
 
 		for (let key in pendingCacheInsert) {
@@ -421,10 +334,14 @@ interface ModuleDefinitionArguments extends Array<any> {
 		pendingCacheInsert = {};
 	}
 
-	function contextRequire(moduleId: string, unused?: void, referenceModule?: Module): Module;
-	function contextRequire(dependencies: string[], callback: RequireCallback, referenceModule?: Module): Module;
-	function contextRequire(dependencies: string | string[], callback: any, referenceModule?: Module): Module {
-		let module: Module;
+	function noop(): void {};
+
+	let loadNodeModule: (moduleId: string, parent?: DojoLoader.Module) => any = noop;
+
+	function contextRequire(moduleId: string, unused?: void, referenceModule?: DojoLoader.Module): DojoLoader.Module;
+	function contextRequire(dependencies: string[], callback: DojoLoader.RequireCallback, referenceModule?: DojoLoader.Module): DojoLoader.Module;
+	function contextRequire(dependencies: string | string[], callback: any, referenceModule?: DojoLoader.Module): DojoLoader.Module {
+		let module: DojoLoader.Module;
 		if (typeof dependencies === 'string') {
 			module = getModule(dependencies, referenceModule);
 			if (module.executed !== true && module.executed !== EXECUTING) {
@@ -467,10 +384,10 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return module;
 	}
 
-	function createRequire(module: Module): Require {
-		let result: Require = (!module && requireModule) || module.require;
+	function createRequire(module: DojoLoader.Module): DojoLoader.Require {
+		let result: DojoLoader.Require = (!module && requireModule) || module.require;
 		if (!result) {
-			module.require = result = <Require> function (dependencies: any, callback: any): Module {
+			module.require = result = <DojoLoader.Require> function (dependencies: any, callback: any): DojoLoader.Module {
 				return contextRequire(dependencies, callback, module);
 			};
 			mix(mix(result, requireModule), {
@@ -485,7 +402,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return result;
 	}
 
-	function runMapProgram(targetModuleId: string, map: MapItem[]): MapSource {
+	function runMapProgram(targetModuleId: string, map: DojoLoader.MapItem[]): DojoLoader.MapSource {
 		// search for targetModuleId in map; return the map item if found; falsy otherwise
 		if (map) {
 			for (let i = 0, j = map.length; i < j; ++i) {
@@ -518,7 +435,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return absolutePathSegments.join('/');
 	}
 
-	function getModuleInformation(moduleId: string, referenceModule?: Module): Module {
+	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		// relative module ids are relative to the referenceModule; get rid of any dots
 		moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
 			(referenceModule.mid + '/../' + moduleId) : moduleId);
@@ -526,10 +443,10 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		// if there is a reference module, then use its module map, if one exists; otherwise, use the global map.
 		// see computeMapProg for more information on the structure of the map arrays
-		let moduleMap: MapItem = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
+		let moduleMap: DojoLoader.MapItem = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
 		moduleMap = moduleMap ? moduleMap[1] : mapPrograms.star;
 
-		let mapItem: MapItem;
+		let mapItem: DojoLoader.MapItem;
 		if ((mapItem = runMapProgram(moduleId, moduleMap))) {
 			moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
 		}
@@ -550,7 +467,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		if (!(module)) {
 			mapItem = runMapProgram(moduleId, pathMapPrograms);
 			let url = mapItem ? mapItem[1] + moduleId.slice(mapItem[3]) : (packageId ? pack.location + moduleIdInPackage : moduleId);
-			module = <Module> <any> {
+			module = <DojoLoader.Module> <any> {
 				pid: packageId,
 				mid: moduleId,
 				pack: pack,
@@ -567,14 +484,14 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return module;
 	}
 
-	function resolvePluginResourceId(plugin: Module, pluginResourceId: string, contextRequire: Require): string {
+	function resolvePluginResourceId(plugin: DojoLoader.Module, pluginResourceId: string, contextRequire: DojoLoader.Require): string {
 		return plugin.normalize ? plugin.normalize(pluginResourceId, contextRequire.toAbsMid) :
 			contextRequire.toAbsMid(pluginResourceId);
 	}
 
-	function getModule(moduleId: string, referenceModule?: Module): Module {
+	function getModule(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		// compute and construct (if necessary) the module implied by the moduleId with respect to referenceModule
-		let module: Module;
+		let module: DojoLoader.Module;
 
 		const match = moduleId.match(/^(.+?)\!(.*)$/);
 		if (match) {
@@ -594,7 +511,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 				pluginResourceId = match[2];
 				moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
 			}
-			module = <Module> <any> {
+			module = <DojoLoader.Module> <any> {
 				plugin: plugin,
 				mid: moduleId,
 				req: contextRequire,
@@ -608,12 +525,12 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return modules[module.mid] || (modules[module.mid] = module);
 	}
 
-	function toAbsMid(moduleId: string, referenceModule: Module): string {
+	function toAbsMid(moduleId: string, referenceModule: DojoLoader.Module): string {
 		return getModuleInformation(moduleId, referenceModule).mid;
 	}
 
-	function toUrl(name: string, referenceModule: Module): string {
-		const moduleInfo: Module = getModuleInformation(name + '/x', referenceModule);
+	function toUrl(name: string, referenceModule: DojoLoader.Module): string {
+		const moduleInfo: DojoLoader.Module = getModuleInformation(name + '/x', referenceModule);
 		const url: string = moduleInfo.url;
 
 		// "/x.js" since getModuleInfo automatically appends ".js" and we appended "/x" to make name look like a
@@ -621,23 +538,24 @@ interface ModuleDefinitionArguments extends Array<any> {
 		return url.slice(0, url.length - 5);
 	}
 
-	function makeCommonJs(mid: string): Module {
-		return (modules[mid] = <Module> <any> {
+	function makeCommonJs(mid: string): DojoLoader.Module {
+		return (modules[mid] = <DojoLoader.Module> <any> {
 			mid: mid,
 			injected: true,
 			executed: true
 		});
 	}
-	const commonJsRequireModule: Module = makeCommonJs('require');
-	const commonJsExportsModule: Module = makeCommonJs('exports');
-	const commonJsModuleModule: Module = makeCommonJs('module');
+	const commonJsRequireModule: DojoLoader.Module = makeCommonJs('require');
+	const commonJsExportsModule: DojoLoader.Module = makeCommonJs('exports');
+	const commonJsModuleModule: DojoLoader.Module = makeCommonJs('module');
+	let circularTrace: string[];
 
 	has.add('loader-debug-circular-dependencies', true);
 	if (has('loader-debug-circular-dependencies')) {
-		var circularTrace: string[] = [];
+		circularTrace = [];
 	}
 
-	function executeModule(module: Module): any {
+	function executeModule(module: DojoLoader.Module): any {
 		// run the dependency array, then run the factory for module
 		if (module.executed === EXECUTING) {
 			// for circular dependencies, assume the first module encountered was executed OK
@@ -666,13 +584,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 			has('loader-debug-circular-dependencies') && circularTrace.push(module.mid);
 
-			const dependencies: Module[] = module.deps;
+			const dependencies: DojoLoader.Module[] = module.deps;
 			let result: any;
 
 			module.executed = EXECUTING;
-			let executedDependencies = dependencies.map(function (dependency: Module): any {
+			let executedDependencies = dependencies.map(function (dependency: DojoLoader.Module): any {
 				if (result !== ABORT_EXECUTION) {
-					// check for keyword dependencies: require, exports, module; then execute module dependency
+					// check for keyword dependencies: DojoLoader.require, exports, module; then execute module dependency
 					result = ((dependency === commonJsRequireModule) ? createRequire(module) :
 								((dependency === commonJsExportsModule) ? module.cjs.exports :
 									((dependency === commonJsModuleModule) ? module.cjs :
@@ -687,7 +605,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 				return ABORT_EXECUTION;
 			}
 
-			const factory: Factory = module.def;
+			const factory: DojoLoader.Factory = module.def;
 			result = typeof factory === 'function' ? factory.apply(null, executedDependencies) : factory;
 
 			// TODO: But of course, module.cjs always exists.
@@ -708,13 +626,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 			});
 
 			// for plugins, resolve the loadQ
-			forEach(module.loadQ, function (pseudoPluginResource: Module): void {
+			forEach(module.loadQ, function (pseudoPluginResource: DojoLoader.Module): void {
 				// manufacture and insert the real module in modules
 				const pluginResourceId: string = resolvePluginResourceId(module, pseudoPluginResource.prid,
 					pseudoPluginResource.req);
 				const moduleId: string = (module.mid + '!' + pluginResourceId);
-				const pluginResource: Module =
-					<Module> mix(mix({}, pseudoPluginResource), { mid: moduleId, prid: pluginResourceId });
+				const pluginResource: DojoLoader.Module =
+					<DojoLoader.Module> mix(mix({}, pseudoPluginResource), { mid: moduleId, prid: pluginResourceId });
 
 				if (!modules[moduleId]) {
 					// create a new (the real) plugin resource and inject it normally now that the plugin is on board
@@ -748,7 +666,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		// keep going through the executionQueue as long as at least one factory is executed
 		// plugins, recursion, cached modules all make for many execution path possibilities
 		!checkCompleteGuard && guardCheckComplete(function (): void {
-			for (let module: Module, i = 0; i < executionQueue.length; ) {
+			for (let module: DojoLoader.Module, i = 0; i < executionQueue.length; ) {
 				module = executionQueue[i];
 				if (module.executed === true) {
 					executionQueue.splice(i, 1);
@@ -770,9 +688,9 @@ interface ModuleDefinitionArguments extends Array<any> {
 		});
 	}
 
-	function injectPlugin(module: Module): void {
+	function injectPlugin(module: DojoLoader.Module): void {
 		// injects the plugin module given by module; may have to inject the plugin itself
-		const plugin: Module = module.plugin;
+		const plugin: DojoLoader.Module = module.plugin;
 		const onLoad = function (def: any): void {
 				module.result = def;
 				--waitingCount;
@@ -797,7 +715,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		}
 	}
 
-	function injectModule(parent: Module, module: Module): void {
+	function injectModule(parent: DojoLoader.Module, module: DojoLoader.Module): void {
 		// TODO: This is for debugging, we should bracket it
 		if (!module) {
 			module = parent;
@@ -808,9 +726,9 @@ interface ModuleDefinitionArguments extends Array<any> {
 			injectPlugin(module);
 		}
 		else if (!module.injected) {
-			let cached: Factory;
+			let cached: DojoLoader.Factory;
 			const onLoadCallback = function (node?: HTMLScriptElement): void {
-				// moduleDefinitionArguments is an array of [dependencies, factory]
+				// DojoLoader.moduleDefinitionArguments is an array of [dependencies, factory]
 				consumePendingCacheInsert(module);
 
 				if (has('loader-ie9-compat') && node) {
@@ -848,12 +766,12 @@ interface ModuleDefinitionArguments extends Array<any> {
 		}
 	}
 
-	function resolveDependencies(dependencies: string[], module: Module, referenceModule: Module): Module[] {
+	function resolveDependencies(dependencies: string[], module: DojoLoader.Module, referenceModule: DojoLoader.Module): DojoLoader.Module[] {
 		// resolve dependencies with respect to this module
-		return dependencies.map(function (dependency: string, i: number): Module {
-			const result: Module = getModule(dependency, referenceModule);
+		return dependencies.map(function (dependency: string, i: number): DojoLoader.Module {
+			const result: DojoLoader.Module = getModule(dependency, referenceModule);
 			if (result.fix) {
-				result.fix = function (m: Module): void {
+				result.fix = function (m: DojoLoader.Module): void {
 					module.deps[i] = m;
 				};
 			}
@@ -861,13 +779,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 		});
 	}
 
-	function defineModule(module: Module, dependencies: string[], factory: Factory): Module {
+	function defineModule(module: DojoLoader.Module, dependencies: string[], factory: DojoLoader.Factory): DojoLoader.Module {
 		--waitingCount;
 		return initializeModule(module, dependencies, factory);
 	}
 
-	function initializeModule(module: Module, dependencies: string[], factory: Factory): Module {
-		return <Module> mix(module, {
+	function initializeModule(module: DojoLoader.Module, dependencies: string[], factory: DojoLoader.Factory): DojoLoader.Module {
+		return <DojoLoader.Module> mix(module, {
 			def: factory,
 			deps: resolveDependencies(dependencies, module, module),
 			cjs: {
@@ -894,7 +812,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	}
 
 	if (has('host-node')) {
-		function loadNodeModule(moduleId: string, parent?: Module): any {
+		loadNodeModule = (moduleId: string, parent?: DojoLoader.Module): any => {
 			let module: any = require('module');
 			let amdDefine = define;
 			let result: any;
@@ -926,7 +844,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 			}
 
 			return result;
-		}
+		};
 
 		const vm: any = require('vm');
 		const fs: any = require('fs');
@@ -934,20 +852,18 @@ interface ModuleDefinitionArguments extends Array<any> {
 		// retain the ability to get node's require
 		requireModule.nodeRequire = require;
 		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void,
-							  module: Module, parent?: Module): void {
+							module: DojoLoader.Module, parent?: DojoLoader.Module): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
-				if (error) {
-					function loadCallback () {
-						let result = loadNodeModule(module.mid, parent);
+				function loadCallback () {
+					let result = loadNodeModule(module.mid, parent);
 
 						if (!result) {
-							let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-							throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
+							reportModuleLoadError(parent, module, url);
 						}
 
-						return result;
-					}
-
+					return result;
+				}
+				if (error) {
 					moduleDefinitionArguments = [ [], loadCallback ];
 				}
 				else {
@@ -955,13 +871,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 					// webview; in Node.js the `module` variable does not exist when using `vm.runInThisContext`,
 					// but in Electron it exists in the webview when Node.js integration is enabled which causes loaded
 					// modules to register with Node.js and break the loader
-					var oldModule = this.module;
-					this.module = undefined;
+					let oldModule = globalObject.module;
+					globalObject.module = undefined;
 					try {
 						vm.runInThisContext(data, url);
 					}
 					finally {
-						this.module = oldModule;
+						globalObject.module = oldModule;
 					}
 				}
 
@@ -969,14 +885,14 @@ interface ModuleDefinitionArguments extends Array<any> {
 			});
 		};
 
-		setGlobals = function (require: Require, define: Define): void {
-			module.exports = this.require = require;
-			this.define = define;
+		setGlobals = function (require: DojoLoader.Require, define: DojoLoader.Define): void {
+			module.exports = globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else if (has('host-browser')) {
-		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: Module,
-							  parent?: Module): void {
+		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: DojoLoader.Module,
+							parent?: DojoLoader.Module): void {
 			// insert a script element to the insert-point element with src=url;
 			// apply callback upon detecting the script has loaded.
 			const node: HTMLScriptElement = document.createElement('script');
@@ -987,8 +903,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 					has('loader-ie9-compat') ? callback(node) : callback();
 				}
 				else {
-					let parentMid = (parent ? ' (parent: ' + parent.mid + ')' : '');
-					throw new Error('Failed to load module ' + module.mid + ' from ' + url + parentMid);
+					reportModuleLoadError(parent, module, url);
 				}
 			};
 
@@ -1001,9 +916,9 @@ interface ModuleDefinitionArguments extends Array<any> {
 			document.head.appendChild(node);
 		};
 
-		setGlobals = function (require: Require, define: Define): void {
-			this.require = require;
-			this.define = define;
+		setGlobals = function (require: DojoLoader.Require, define: DojoLoader.Define): void {
+			globalObject.require = require;
+			globalObject.define = define;
 		};
 	}
 	else {
@@ -1033,7 +948,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 		toAbsMid: toAbsMid,
 		toUrl: toUrl,
 
-		cache: function (cache: ObjectMap): void {
+		cache: function (cache: DojoLoader.ObjectMap): void {
 			consumePendingCacheInsert();
 			pendingCacheInsert = cache;
 		}
@@ -1047,9 +962,13 @@ interface ModuleDefinitionArguments extends Array<any> {
 	});
 
 	has.add('loader-cjs-wrapping', true);
+
+	let comments: RegExp;
+	let requireCall: RegExp;
+
 	if (has('loader-cjs-wrapping')) {
-		var comments: RegExp = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
-		var requireCall: RegExp = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
+		comments = /\/\*[\s\S]*?\*\/|\/\/.*$/mg;
+		requireCall = /require\s*\(\s*(["'])(.*?[^\\])\1\s*\)/g;
 	}
 
 	has.add('loader-explicit-mid', true);
@@ -1058,7 +977,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 	 * @param deps //(array of commonjs.moduleId, optional)
 	 * @param factory //(any)
 	 */
-	var define: Define = <Define> mix(function (dependencies: string[], factory: Factory): void {
+	let define: DojoLoader.Define = <DojoLoader.Define> mix(function (dependencies: string[], factory: DojoLoader.Factory): void {
 		let originalFactory: any;
 		if (has('loader-explicit-mid') && arguments.length > 1 && typeof dependencies === 'string') {
 			let id: string = <any> dependencies;
@@ -1072,7 +991,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 			// Some modules in the wild have an explicit module ID that is null; ignore the module ID in this case and
 			// register normally using the request module ID
 			if (id != null) {
-				let module: Module = getModule(id);
+				let module: DojoLoader.Module = getModule(id);
 				if (factory) {
 					originalFactory = factory;
 					factory = function () {
@@ -1106,7 +1025,7 @@ interface ModuleDefinitionArguments extends Array<any> {
 					const originalModuleId = module.id;
 					let result: any = originalFactory.apply(null, arguments);
 					if (originalModuleId !== module.id) {
-						const newModule: Module = getModule(module.id);
+						const newModule: DojoLoader.Module = getModule(module.id);
 						defineModule(newModule, dependencies, null);
 						newModule.injected = true;
 						newModule.executed = true;
@@ -1126,8 +1045,8 @@ interface ModuleDefinitionArguments extends Array<any> {
 
 		if (has('loader-ie9-compat')) {
 			for (let i = document.scripts.length - 1, script: HTMLScriptElement;
-				 script = <HTMLScriptElement> document.scripts[i];
-				 --i) {
+				script = <HTMLScriptElement> document.scripts[i];
+				--i) {
 				if ((<any> script).readyState === 'interactive') {
 					(<any> script).defArgs = [ dependencies, factory ];
 					break;
