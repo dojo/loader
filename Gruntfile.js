@@ -197,7 +197,7 @@ module.exports = function (grunt) {
 					module: 'umd'
 				},
 				outDir: '<%= devDirectory %>/tests',
-				src: [ 'tests/**/*.ts', 'typings/tsd.d.ts' ]
+				src: [ 'tests/**/*.ts', 'typings/tsd.d.ts', 'src/interfaces.d.ts' ]
 			},
 			dist: {
 				options: {
@@ -205,7 +205,7 @@ module.exports = function (grunt) {
 					sourceMap: true
 				},
 				outDir: 'dist',
-				src: [ '<%= skipTests %>' ]
+				src: [ '<%= skipTests %>', 'tests/typings/node/node.d.ts' ]
 			}
 		},
 
