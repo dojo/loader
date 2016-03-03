@@ -21,7 +21,7 @@ const globalObject: any = Function('return this')();
 	let checkCompleteGuard: number = 0;
 
 	// The configuration passed to the loader
-	let config: Config = {
+	let config: DojoLoader.Config = {
 		baseUrl: './',
 		packages: [],
 		paths: {},
@@ -186,13 +186,13 @@ const globalObject: any = Function('return this')();
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		var configure: (configuration: DojoLoader.Config) => void = requireModule.config = function (configuration: Config): void {
+		configure = requireModule.config = function (configuration: DojoLoader.Config): void {
 			// Make sure baseUrl ends in a slash
 			if (configuration.baseUrl) {
 				configuration.baseUrl = configuration.baseUrl.replace(/\/*$/, '/');
 			}
 
-			const mergeProps: ObjectMap = {
+			const mergeProps: DojoLoader.ObjectMap = {
 				paths: true,
 				bundles: true,
 				config: true,
@@ -201,14 +201,14 @@ const globalObject: any = Function('return this')();
 
 			// Copy configuration over to config object
 			for (let key in configuration) {
-				const value = (<ObjectMap> configuration)[key];
+				const value = (<DojoLoader.ObjectMap> configuration)[key];
 				if (mergeProps[key]) {
-					if (!(<ObjectMap> config)[key]) {
-						(<ObjectMap> config)[key] = {};
+					if (!(<DojoLoader.ObjectMap> config)[key]) {
+						(<DojoLoader.ObjectMap> config)[key] = {};
 					}
-					mix((<ObjectMap> config)[key], value, true);
+					mix((<DojoLoader.ObjectMap> config)[key], value, true);
 				} else {
-					(<ObjectMap> config)[key] = value;
+					(<DojoLoader.ObjectMap> config)[key] = value;
 				}
 			}
 
@@ -300,20 +300,20 @@ const globalObject: any = Function('return this')();
 		array && array.forEach(callback);
 	}
 
-	function mix(target: {}, source: {}, deep?: boolean): {} {
+	function mix<T extends {}>(target: {}, source: {}, deep?: boolean): T {
 		if (source) {
 			for (let key in source) {
-				let sourceValue = (<ObjectMap> source)[key];
+				let sourceValue = (<DojoLoader.ObjectMap> source)[key];
 
 				if (deep && typeof sourceValue === 'object' &&
 					!Array.isArray(sourceValue) && !(sourceValue instanceof RegExp)) {
 
-					if (!(<ObjectMap> target)[key]) {
-						(<ObjectMap> target)[key] = {};
+					if (!(<DojoLoader.ObjectMap> target)[key]) {
+						(<DojoLoader.ObjectMap> target)[key] = {};
 					}
-					mix((<ObjectMap> target)[key], sourceValue, true);
+					mix((<DojoLoader.ObjectMap> target)[key], sourceValue, true);
 				} else {
-					(<ObjectMap> target)[key] = sourceValue;
+					(<DojoLoader.ObjectMap> target)[key] = sourceValue;
 				}
 			}
 		}
