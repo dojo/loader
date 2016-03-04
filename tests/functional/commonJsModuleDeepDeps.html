@@ -8,14 +8,15 @@
 	<body>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require({
+			require.config({
 				packages: [
 					{
 						name: 'commonJs',
 						location: '../common/commonJs'
 					}
 				]
-			}, [
+			});
+			require([
 				'commonJs/deep1'
 			], function (deep1) {
 				var obj = deep1();

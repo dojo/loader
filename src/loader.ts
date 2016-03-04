@@ -91,8 +91,6 @@ const globalObject: any = Function('return this')();
 	// the number of modules the loader has injected but has not seen defined
 	let waitingCount: number = 0;
 
-	let configure: (configuration: DojoLoader.Config) => void;
-
 	const has: DojoLoader.Has = (function (): DojoLoader.Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
 		const global: Window = globalObject;
@@ -111,6 +109,11 @@ const globalObject: any = Function('return this')();
 
 		return has;
 	})();
+
+	const requireModule: DojoLoader.RootRequire =
+		<DojoLoader.RootRequire> function (dependencies: any, callback?: DojoLoader.RequireCallback): DojoLoader.Module {
+			return contextRequire(dependencies, callback);
+		};
 
 	const listenerQueues: { [queue: string]: ((...args: any[]) => void)[] } = {};
 
@@ -154,18 +157,6 @@ const globalObject: any = Function('return this')();
 		};
 	};
 
-	const requireModule: DojoLoader.RootRequire =
-		<DojoLoader.RootRequire> function (configuration: any, dependencies?: any, callback?: DojoLoader.RequireCallback): DojoLoader.Module {
-		if (Array.isArray(configuration) || /* require(mid) */ typeof configuration === 'string') {
-			callback = <DojoLoader.RequireCallback> dependencies;
-			dependencies = <string[]> configuration;
-			configuration = undefined;
-		}
-
-		configuration && has('loader-configurable') && configure(configuration);
-
-		return contextRequire(dependencies, callback);
-	};
 	requireModule.has = has;
 	requireModule.on = on;
 
@@ -186,7 +177,7 @@ const globalObject: any = Function('return this')();
 		 * @param {{ ?baseUrl: string, ?map: Object, ?packages: Array.<({ name, ?location, ?main }|string)> }} config
 		 * The configuration data.
 		 */
-		configure = requireModule.config = function (configuration: DojoLoader.Config): void {
+		requireModule.config = function (configuration: DojoLoader.Config): void {
 			// Make sure baseUrl ends in a slash
 			if (configuration.baseUrl) {
 				configuration.baseUrl = configuration.baseUrl.replace(/\/*$/, '/');
