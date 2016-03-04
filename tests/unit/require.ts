@@ -628,5 +628,60 @@ registerSuite({
 			global.require('common/app');
 			dfd.reject('Loading undefined module should throw an error');
 		});
+	},
+
+	plugin: {
+		load() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+
+			global.require.config({
+				paths: {
+					common: '_build/tests/common'
+				}
+			});
+
+			global.require([
+				'common/plugin!one'
+			], dfd.callback(function (pluginOne: any) {
+				assert.strictEqual(pluginOne, 'one', 'Plugin should return one');
+			}));
+		},
+
+		config() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+			let paths = {
+				common: '_build/tests/common'
+			};
+
+			global.require.config({ paths });
+
+			global.require([
+				'common/pluginConfig!one'
+			], dfd.callback(function (pluginConfig: any) {
+				assert.property(pluginConfig, 'baseUrl', 'Base URL should be present');
+				assert.deepEqual(pluginConfig.paths, paths,
+					'Plugin should have received config param equal to require config');
+			}));
+		},
+
+		mergedConfig() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+			let paths = {
+				common: '_build/tests/common'
+			};
+			let map = {
+				foo: 'bar'
+			};
+
+			global.require.config({ paths });
+			global.require.config({ map });
+
+			global.require([
+				'common/pluginConfig!one'
+			], dfd.callback(function (pluginConfig: any) {
+				assert.deepEqual(pluginConfig.paths, paths, 'Paths should be equal');
+				assert.deepEqual(pluginConfig.map, map, 'Map should be equal');
+			}));
+		}
 	}
 });
