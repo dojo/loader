@@ -400,7 +400,7 @@ const globalObject: any = Function('return this')();
 		return absolutePathSegments.join('/');
 	}
 
-	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
+	function updateModuleIdFromMap(moduleId: string, referenceModule?: DojoLoader.Module): string {
 		// relative module ids are relative to the referenceModule; get rid of any dots
 		moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
 			(referenceModule.mid + '/../' + moduleId) : moduleId);
@@ -416,6 +416,35 @@ const globalObject: any = Function('return this')();
 			moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
 		}
 
+		return moduleId;
+	}
+
+	function getPluginInformation(moduleId: string, match: string[], referenceModule?: DojoLoader.Module): DojoLoader.Module {
+		const plugin = getModule(match[1], referenceModule);
+		const isPluginLoaded = Boolean(plugin.load);
+
+		const contextRequire = createRequire(referenceModule);
+
+		let pluginResourceId: string;
+		if (isPluginLoaded) {
+			pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
+			moduleId = (plugin.mid + '!' + pluginResourceId);
+		}
+		else {
+			// if not loaded, need to mark in a way that it will get properly resolved later
+			pluginResourceId = match[2];
+			moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
+		}
+		return <DojoLoader.Module> <any> {
+			plugin: plugin,
+			mid: moduleId,
+			req: contextRequire,
+			prid: pluginResourceId,
+			fix: !isPluginLoaded
+		};
+	}
+
+	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
 		let pack = packageMap[packageId];
@@ -430,7 +459,7 @@ const globalObject: any = Function('return this')();
 
 		let module = modules[moduleId];
 		if (!(module)) {
-			mapItem = runMapProgram(moduleId, pathMapPrograms);
+			let mapItem = runMapProgram(moduleId, pathMapPrograms);
 			let url = mapItem ? mapItem[1] + moduleId.slice(mapItem[3]) : (packageId ? pack.location + moduleIdInPackage : moduleId);
 			module = <DojoLoader.Module> <any> {
 				pid: packageId,
@@ -457,32 +486,17 @@ const globalObject: any = Function('return this')();
 	function getModule(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		// compute and construct (if necessary) the module implied by the moduleId with respect to referenceModule
 		let module: DojoLoader.Module;
+		const pluginRegEx = /^(.+?)\!(.*)$/;
 
-		const match = moduleId.match(/^(.+?)\!(.*)$/);
+		// Update moduleId from map if exists
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+
+		// check if module is a plugin-module
+		const match = moduleId.match(pluginRegEx);
+
 		if (match) {
 			// name was <plugin-module>!<plugin-resource-id>
-			const plugin = getModule(match[1], referenceModule);
-			const isPluginLoaded = Boolean(plugin.load);
-
-			const contextRequire = createRequire(referenceModule);
-
-			let pluginResourceId: string;
-			if (isPluginLoaded) {
-				pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
-				moduleId = (plugin.mid + '!' + pluginResourceId);
-			}
-			else {
-				// if not loaded, need to mark in a way that it will get properly resolved later
-				pluginResourceId = match[2];
-				moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
-			}
-			module = <DojoLoader.Module> <any> {
-				plugin: plugin,
-				mid: moduleId,
-				req: contextRequire,
-				prid: pluginResourceId,
-				fix: !isPluginLoaded
-			};
+			module = getPluginInformation(moduleId, match, referenceModule);
 		}
 		else {
 			module = getModuleInformation(moduleId, referenceModule);
@@ -491,11 +505,14 @@ const globalObject: any = Function('return this')();
 	}
 
 	function toAbsMid(moduleId: string, referenceModule: DojoLoader.Module): string {
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 		return getModuleInformation(moduleId, referenceModule).mid;
 	}
 
 	function toUrl(name: string, referenceModule: DojoLoader.Module): string {
-		const moduleInfo: DojoLoader.Module = getModuleInformation(name + '/x', referenceModule);
+		let moduleId = name + '/x';
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+		const moduleInfo: DojoLoader.Module = getModuleInformation(moduleId, referenceModule);
 		const url: string = moduleInfo.url;
 
 		// "/x.js" since getModuleInfo automatically appends ".js" and we appended "/x" to make name look like a
