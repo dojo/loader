@@ -7,8 +7,6 @@ const globalObject: any = Function('return this')();
 	//
 	// loader state data
 	//
-	// AMD baseUrl config
-	let baseUrl: string = './';
 
 	// hash: (mid | url)-->(function | string)
 	//
@@ -22,6 +20,14 @@ const globalObject: any = Function('return this')();
 
 	let checkCompleteGuard: number = 0;
 
+	// The configuration passed to the loader
+	let config: DojoLoader.Config = {
+		baseUrl: './',
+		packages: [],
+		paths: {},
+		pkgs: {}
+	};
+
 	// The arguments sent to loader via AMD define().
 	let moduleDefinitionArguments: DojoLoader.ModuleDefinitionArguments = null;
 
@@ -31,9 +37,6 @@ const globalObject: any = Function('return this')();
 	let executedSomething: boolean = false;
 
 	let injectUrl: (url: string, callback: (node?: HTMLScriptElement) => void, module: DojoLoader.Module, parent?: DojoLoader.Module) => void;
-
-	// AMD map config variable
-	let map: DojoLoader.ModuleMap = {};
 
 	// array of quads as described by computeMapProg; map-key is AMD map key, map-value is AMD map value
 	let mapPrograms: DojoLoader.MapRoot = [];
@@ -68,9 +71,6 @@ const globalObject: any = Function('return this')();
 	//
 	// 5. Evaluated: the module was defined via define and the loader has evaluated the factory and computed a result.
 	let modules: { [ moduleId: string ]: DojoLoader.Module; } = {};
-
-	// a map from pid to package configuration object
-	let packageMap: DojoLoader.PackageMap = {};
 
 	// list of (from-path, to-path, regex, length) derived from paths;
 	// a "program" to apply paths; see computeMapProg
@@ -178,9 +178,33 @@ const globalObject: any = Function('return this')();
 		 * The configuration data.
 		 */
 		requireModule.config = function (configuration: DojoLoader.Config): void {
+			// Make sure baseUrl ends in a slash
+			if (configuration.baseUrl) {
+				configuration.baseUrl = configuration.baseUrl.replace(/\/*$/, '/');
+			}
+
+			const mergeProps: DojoLoader.ObjectMap = {
+				paths: true,
+				bundles: true,
+				config: true,
+				map: true
+			};
+
+			// Copy configuration over to config object
+			for (let key in configuration) {
+				const value = (<DojoLoader.ObjectMap> configuration)[key];
+				if (mergeProps[key]) {
+					if (!(<DojoLoader.ObjectMap> config)[key]) {
+						(<DojoLoader.ObjectMap> config)[key] = {};
+					}
+					mix((<DojoLoader.ObjectMap> config)[key], value, true);
+				} else {
+					(<DojoLoader.ObjectMap> config)[key] = value;
+				}
+			}
+
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
-			baseUrl = (configuration.baseUrl || baseUrl).replace(/\/*$/, '/');
 
 			forEach(configuration.packages, function (packageDescriptor: DojoLoader.Package): void {
 				// Allow shorthand package definition, where name and location are the same
@@ -192,7 +216,7 @@ const globalObject: any = Function('return this')();
 					packageDescriptor.location = packageDescriptor.location.replace(/\/*$/, '/');
 				}
 
-				packageMap[packageDescriptor.name] = packageDescriptor;
+				config.pkgs[packageDescriptor.name] = packageDescriptor;
 			});
 
 			function computeMapProgram(map: DojoLoader.ModuleMapItem): DojoLoader.MapItem[] {
@@ -204,7 +228,7 @@ const globalObject: any = Function('return this')();
 				// Maps look like this:
 				//
 				// map: { C: { D: E } }
-				//      A    B
+				//    A	B
 				//
 				// The computed mapping is a 4-array deep tree, where the outermost array corresponds to the source
 				// mapping object A, the 2nd level arrays each correspond to one of the source mappings C -> B, the 3rd
@@ -253,12 +277,10 @@ const globalObject: any = Function('return this')();
 				return result;
 			}
 
-			mix(map, configuration.map);
-
 			// FIXME this is a down-cast.
 			// computeMapProgram => MapItem[] => mapPrograms: MapSource[]
 			// MapSource[1] => MapReplacement[] is more specific than MapItems[1] => any
-			mapPrograms = computeMapProgram(map);
+			mapPrograms = computeMapProgram(config.map);
 
 			// Note that old paths will get destroyed if reconfigured
 			configuration.paths && (pathMapPrograms = computeMapProgram(configuration.paths));
@@ -269,9 +291,22 @@ const globalObject: any = Function('return this')();
 		array && array.forEach(callback);
 	}
 
-	function mix<T extends {}>(target: {}, source: {}): T {
-		for (let key in source) {
-			(<DojoLoader.ObjectMap> target)[key] = (<DojoLoader.ObjectMap> source)[key];
+	function mix<T extends {}>(target: {}, source: {}, deep?: boolean): T {
+		if (source) {
+			for (let key in source) {
+				let sourceValue = (<DojoLoader.ObjectMap> source)[key];
+
+				if (deep && typeof sourceValue === 'object' &&
+					!Array.isArray(sourceValue) && !(sourceValue instanceof RegExp)) {
+
+					if (!(<DojoLoader.ObjectMap> target)[key]) {
+						(<DojoLoader.ObjectMap> target)[key] = {};
+					}
+					mix((<DojoLoader.ObjectMap> target)[key], sourceValue, true);
+				} else {
+					(<DojoLoader.ObjectMap> target)[key] = sourceValue;
+				}
+			}
 		}
 		return <T> target;
 	}
@@ -391,7 +426,7 @@ const globalObject: any = Function('return this')();
 		return absolutePathSegments.join('/');
 	}
 
-	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
+	function updateModuleIdFromMap(moduleId: string, referenceModule?: DojoLoader.Module): string {
 		// relative module ids are relative to the referenceModule; get rid of any dots
 		moduleId = compactPath(/^\./.test(moduleId) && referenceModule ?
 			(referenceModule.mid + '/../' + moduleId) : moduleId);
@@ -407,9 +442,38 @@ const globalObject: any = Function('return this')();
 			moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
 		}
 
+		return moduleId;
+	}
+
+	function getPluginInformation(moduleId: string, match: string[], referenceModule?: DojoLoader.Module): DojoLoader.Module {
+		const plugin = getModule(match[1], referenceModule);
+		const isPluginLoaded = Boolean(plugin.load);
+
+		const contextRequire = createRequire(referenceModule);
+
+		let pluginResourceId: string;
+		if (isPluginLoaded) {
+			pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
+			moduleId = (plugin.mid + '!' + pluginResourceId);
+		}
+		else {
+			// if not loaded, need to mark in a way that it will get properly resolved later
+			pluginResourceId = match[2];
+			moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
+		}
+		return <DojoLoader.Module> <any> {
+			plugin: plugin,
+			mid: moduleId,
+			req: contextRequire,
+			prid: pluginResourceId,
+			fix: !isPluginLoaded
+		};
+	}
+
+	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
-		let pack = packageMap[packageId];
+		let pack = config.pkgs[packageId];
 		let moduleIdInPackage: string;
 
 		if (pack) {
@@ -421,7 +485,7 @@ const globalObject: any = Function('return this')();
 
 		let module = modules[moduleId];
 		if (!(module)) {
-			mapItem = runMapProgram(moduleId, pathMapPrograms);
+			let mapItem = runMapProgram(moduleId, pathMapPrograms);
 			let url = mapItem ? mapItem[1] + moduleId.slice(mapItem[3]) : (packageId ? pack.location + moduleIdInPackage : moduleId);
 			module = <DojoLoader.Module> <any> {
 				pid: packageId,
@@ -429,7 +493,7 @@ const globalObject: any = Function('return this')();
 				pack: pack,
 				url: compactPath(
 					// absolute urls should not be prefixed with baseUrl
-					(/^(?:\/|\w+:)/.test(url) ? '' : baseUrl) +
+					(/^(?:\/|\w+:)/.test(url) ? '' : config.baseUrl) +
 					url +
 					// urls with a javascript extension should not have another one added
 					(/\.js(?:\?[^?]*)?$/.test(url) ? '' : '.js')
@@ -448,32 +512,17 @@ const globalObject: any = Function('return this')();
 	function getModule(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		// compute and construct (if necessary) the module implied by the moduleId with respect to referenceModule
 		let module: DojoLoader.Module;
+		const pluginRegEx = /^(.+?)\!(.*)$/;
 
-		const match = moduleId.match(/^(.+?)\!(.*)$/);
+		// Update moduleId from map if exists
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+
+		// check if module is a plugin-module
+		const match = moduleId.match(pluginRegEx);
+
 		if (match) {
 			// name was <plugin-module>!<plugin-resource-id>
-			const plugin = getModule(match[1], referenceModule);
-			const isPluginLoaded = Boolean(plugin.load);
-
-			const contextRequire = createRequire(referenceModule);
-
-			let pluginResourceId: string;
-			if (isPluginLoaded) {
-				pluginResourceId = resolvePluginResourceId(plugin, match[2], contextRequire);
-				moduleId = (plugin.mid + '!' + pluginResourceId);
-			}
-			else {
-				// if not loaded, need to mark in a way that it will get properly resolved later
-				pluginResourceId = match[2];
-				moduleId = plugin.mid + '!' + (++uidGenerator) + '!*';
-			}
-			module = <DojoLoader.Module> <any> {
-				plugin: plugin,
-				mid: moduleId,
-				req: contextRequire,
-				prid: pluginResourceId,
-				fix: !isPluginLoaded
-			};
+			module = getPluginInformation(moduleId, match, referenceModule);
 		}
 		else {
 			module = getModuleInformation(moduleId, referenceModule);
@@ -482,11 +531,14 @@ const globalObject: any = Function('return this')();
 	}
 
 	function toAbsMid(moduleId: string, referenceModule: DojoLoader.Module): string {
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 		return getModuleInformation(moduleId, referenceModule).mid;
 	}
 
 	function toUrl(name: string, referenceModule: DojoLoader.Module): string {
-		const moduleInfo: DojoLoader.Module = getModuleInformation(name + '/x', referenceModule);
+		let moduleId = name + '/x';
+		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+		const moduleInfo: DojoLoader.Module = getModuleInformation(moduleId, referenceModule);
 		const url: string = moduleInfo.url;
 
 		// "/x.js" since getModuleInfo automatically appends ".js" and we appended "/x" to make name look like a
@@ -655,7 +707,7 @@ const globalObject: any = Function('return this')();
 			};
 
 		if (plugin.load) {
-			plugin.load(module.prid, module.req, onLoad);
+			plugin.load(module.prid, module.req, onLoad, config);
 		}
 		else if (plugin.loadQ) {
 			plugin.loadQ.push(module);
@@ -912,7 +964,7 @@ const globalObject: any = Function('return this')();
 
 	Object.defineProperty(requireModule, 'baseUrl', {
 		get: function (): string {
-			return baseUrl;
+			return config.baseUrl;
 		},
 		enumerable: true
 	});

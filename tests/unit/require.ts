@@ -401,36 +401,36 @@ registerSuite({
 					assert.strictEqual(remappedApp, 'remappedapp',
 						'"remappedApp" module should get unmapped "app" module');
 				}));
-			}
+			},
 
-			// plugin() {
-			// 	let dfd = this.async(timeout);
-			//
-			// 	setErrorHandler(dfd);
-			//
-			// 	global.require.config({
-			// 		map: {
-			// 			'*': {
-			// 				plugin: 'common/plugin',
-			// 				plugin2: 'common/plugin!two'
-			// 			}
-			// 		},
-			// 		packages: [
-			// 			{
-			// 				name: 'common',
-			// 				location: './_build/tests/common'
-			// 			}
-			// 		]
-			// 	});
-			//
-			// 	global.require([
-			// 		'plugin!one',
-			// 		'plugin2'
-			// 	], dfd.callback(function (plugin1: any, plugin2: any) {
-			// 		assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
-			// 		assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
-			// 	}));
-			// }
+			plugin() {
+				let dfd = this.async(DEFAULT_TIMEOUT);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					map: {
+						'*': {
+							plugin: 'common/plugin',
+							plugin2: 'common/plugin!two'
+						}
+					},
+					packages: [
+						{
+							name: 'common',
+							location: './_build/tests/common'
+						}
+					]
+				});
+
+				global.require([
+					'plugin!one',
+					'plugin2'
+				], dfd.callback(function (plugin1: any, plugin2: any) {
+					assert.strictEqual(plugin1, 'one', 'Plug-in module should load');
+					assert.strictEqual(plugin2, 'two', 'Plug-in module should load');
+				}));
+			}
 		},
 
 		packages: {
@@ -630,5 +630,60 @@ registerSuite({
 			global.require('common/app');
 			dfd.reject('Loading undefined module should throw an error');
 		});
+	},
+
+	plugin: {
+		load() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+
+			global.require.config({
+				paths: {
+					common: '_build/tests/common'
+				}
+			});
+
+			global.require([
+				'common/plugin!one'
+			], dfd.callback(function (pluginOne: any) {
+				assert.strictEqual(pluginOne, 'one', 'Plugin should return one');
+			}));
+		},
+
+		config() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+			let paths = {
+				common: '_build/tests/common'
+			};
+
+			global.require.config({ paths });
+
+			global.require([
+				'common/pluginConfig!one'
+			], dfd.callback(function (pluginConfig: any) {
+				assert.property(pluginConfig, 'baseUrl', 'Base URL should be present');
+				assert.deepEqual(pluginConfig.paths, paths,
+					'Plugin should have received config param equal to require config');
+			}));
+		},
+
+		mergedConfig() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+			let paths = {
+				common: '_build/tests/common'
+			};
+			let map = {
+				foo: 'bar'
+			};
+
+			global.require.config({ paths });
+			global.require.config({ map });
+
+			global.require([
+				'common/pluginConfig!one'
+			], dfd.callback(function (pluginConfig: any) {
+				assert.deepEqual(pluginConfig.paths, paths, 'Paths should be equal');
+				assert.deepEqual(pluginConfig.map, map, 'Map should be equal');
+			}));
+		}
 	}
 });

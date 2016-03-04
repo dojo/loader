@@ -4,6 +4,7 @@ declare namespace DojoLoader {
 		map?: ModuleMap;
 		packages?: Package[];
 		paths?: { [ path: string ]: string; };
+		pkgs?: { [ path: string ]: Package; };
 	}
 
 	interface Define {
