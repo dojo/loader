@@ -8,14 +8,15 @@
 	<body>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require({
+			require.config({
 				packages: [
 					{
 						name: 'commonJs',
 						location: '../common/commonJs'
 					}
 				]
-			}, [
+			});
+			require([
 				'commonJs/testModule3'
 			], function () {
 				var testModule3 = require('test/module3');

@@ -8,11 +8,12 @@
 	<body>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require({
+			require.config({
 				packages: [
 					{ name: 'amd', location: '../common/amd' }
 				]
-			}, [
+			});
+			require([
 				'amd/onlyFactory'
 			], function (app) {
 				window.loaderTestResults = {

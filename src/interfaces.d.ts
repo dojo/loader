@@ -4,6 +4,7 @@ declare namespace DojoLoader {
 		map?: ModuleMap;
 		packages?: Package[];
 		paths?: { [ path: string ]: string; };
+		pkgs?: { [ path: string ]: Package; };
 	}
 
 	interface Define {
@@ -112,7 +113,6 @@ declare namespace DojoLoader {
 	interface PathMap extends MapReplacement {}
 
 	interface Require {
-		(config: Config, dependencies?: string[], callback?: RequireCallback): void;
 		(dependencies: string[], callback: RequireCallback): void;
 		<ModuleType>(moduleId: string): ModuleType;
 

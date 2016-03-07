@@ -76,14 +76,14 @@ registerSuite({
 					assert.strictEqual(results.remappedApp, 'remappedapp',
 						'"remappedApp" module should get unmapped "app" module');
 				});
-			}
+			},
 
-			// plugin() {
-			// 	return executeTest(this, './config/map-plugin.html', function (results: any) {
-			// 		assert.strictEqual(results.plugin1, 'plugin1', 'Plug-in module should load');
-			// 		assert.strictEqual(results.plugin2, 'plugin2', 'Plug-in module should load');
-			// 	});
-			// }
+			plugin() {
+				return executeTest(this, './config/map-plugin.html', function (results: any) {
+					assert.strictEqual(results.plugin1, 'one', 'Plug-in module should load');
+					assert.strictEqual(results.plugin2, 'two', 'Plug-in module should load');
+				});
+			}
 		},
 
 		packages: {
@@ -106,6 +106,21 @@ registerSuite({
 					assert.strictEqual(results, appMessage, '"app" module should load');
 				});
 			}
+		}
+	},
+
+	plugin : {
+		load() {
+			return executeTest(this, './plugin-load.html', function (results: any) {
+				assert.strictEqual(results, 'one', 'Plug-in module should load');
+			});
+		},
+		config() {
+			return executeTest(this, './plugin-config.html', function (results: any) {
+				if (results !== 'success') {
+					assert.fail(null, null, results);
+				}
+			});
 		}
 	},
 
