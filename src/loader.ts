@@ -1,9 +1,8 @@
-const globalObject: any = Function('return this')();
-
+'use strict';
 (function (): void {
+	const globalObject: any = Function('return this')();
 	const EXECUTING: string = 'executing';
 	const ABORT_EXECUTION: Object = {};
-
 	//
 	// loader state data
 	//

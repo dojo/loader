@@ -135,3 +135,6 @@ declare namespace DojoLoader {
 
 	type SignalType = 'error';
 }
+
+declare const define: DojoLoader.Define;
+declare const require: DojoLoader.Require;
