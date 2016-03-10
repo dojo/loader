@@ -528,16 +528,18 @@ const globalObject: any = Function('return this')();
 			// then reconstruct using the pluginArgs
 			let pluginId: string = updateModuleIdFromMap(passedModuleMatch[1], referenceModule);
 			moduleId = `${pluginId}!${passedModuleMatch[2]}`;
-		} else {
+		}
+		else {
 			// Not a module, so check the map using the full moduleId passed
 			moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 		}
 
 		// Do final check on the mapped module / plugin Id to see what we're dealing with
 		let mappedModuleMatch = moduleId.match(pluginRegEx);
-		if (mappedModuleMatch ) {
+		if (mappedModuleMatch) {
 			module = getPluginInformation(moduleId, mappedModuleMatch, referenceModule);
-		} else {
+		}
+		else {
 			module = getModuleInformation(moduleId, referenceModule);
 		}
 
