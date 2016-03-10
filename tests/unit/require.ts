@@ -684,6 +684,21 @@ registerSuite({
 				assert.deepEqual(pluginConfig.paths, paths, 'Paths should be equal');
 				assert.deepEqual(pluginConfig.map, map, 'Map should be equal');
 			}));
+		},
+
+		relativePluginPaths() {
+			let dfd = this.async(DEFAULT_TIMEOUT);
+			let paths = {
+				common: '_build/tests/common'
+			};
+
+			global.require.config({ paths });
+
+			global.require([
+				'common/plugin!../../location'
+			], dfd.callback(function (pluginLocation: any) {
+				assert.strictEqual(pluginLocation, '../../location', 'Plugin should location it was passed');
+			}));
 		}
 	}
 });
