@@ -522,7 +522,7 @@ const globalObject: any = Function('return this')();
 		// plugin!arg ?-> mappedPlugin + ! + arg
 
 		// Do inital check on the passed in moduleId
-		let passedModuleMatch = moduleId.match(pluginRegEx);
+		const passedModuleMatch = moduleId.match(pluginRegEx);
 		if (passedModuleMatch) {
 			// Passed in moduleId is a plugin, so check the map using only the plugin name
 			// then reconstruct using the pluginArgs
@@ -535,7 +535,7 @@ const globalObject: any = Function('return this')();
 		}
 
 		// Do final check on the mapped module / plugin Id to see what we're dealing with
-		let mappedModuleMatch = moduleId.match(pluginRegEx);
+		const mappedModuleMatch = moduleId.match(pluginRegEx);
 		if (mappedModuleMatch) {
 			module = getPluginInformation(moduleId, mappedModuleMatch, referenceModule);
 		}
