@@ -634,7 +634,7 @@ registerSuite({
 
 	plugin: {
 		load() {
-			let dfd = this.async(DEFAULT_TIMEOUT);
+			const dfd = this.async(DEFAULT_TIMEOUT);
 
 			global.require.config({
 				paths: {
@@ -650,8 +650,8 @@ registerSuite({
 		},
 
 		config() {
-			let dfd = this.async(DEFAULT_TIMEOUT);
-			let paths = {
+			const dfd = this.async(DEFAULT_TIMEOUT);
+			const paths = {
 				common: '_build/tests/common'
 			};
 
@@ -667,11 +667,11 @@ registerSuite({
 		},
 
 		mergedConfig() {
-			let dfd = this.async(DEFAULT_TIMEOUT);
-			let paths = {
+			const dfd = this.async(DEFAULT_TIMEOUT);
+			const paths = {
 				common: '_build/tests/common'
 			};
-			let map = {
+			const map = {
 				foo: 'bar'
 			};
 
@@ -687,12 +687,13 @@ registerSuite({
 		},
 
 		relativePluginPaths() {
-			let dfd = this.async(DEFAULT_TIMEOUT);
-			let paths = {
-				common: '_build/tests/common'
-			};
+			const dfd = this.async(DEFAULT_TIMEOUT);
 
-			global.require.config({ paths });
+			global.require.config({
+				paths: {
+					common: '_build/tests/common'
+				}
+			});
 
 			global.require([
 				'common/plugin!../../location'
