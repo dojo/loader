@@ -697,7 +697,7 @@ registerSuite({
 			global.require([
 				'common/plugin!../../location'
 			], dfd.callback(function (pluginLocation: any) {
-				assert.strictEqual(pluginLocation, '../../location', 'Plugin should location it was passed');
+				assert.strictEqual(pluginLocation, '../../location', 'Plugin should return location it was passed correctly');
 			}));
 		}
 	}
