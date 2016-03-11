@@ -634,7 +634,7 @@ registerSuite({
 
 	plugin: {
 		load() {
-			let dfd = this.async(DEFAULT_TIMEOUT);
+			const dfd = this.async(DEFAULT_TIMEOUT);
 
 			global.require.config({
 				paths: {
@@ -650,8 +650,8 @@ registerSuite({
 		},
 
 		config() {
-			let dfd = this.async(DEFAULT_TIMEOUT);
-			let paths = {
+			const dfd = this.async(DEFAULT_TIMEOUT);
+			const paths = {
 				common: '_build/tests/common'
 			};
 
@@ -667,11 +667,11 @@ registerSuite({
 		},
 
 		mergedConfig() {
-			let dfd = this.async(DEFAULT_TIMEOUT);
-			let paths = {
+			const dfd = this.async(DEFAULT_TIMEOUT);
+			const paths = {
 				common: '_build/tests/common'
 			};
-			let map = {
+			const map = {
 				foo: 'bar'
 			};
 
@@ -683,6 +683,22 @@ registerSuite({
 			], dfd.callback(function (pluginConfig: any) {
 				assert.deepEqual(pluginConfig.paths, paths, 'Paths should be equal');
 				assert.deepEqual(pluginConfig.map, map, 'Map should be equal');
+			}));
+		},
+
+		relativePluginPaths() {
+			const dfd = this.async(DEFAULT_TIMEOUT);
+
+			global.require.config({
+				paths: {
+					common: '_build/tests/common'
+				}
+			});
+
+			global.require([
+				'common/plugin!../../location'
+			], dfd.callback(function (pluginLocation: any) {
+				assert.strictEqual(pluginLocation, '../../location', 'Plugin should return location it was passed correctly');
 			}));
 		}
 	}

@@ -513,19 +513,35 @@
 		let module: DojoLoader.Module;
 		const pluginRegEx = /^(.+?)\!(.*)$/;
 
-		// Update moduleId from map if exists
-		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+		// Foreseable situations (where ?-> is a map lookup function)
+		// module
+		// plugin!arg
+		// module ?-> mappedModule
+		// module ?-> mappedPlugin!arg
+		// plugin!arg ?-> mappedPlugin + ! + arg
 
-		// check if module is a plugin-module
-		const match = moduleId.match(pluginRegEx);
+		// Do inital check on the passed in moduleId
+		const passedModuleMatch = moduleId.match(pluginRegEx);
+		if (passedModuleMatch) {
+			// Passed in moduleId is a plugin, so check the map using only the plugin name
+			// then reconstruct using the pluginArgs
+			let pluginId: string = updateModuleIdFromMap(passedModuleMatch[1], referenceModule);
+			moduleId = `${pluginId}!${passedModuleMatch[2]}`;
+		}
+		else {
+			// Not a module, so check the map using the full moduleId passed
+			moduleId = updateModuleIdFromMap(moduleId, referenceModule);
+		}
 
-		if (match) {
-			// name was <plugin-module>!<plugin-resource-id>
-			module = getPluginInformation(moduleId, match, referenceModule);
+		// Do final check on the mapped module / plugin Id to see what we're dealing with
+		const mappedModuleMatch = moduleId.match(pluginRegEx);
+		if (mappedModuleMatch) {
+			module = getPluginInformation(moduleId, mappedModuleMatch, referenceModule);
 		}
 		else {
 			module = getModuleInformation(moduleId, referenceModule);
 		}
+
 		return modules[module.mid] || (modules[module.mid] = module);
 	}
 
