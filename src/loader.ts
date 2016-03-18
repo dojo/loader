@@ -1,5 +1,7 @@
+var require, globalDefine;
+
 'use strict';
-(function (): void {
+(function (console: any, args: any, readFileFunc: any): void {
 	const globalObject: any = Function('return this')();
 	const EXECUTING: string = 'executing';
 	const ABORT_EXECUTION: Object = {};
@@ -161,6 +163,7 @@
 
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
 	has.add('host-node', typeof process === 'object' && process.versions && process.versions.node);
+	has.add('host-rhino', typeof load === 'function' && typeof Packages !== 'undefined');
 	has.add('debug', true);
 
 	// IE9 will process multiple scripts at once before firing their respective onload events, so some extra work
@@ -331,6 +334,7 @@
 	function contextRequire(moduleId: string, unused?: void, referenceModule?: DojoLoader.Module): DojoLoader.Module;
 	function contextRequire(dependencies: string[], callback: DojoLoader.RequireCallback, referenceModule?: DojoLoader.Module): DojoLoader.Module;
 	function contextRequire(dependencies: string | string[], callback: any, referenceModule?: DojoLoader.Module): DojoLoader.Module {
+		print('context require');
 		let module: DojoLoader.Module;
 		if (typeof dependencies === 'string') {
 			module = getModule(dependencies, referenceModule);
@@ -909,6 +913,7 @@
 		};
 
 		setGlobals = function (require: DojoLoader.Require, define: DojoLoader.Define): void {
+
 			module.exports = globalObject.require = require;
 			globalObject.define = define;
 		};
@@ -942,6 +947,24 @@
 		setGlobals = function (require: DojoLoader.Require, define: DojoLoader.Define): void {
 			globalObject.require = require;
 			globalObject.define = define;
+		};
+	}
+	else if (has('host-rhino')) {
+		print('has host-rhino');
+
+		let fileName = args[0];
+
+		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: DojoLoader.Module,
+			parent?: DojoLoader.Module): void {
+
+			load(url);
+			callback();
+		};
+
+		setGlobals = function (req: DojoLoader.Require, def: DojoLoader.Define): void {
+			print('in setGlobals');
+			require = req;
+			globalDefine = def;
 		};
 	}
 	else {
@@ -1084,4 +1107,12 @@
 	});
 
 	setGlobals(requireModule, define);
-})();
+	if (has('host-rhino') && fileName) {
+		load(fileName);
+	}
+})((typeof console !== 'undefined' ? console : undefined),
+	(typeof Packages !== 'undefined' || (typeof window === 'undefined' &&
+		typeof Components !== 'undefined' && Components.interfaces) ?
+		Array.prototype.slice.call(arguments, 0) : []),
+	(typeof readFile !== 'undefined' ? readFile : undefined));
+
