@@ -1,5 +1,5 @@
 'use strict';
-(function (args? :string[]): void {
+(function (args?: string[]): void {
 	const globalObject: any = Function('return this')();
 	const EXECUTING: string = 'executing';
 	const ABORT_EXECUTION: Object = {};
