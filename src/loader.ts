@@ -1102,4 +1102,3 @@
 		load(args[0]);
 	}
 })((typeof Packages !== 'undefined' ? Array.prototype.slice.call(arguments, 0) : []));
-
