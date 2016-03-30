@@ -29,7 +29,7 @@
 		"intern": "3.0.6",
 		"istanbul": "0.4.2",
 		"remap-istanbul": "0.5.1",
-		"tslint": "3.5.0",
-		"typescript": "1.8.2"
+		"tslint": "3.6.0",
+		"typescript": "1.8.9"
 	}
 }
