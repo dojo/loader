@@ -32,6 +32,7 @@
 		"./tests/functional/executeTest.ts",
 		"./tests/functional/require/require.ts",
 		"./tests/intern-local.ts",
+		"./tests/intern-saucelabs.ts",
 		"./tests/intern.ts",
 		"./tests/module.d.ts",
 		"./tests/support/Reporter.ts",

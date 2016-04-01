@@ -9,30 +9,28 @@ export var proxyUrl = 'http://localhost:9000/';
 // https://saucelabs.com/docs/additional-config#desired-capabilities for Sauce Labs capabilities.
 // Note that the `build` capability will be filled in with the current commit ID from the Travis CI environment
 // automatically
-export var capabilities = {
+export const capabilities = {
+	'browserstack.debug': false,
 	project: 'Dojo 2',
-	name: 'dojo-loader',
-	fixSessionCapabilities: false
+	name: 'dojo-loader'
 };
 
 // Browsers to run integration testing against. Note that version numbers must be strings if used with Sauce
 // OnDemand. Options that will be permutated are browserName, version, platform, and platformVersion; any other
 // capabilities options specified for an environment will be copied as-is
-export var environments = [
-	{ browserName: 'internet explorer', version: [ '9.0', '10.0', '11.0' ], platform: 'Windows 7' }/*,
-	{ browserName: 'microsoftedge', platform: 'Windows 10' }*/,
-	{ browserName: 'firefox', platform: 'Windows 10' },
-	{ browserName: 'chrome', platform: 'Windows 10' },
-	{ browserName: 'safari', version: '9', platform: 'OS X 10.11' },
-	{ browserName: 'android', platform: 'Linux', version: '4.4', deviceName: 'Google Nexus 7 HD Emulator' }/*,
-	{ browserName: 'safari', version: '7', platform: 'OS X 10.9' }*/
+export const environments = [
+	{ browserName: 'internet explorer', version: [ '9', '10', '11' ], platform: 'WINDOWS' },
+	{ browserName: 'firefox', platform: 'WINDOWS' },
+	{ browserName: 'chrome', platform: 'WINDOWS' },
+	/*{ browserName: 'Safari', version: '9', platform: 'OS X' }*/
+	{ browserName: 'android', version: ['4.4'], platform: 'ANDROID'}
 ];
 
 // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
 export var maxConcurrency = 3;
 
 // Name of the tunnel class to use for WebDriver tests
-export var tunnel = 'SauceLabsTunnel';
+export var tunnel = 'BrowserStackTunnel';
 
 // Configuration options for the module loader; any AMD configuration options supported by the specified AMD loader
 // can be used here
