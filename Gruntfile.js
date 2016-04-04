@@ -320,6 +320,16 @@ module.exports = function (grunt) {
 		grunt.task.run('clean:coverage');
 	});
 
+	grunt.registerTask('test-es6', function () {
+		tsOptions.target = 'es6';
+		grunt.task.run('test');
+	});
+
+	grunt.registerTask('dev-es6', function () {
+		tsOptions.target = 'es6';
+		grunt.task.run('dev');
+	});
+
 	grunt.registerTask('dev', [
 		'tslint',
 		'ts:dev',

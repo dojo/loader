@@ -137,4 +137,4 @@ declare namespace DojoLoader {
 }
 
 declare const define: DojoLoader.Define;
-declare const require: DojoLoader.Require;
+declare const require: DojoLoader.RootRequire;

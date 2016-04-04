@@ -83,7 +83,7 @@
 	// in the pending cache for the local configuration, possibly relocating modules.
 	let pendingCacheInsert: { [moduleId: string]: any; } = {};
 
-	let setGlobals: (require: DojoLoader.Require, define: DojoLoader.Define) => void;
+	let setGlobals: (require: DojoLoader.RootRequire, define: DojoLoader.Define) => void;
 
 	let uidGenerator: number = 0;
 
@@ -908,7 +908,7 @@
 			});
 		};
 
-		setGlobals = function (require: DojoLoader.Require, define: DojoLoader.Define): void {
+		setGlobals = function (require: DojoLoader.RootRequire, define: DojoLoader.Define): void {
 			module.exports = globalObject.require = require;
 			globalObject.define = define;
 		};
@@ -939,7 +939,7 @@
 			document.head.appendChild(node);
 		};
 
-		setGlobals = function (require: DojoLoader.Require, define: DojoLoader.Define): void {
+		setGlobals = function (require: DojoLoader.RootRequire, define: DojoLoader.Define): void {
 			globalObject.require = require;
 			globalObject.define = define;
 		};
