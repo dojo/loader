@@ -322,6 +322,10 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('test-es6', function () {
 		tsOptions.target = 'es6';
+		grunt.config('intern.options.nodeOptions', [
+			'--harmony',
+			'--harmony_default_parameters'
+		]);
 		grunt.task.run('test');
 	});
 
