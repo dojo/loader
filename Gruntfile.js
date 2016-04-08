@@ -328,17 +328,23 @@ module.exports = function (grunt) {
 		'replace:addIstanbulIgnore',
 		'updateTsconfig'
 	]);
-	grunt.registerTask('dist', [
-		'tslint',
-		'ts:dist',
-		'rename:sourceMaps',
-		'rewriteSourceMaps',
-		'copy:typings',
-		'copy:staticFiles',
-		'dtsGenerator:dist',
-		'updatePackageJson',
-		'uglify:dist'
-	]);
+
+	grunt.registerTask('dist', function () {
+		var tasks = [
+			'tslint',
+			'ts:dist',
+			'rename:sourceMaps',
+			'rewriteSourceMaps',
+			'copy:typings',
+			'copy:staticFiles',
+			'dtsGenerator:dist',
+			'updatePackageJson'
+		];
+		if (tsOptions.target !== 'es6') {
+			tasks.push('uglify:dist');
+		}
+		grunt.task.run(tasks);
+	});
 
 	grunt.registerTask('config-es6', function () {
 		tsOptions.target = 'es6';
