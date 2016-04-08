@@ -897,7 +897,10 @@
 					let oldModule = globalObject.module;
 					globalObject.module = undefined;
 					try {
-						vm.runInThisContext(data, url);
+						vm.runInThisContext(data, {
+							filename: url,
+							displayErrors: true
+						});
 					}
 					finally {
 						globalObject.module = oldModule;
