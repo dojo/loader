@@ -320,20 +320,6 @@ module.exports = function (grunt) {
 		grunt.task.run('clean:coverage');
 	});
 
-	grunt.registerTask('test-es6', function () {
-		tsOptions.target = 'es6';
-		grunt.config('intern.options.nodeOptions', [
-			'--harmony',
-			'--harmony_default_parameters'
-		]);
-		grunt.task.run('test');
-	});
-
-	grunt.registerTask('dev-es6', function () {
-		tsOptions.target = 'es6';
-		grunt.task.run('dev');
-	});
-
 	grunt.registerTask('dev', [
 		'tslint',
 		'ts:dev',
@@ -353,6 +339,22 @@ module.exports = function (grunt) {
 		'updatePackageJson',
 		'uglify:dist'
 	]);
+
+	grunt.registerTask('config-es6', function () {
+		tsOptions.target = 'es6';
+		if (this.flags.test) {
+			grunt.config('intern.options.nodeOptions', [
+				'--harmony',
+				'--harmony_default_parameters',
+				'--harmony_destructuring'
+			]);
+		}
+	});
+
+	grunt.registerTask('test-es6', [ 'config-es6:test', 'test' ]);
+	grunt.registerTask('dev-es6', [ 'config-es6', 'dev' ]);
+	grunt.registerTask('dist-es6', [ 'config-es6', 'dist' ]);
+
 	grunt.registerTask('test-proxy', [ 'dev', 'intern:proxy' ]);
 	grunt.registerTask('default', [ 'clean', 'dev' ]);
 };
