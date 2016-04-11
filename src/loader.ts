@@ -1,5 +1,5 @@
 'use strict';
-(function (): void {
+(function (args?: string[]): void {
 	const globalObject: any = Function('return this')();
 	const EXECUTING: string = 'executing';
 	const ABORT_EXECUTION: Object = {};
@@ -161,6 +161,7 @@
 
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
 	has.add('host-node', typeof process === 'object' && process.versions && process.versions.node);
+	has.add('host-nashorn', typeof load === 'function' && typeof Packages !== 'undefined');
 	has.add('debug', true);
 
 	// IE9 will process multiple scripts at once before firing their respective onload events, so some extra work
@@ -834,6 +835,11 @@
 		};
 	}
 
+	let globalObjectGlobals = function (require: DojoLoader.Require, define: DojoLoader.Define): void {
+		globalObject.require = require;
+		globalObject.define = define;
+	};
+
 	if (has('host-node')) {
 		loadNodeModule = (moduleId: string, parent?: DojoLoader.Module): any => {
 			let module: any = require('module');
@@ -897,7 +903,10 @@
 					let oldModule = globalObject.module;
 					globalObject.module = undefined;
 					try {
-						vm.runInThisContext(data, url);
+						vm.runInThisContext(data, {
+							filename: url,
+							displayErrors: true
+						});
 					}
 					finally {
 						globalObject.module = oldModule;
@@ -939,10 +948,17 @@
 			document.head.appendChild(node);
 		};
 
-		setGlobals = function (require: DojoLoader.RootRequire, define: DojoLoader.Define): void {
-			globalObject.require = require;
-			globalObject.define = define;
+		setGlobals = globalObjectGlobals;
+	}
+	else if (has('host-nashorn')) {
+		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: DojoLoader.Module,
+			parent?: DojoLoader.Module): void {
+
+			load(url);
+			callback();
 		};
+
+		setGlobals = globalObjectGlobals;
 	}
 	else {
 		throw new Error('Unsupported platform');
@@ -1084,4 +1100,7 @@
 	});
 
 	setGlobals(requireModule, define);
-})();
+	if (has('host-nashorn') && args[0]) {
+		load(args[0]);
+	}
+})((typeof Packages !== 'undefined' ? Array.prototype.slice.call(arguments, 0) : []));
