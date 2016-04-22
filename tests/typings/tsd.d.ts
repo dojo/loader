@@ -1,6 +1,6 @@
 /// <reference path="intern/intern.d.ts" />
 /// <reference path="node/node.d.ts" />
-/// <reference path="nashorn/nashorn.d.ts" />
+/// <reference path="../../typings/nashorn/nashorn.d.ts" />
 
 declare module 'intern/dojo/Promise' {
 	import Promise = require('dojo/Promise');

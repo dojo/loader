@@ -41,7 +41,6 @@
 		"./tests/typings/dojo2/dojo.d.ts",
 		"./tests/typings/intern/intern.d.ts",
 		"./tests/typings/leadfoot/leadfoot.d.ts",
-		"./tests/typings/nashorn/nashorn.d.ts",
 		"./tests/typings/node/node.d.ts",
 		"./tests/typings/tsd.d.ts",
 		"./tests/unit/all.ts",
