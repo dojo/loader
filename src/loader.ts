@@ -843,7 +843,6 @@
 	if (has('host-node')) {
 		loadNodeModule = (moduleId: string, parent?: DojoLoader.Module): any => {
 			let module: any = require('module');
-			let amdDefine = define;
 			let result: any;
 
 			if (module._findPath && module._nodeModulePaths) {
@@ -857,7 +856,7 @@
 			// Some modules attempt to detect an AMD loader by looking for global AMD `define`. This causes issues
 			// when other CommonJS modules attempt to load them via the standard Node.js `require`, so hide it
 			// during the load
-			define = undefined;
+			globalObject.define = undefined;
 
 			try {
 				result = requireModule.nodeRequire(moduleId);
@@ -869,7 +868,7 @@
 				result = undefined;
 			}
 			finally {
-				define = amdDefine;
+				globalObject.define = define;
 			}
 
 			return result;
