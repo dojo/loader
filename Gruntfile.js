@@ -254,6 +254,7 @@ module.exports = function (grunt) {
 				options: {
 					reports: {
 						'lcovonly': 'coverage-final.lcov',
+						'json': 'coverage-final.json',
 						'text': null
 					}
 				},
