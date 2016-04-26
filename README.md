@@ -13,10 +13,12 @@ dojo-loader does not have any dependencies on a JavaScript framework.
 | Environment	| Version	|
 |---------------|----------:|
 | IE			| 10+		|
-| Firefox		| current	|
-| Chrome		| current	|
-| Opera			| current	|
-| Edge			| current	|
+| Firefox		| 30+		|
+| Chrome		| 30+		|
+| Opera			| 15+		|
+| Safari		| 8, 9		|
+| Android		| 4.4+		|
+| iOS			| 7+		|
 | Node			| 0.12+		|
 | Nashorn		| 1.8+		|
 
