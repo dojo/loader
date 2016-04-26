@@ -902,10 +902,13 @@
 					let oldModule = globalObject.module;
 					globalObject.module = undefined;
 					try {
-						vm.runInThisContext(data, {
-							filename: url,
-							displayErrors: true
-						});
+						/**
+						 * Using an `object` as a second argument causes Instabul
+						 * issues and then thinks the file should not be instrumented
+						 *
+						 * See: dojo/loader#57
+						 */
+						vm.runInThisContext(data, url);
 					}
 					finally {
 						globalObject.module = oldModule;
