@@ -8,6 +8,18 @@ This package provides a JavaScript AMD loader useful in applications running in 
 
 dojo-loader does not have any dependencies on a JavaScript framework.
 
+## Support
+
+| Environment	| Version	|
+|---------------|----------:|
+| IE			| 10+		|
+| Firefox		| current	|
+| Chrome		| current	|
+| Opera			| current	|
+| Edge			| current	|
+| Node			| 0.12+		|
+| Nashorn		| 1.8+		|
+
 ## Features
 
 - AMD loading
