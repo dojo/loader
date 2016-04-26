@@ -164,11 +164,6 @@
 	has.add('host-nashorn', typeof load === 'function' && typeof Packages !== 'undefined');
 	has.add('debug', true);
 
-	// IE9 will process multiple scripts at once before firing their respective onload events, so some extra work
-	// needs to be done to associate the content of the define call with the correct node. This is known to be fixed
-	// in IE10 and the bad behaviour cannot be inferred through feature detection, so simply target this one user-agent
-	has.add('loader-ie9-compat', has('host-browser') && navigator.userAgent.indexOf('MSIE 9.0') > -1);
-
 	has.add('loader-configurable', true);
 	if (has('loader-configurable')) {
 		/**
@@ -755,10 +750,6 @@
 				// DojoLoader.moduleDefinitionArguments is an array of [dependencies, factory]
 				consumePendingCacheInsert(module);
 
-				if (has('loader-ie9-compat') && node) {
-					moduleDefinitionArguments = (<any> node).defArgs;
-				}
-
 				// non-amd module
 				if (!moduleDefinitionArguments) {
 					moduleDefinitionArguments = [ [], undefined ];
@@ -934,7 +925,7 @@
 				document.head.removeChild(node);
 
 				if (event.type === 'load') {
-					has('loader-ie9-compat') ? callback(node) : callback();
+					callback();
 				}
 				else {
 					reportModuleLoadError(parent, module, url);
@@ -1084,19 +1075,7 @@
 			}
 		}
 
-		if (has('loader-ie9-compat')) {
-			for (let i = document.scripts.length - 1, script: HTMLScriptElement;
-				script = <HTMLScriptElement> document.scripts[i];
-				--i) {
-				if ((<any> script).readyState === 'interactive') {
-					(<any> script).defArgs = [ dependencies, factory ];
-					break;
-				}
-			}
-		}
-		else {
-			moduleDefinitionArguments = [ dependencies, factory ];
-		}
+		moduleDefinitionArguments = [ dependencies, factory ];
 	}, {
 		amd: { vendor: 'dojotoolkit.org' }
 	});
