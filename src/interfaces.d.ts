@@ -1,9 +1,50 @@
 declare namespace DojoLoader {
+
+	/**
+	 * Common AMD Configuration
+	 *
+	 * See [Common Config](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md)
+	 */
 	export interface Config {
+		/**
+		 * Indicates the root used for ID-to-path resolutions. Relative paths are relative to the current
+		 * working directory. In web browsers, the current working directory is the directory containing
+		 * the web page running the script.
+		 */
 		baseUrl?: string;
+
+		/**
+		 * Specifies for a given module ID prefix, what module ID prefix to use in place of another
+		 * module ID prefix. For example, how to express "when `bar` asks for module ID `foo`,
+		 * actually use module ID 'foo1.2'".
+		 *
+		 * This sort of capability is important for larger projects which may have two sets of
+		 * modules that need to use two different versions of `foo`, but they still need to
+		 * cooperate with each other.
+		 *
+		 * This is different from `paths` config. `paths` is only for setting up root paths for
+		 * module IDs, not for mapping one module ID to another one.
+		 */
 		map?: ModuleMap;
+
+		/**
+		 * Array of package configuration (packageConfig) objects. Package configuration is for
+		 * traditional CommonJS packages, which has different path lookup rules than the default
+		 * ID-to-path lookup rules used by an AMD loader.
+		 *
+		 * Default lookup rules are ,baseUrl + 'module/id' + .js, where paths config can be used
+		 * to map part of 'module/id' to another path.
+		 */
 		packages?: Package[];
+
+		/**
+		 * For specifying a path for a the given module ID prefix.
+		 *
+		 * A property in the paths object is an absolute module ID prefix.
+		 */
 		paths?: { [ path: string ]: string; };
+
+		/* TODO: We should remove internal APIs like this */
 		pkgs?: { [ path: string ]: Package; };
 	}
 
@@ -30,9 +71,40 @@ declare namespace DojoLoader {
 		info: { module: Module, url: string, parentMid: string };
 	}
 
+	/**
+	 * AMD Loader Plugin API
+	 *
+	 * See [Loader Plugin API](https://github.com/amdjs/amdjs-api/blob/master/LoaderPlugins.md)
+	 */
 	interface LoaderPlugin {
-		load?: (resourceId: string, require: Require, load: (value?: any) => void, config?: Object) => void;
-		normalize?: (moduleId: string, normalize: (moduleId: string) => string) => string;
+		/**
+		 * A function that is called to load a resource. This is the only mandatory API method that needs
+		 * to be implemented for the plugin to be useful, assuming the resource IDs do not need special
+		 * ID normalization.
+		 * @param resourceId The resource ID that the plugin should load. This ID MUST be normalized.
+		 * @param require A local require function to use to load other modules. This require function
+		 *                has some utilities on it:
+		 *                * **require.toUrl('moduleId+extension')** See the `require.toUrl` API notes
+		 *                  for more information.
+		 * @param load A function to call once the value of the resource ID has been determined. This
+		 *             tells the loader that the plugin is done loading the resource.
+		 * @param config A configuration object. This is a way for the optimizer and the web app to
+		 *               pass configuration information to the plugin. An optimization tool may set
+		 *               an `isBuild` property in the config to true if this plugin is being called
+		 *               as part of an optimizer build.
+		 */
+		load?(resourceId: string, require: Require, load: (value?: any) => void, config?: Object): void;
+
+		/**
+		 * A function to normalize the passed-in resource ID. Normalization of an module ID normally
+		 * means converting relative paths, like `./some/path` or `../another/path` to be non-relative,
+		 * absolute IDs
+		 * @param resourceId The resource ID to normalize.
+		 * @param normalize A normalization function that accepts a string ID to normalize using the
+		 *                  standard relative module normalization rules using the loader's current
+		 *                  configuration.
+		 */
+		normalize?(resourceId: string, normalize: (moduleId: string) => string): string;
 	}
 
 	interface MapItem extends Array<any> {
@@ -55,6 +127,7 @@ declare namespace DojoLoader {
 	}
 
 	// TODO are we still abbreviating these properties?
+	// TODO shouldn't extend for LoaderPlugin because technicall `load` is not optional
 	interface Module extends LoaderPlugin {
 		cjs: {
 			exports: any;
