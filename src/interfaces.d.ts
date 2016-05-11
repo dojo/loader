@@ -53,6 +53,7 @@ declare namespace DojoLoader {
 		(dependencies: string[], factory: Factory): void;
 		(factory: Factory): void;
 		(value: any): void;
+		amd: { [prop: string]: string | number | boolean };
 	}
 
 	interface Factory {
@@ -93,7 +94,7 @@ declare namespace DojoLoader {
 		 *               an `isBuild` property in the config to true if this plugin is being called
 		 *               as part of an optimizer build.
 		 */
-		load?(resourceId: string, require: Require, load: (value?: any) => void, config?: Object): void;
+		load?(resourceId: string, require: Require, load: (value?: any) => void, config?: { [ prop: string ]: any; }): void;
 
 		/**
 		 * A function to normalize the passed-in resource ID. Normalization of an module ID normally
@@ -127,7 +128,7 @@ declare namespace DojoLoader {
 	}
 
 	// TODO are we still abbreviating these properties?
-	// TODO shouldn't extend for LoaderPlugin because technicall `load` is not optional
+	// TODO shouldn't extend for LoaderPlugin because technically `load` is not optional
 	interface Module extends LoaderPlugin {
 		cjs: {
 			exports: any;
