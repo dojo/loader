@@ -12,6 +12,10 @@
 		"url": "https://github.com/dojo/loader.git"
 	},
 	"main": "dist/umd/loader.js",
+	"scripts": {
+		"prepublish": "grunt dist dist_esm",
+		"test": "grunt test"
+	},
 	"devDependencies": {
 		"codecov.io": "0.1.6",
 		"dts-generator": "~1.7.0",
@@ -21,7 +25,7 @@
 		"grunt-contrib-copy": "^1.0.0",
 		"grunt-contrib-uglify": "^1.0.1",
 		"grunt-contrib-watch": "^1.0.0",
-		"grunt-dojo2": ">=2.0.0-alpha.5",
+		"grunt-dojo2": ">=2.0.0-alpha.6",
 		"grunt-release": "0.13.0",
 		"grunt-text-replace": "0.4.0",
 		"grunt-ts": "^5.0.0",

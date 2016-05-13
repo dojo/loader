@@ -8,5 +8,7 @@
 .npmignore
 .travis.yml
 Gruntfile.js
+coverage-final.lcov
+coverage-unmapped.json
 tsconfig.json
 tslint.json

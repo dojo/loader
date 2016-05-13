@@ -8,11 +8,11 @@
 	],
 	"authors": [
 	],
-	"main": "loader.js",
+	"main": "dist/umd/loader.js",
 	"homepage": "http://dojotoolkit.org/",
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/dojo/<< package-name >>.git"
+		"url": "git://github.com/dojo/loader.git"
 	},
 	"dependencies": {
 	},
