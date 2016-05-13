@@ -7,16 +7,17 @@
 		"outDir": "_build/",
 		"removeComments": false,
 		"sourceMap": true,
+		"inlineSources": true,
 		"target": "es5",
 		"moduleResolution": "classic"
 	},
 	"filesGlob": [
-		"./typings/tsd.d.ts",
+		"./typings/main.d.ts",
 		"./src/**/*.ts",
 		"./tests/**/*.ts"
 	],
 	"files": [
-		"./typings/tsd.d.ts",
+		"./typings/main.d.ts",
 		"./src/interfaces.d.ts",
 		"./src/loader.ts",
 		"./tests/functional/all.ts",
@@ -41,7 +42,6 @@
 		"./tests/typings/dojo2/dojo.d.ts",
 		"./tests/typings/intern/intern.d.ts",
 		"./tests/typings/leadfoot/leadfoot.d.ts",
-		"./tests/typings/node/node.d.ts",
 		"./tests/typings/tsd.d.ts",
 		"./tests/unit/all.ts",
 		"./tests/unit/basicCommonJsLoading.ts",
