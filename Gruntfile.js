@@ -4,6 +4,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 
 	require('grunt-dojo2').initConfig(grunt, {
+		/* loader has to build in a slightly different way than the standard Dojo 2 package */
 		ts: {
 			tests: {
 				options: {
@@ -14,6 +15,7 @@ module.exports = function (grunt) {
 			}
 		},
 
+		/* loader has minification built into the package, eventually this should be moved to grunt-dojo2 */
 		uglify: {
 			dist: {
 				options: {
@@ -35,7 +37,9 @@ module.exports = function (grunt) {
 		}
 	});
 
+	/* we have to write the dev task from the default because of the need to copy compile the tests differently */
 	grunt.registerTask('dev', [
+		'typings',
 		'tslint',
 		'clean:dev',
 		'ts:dev',
@@ -44,5 +48,6 @@ module.exports = function (grunt) {
 		'updateTsconfig'
 	]);
 
+	/* we also have to add the uglify task */
 	grunt.registerTask('dist', grunt.config.get('distTasks').concat('uglify:dist'));
 };
