@@ -1,7 +1,7 @@
 'use strict';
 (function (args?: string[]): void {
 	const globalObject: any = Function('return this')();
-	const EXECUTING: string = 'executing';
+	const EXECUTING = 'executing';
 	const ABORT_EXECUTION: Object = {};
 	//
 	// loader state data
@@ -17,7 +17,7 @@
 	// keys as given by any mappings *iff* the cache was received as part of a module resource request.
 	let cache: DojoLoader.ObjectMap = {};
 
-	let checkCompleteGuard: number = 0;
+	let checkCompleteGuard = 0;
 
 	// The configuration passed to the loader
 	let config: DojoLoader.Config = {
@@ -33,7 +33,7 @@
 	// The list of modules that need to be evaluated.
 	let executionQueue: DojoLoader.Module[] = [];
 
-	let executedSomething: boolean = false;
+	let executedSomething = false;
 
 	let injectUrl: (url: string, callback: (node?: HTMLScriptElement) => void, module: DojoLoader.Module, parent?: DojoLoader.Module) => void;
 
@@ -85,10 +85,10 @@
 
 	let setGlobals: (require: DojoLoader.RootRequire, define: DojoLoader.Define) => void;
 
-	let uidGenerator: number = 0;
+	let uidGenerator = 0;
 
 	// the number of modules the loader has injected but has not seen defined
-	let waitingCount: number = 0;
+	let waitingCount = 0;
 
 	const has: DojoLoader.Has = (function (): DojoLoader.Has {
 		const hasCache: { [ name: string ]: any; } = Object.create(null);
