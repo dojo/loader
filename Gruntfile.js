@@ -1,7 +1,5 @@
 /* jshint node:true */
 
-// var initConfig = require('grunt-dojo2').initConfig;
-
 module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 

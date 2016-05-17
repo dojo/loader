@@ -161,7 +161,7 @@ declare namespace DojoLoader {
 	}
 
 	interface ModuleMap extends ModuleMapItem {
-		[ sourceMid: string ]: ModuleMapReplacement;
+		[ sourceMid: string ]: ModuleMapReplacement | string;
 	}
 
 	interface ModuleMapItem {

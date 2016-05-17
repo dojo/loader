@@ -111,3 +111,10 @@ declare module 'intern/dojo/node!path' {
 	import * as path from 'path';
 	export = path;
 }
+
+declare namespace NodeJS {
+	interface Global {
+		require: DojoLoader.RootRequire;
+		define: DojoLoader.Define;
+	}
+}
