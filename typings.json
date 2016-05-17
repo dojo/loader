@@ -1,0 +1,10 @@
+{
+  "name": "dojo-loader",
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "globalDependencies": {
+    "nashorn": "github:dojo/loader/typings/nashorn/nashorn.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f",
+    "node": "github:dojo/loader/tests/typings/node/node.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f"
+  }
+}

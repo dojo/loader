@@ -1,0 +1,13 @@
+{
+  "name": "dojo-loader",
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "globalDependencies": {
+    "chai": "github:dojo/loader/tests/typings/chai/chai.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f",
+    "digdug": "github:dojo/loader/tests/typings/digdug/digdug.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f",
+    "dojo2": "github:dojo/loader/tests/typings/dojo2/dojo.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f",
+    "intern": "github:dojo/loader/tests/typings/intern/intern.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f",
+    "leadfoot": "github:dojo/loader/tests/typings/leadfoot/leadfoot.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f"
+  }
+}

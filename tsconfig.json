@@ -11,14 +11,17 @@
 		"moduleResolution": "classic"
 	},
 	"filesGlob": [
-		"./typings/tsd.d.ts",
 		"./src/**/*.ts",
-		"./tests/**/*.ts"
+		"./tests/**/*.ts",
+		"./typings/index.d.ts"
 	],
+	"atom": {
+		"rewriteTsconfig": false
+	},
 	"files": [
-		"./typings/tsd.d.ts",
 		"./src/interfaces.d.ts",
 		"./src/loader.ts",
+		"./src/nashorn.d.ts",
 		"./tests/functional/all.ts",
 		"./tests/functional/amdApp/Deep2.ts",
 		"./tests/functional/amdApp/app.ts",
@@ -32,22 +35,20 @@
 		"./tests/functional/executeTest.ts",
 		"./tests/functional/require/require.ts",
 		"./tests/intern-local.ts",
+		"./tests/intern.d.ts",
 		"./tests/intern.ts",
 		"./tests/module.d.ts",
 		"./tests/support/Reporter.ts",
 		"./tests/support/util.ts",
-		"./tests/typings/chai/chai.d.ts",
-		"./tests/typings/digdug/digdug.d.ts",
-		"./tests/typings/dojo2/dojo.d.ts",
-		"./tests/typings/intern/intern.d.ts",
-		"./tests/typings/leadfoot/leadfoot.d.ts",
-		"./tests/typings/node/node.d.ts",
-		"./tests/typings/tsd.d.ts",
+		"./tests/typings/globals/chai/index.d.ts",
+		"./tests/typings/globals/digdug/index.d.ts",
+		"./tests/typings/globals/dojo2/index.d.ts",
+		"./tests/typings/globals/intern/index.d.ts",
+		"./tests/typings/globals/leadfoot/index.d.ts",
+		"./tests/typings/index.d.ts",
 		"./tests/unit/all.ts",
 		"./tests/unit/basicCommonJsLoading.ts",
-		"./tests/unit/require.ts"
-	],
-	"atom": {
-		"rewriteTsconfig": false
-	}
+		"./tests/unit/require.ts",
+		"./typings/index.d.ts"
+	]
 }
