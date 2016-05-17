@@ -3,6 +3,7 @@
 	"dependencies": {},
 	"devDependencies": {},
 	"ambientDependencies": {
-		"node": "registry:dt/node#4.0.0+20160509154515"
+		"nashorn": "github:dojo/loader/typings/nashorn/nashorn.d.ts#b61974d91d3a1ad137876352a5895382df6ea41f",
+		"node": "github:dojo/compose/typings/node/node.d.ts#77042c0e0f48396a6d77c592cfdb1ce0f71438cf"
 	}
 }
