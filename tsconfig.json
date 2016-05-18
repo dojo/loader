@@ -12,12 +12,12 @@
 		"moduleResolution": "classic"
 	},
 	"filesGlob": [
-		"./typings/main.d.ts",
+		"./typings/index.d.ts",
 		"./src/**/*.ts",
 		"./tests/**/*.ts"
 	],
 	"files": [
-		"./typings/main.d.ts",
+		"./typings/index.d.ts",
 		"./src/interfaces.d.ts",
 		"./src/loader.ts",
 		"./tests/functional/all.ts",
@@ -37,12 +37,6 @@
 		"./tests/module.d.ts",
 		"./tests/support/Reporter.ts",
 		"./tests/support/util.ts",
-		"./tests/typings/chai/chai.d.ts",
-		"./tests/typings/digdug/digdug.d.ts",
-		"./tests/typings/dojo2/dojo.d.ts",
-		"./tests/typings/intern/intern.d.ts",
-		"./tests/typings/leadfoot/leadfoot.d.ts",
-		"./tests/typings/tsd.d.ts",
 		"./tests/unit/all.ts",
 		"./tests/unit/basicCommonJsLoading.ts",
 		"./tests/unit/require.ts"

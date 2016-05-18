@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 					module: 'umd'
 				},
 				outDir: '<%= devDirectory %>/tests',
-				src: [ 'tests/**/*.ts', 'typings/main.d.ts', 'src/interfaces.d.ts' ]
+				src: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
 			}
 		},
 
