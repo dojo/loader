@@ -76,13 +76,13 @@ registerSuite({
 	},
 
 	'node modules sync'() {
-		const events = global.require('events');
+		const events: any = global.require('events');
 		assert.isNotNull(events);
 		assert.isNotNull(events.EventEmitter);
 	},
 
 	'node modules sync multiples'() {
-		const events = global.require('events');
+		const events: any = global.require('events');
 		assert.isNotNull(events);
 		assert.isNotNull(events.EventEmitter);
 
@@ -569,7 +569,7 @@ registerSuite({
 
 		global.require([
 			'common/a/toAbsMidTest'
-		]);
+		], () => {});
 	},
 
 	toUrl() {
@@ -599,7 +599,7 @@ registerSuite({
 
 		global.require([
 			'common/a/toUrlTest'
-		]);
+		], () => {});
 	},
 
 	undef() {
@@ -651,7 +651,7 @@ registerSuite({
 
 		config() {
 			const dfd = this.async(DEFAULT_TIMEOUT);
-			const paths = {
+			const paths: { [path: string]: string } = {
 				common: '_build/tests/common'
 			};
 
@@ -668,10 +668,10 @@ registerSuite({
 
 		mergedConfig() {
 			const dfd = this.async(DEFAULT_TIMEOUT);
-			const paths = {
+			const paths: { [path: string]: string }  = {
 				common: '_build/tests/common'
 			};
-			const map = {
+			const map: DojoLoader.ModuleMap = {
 				foo: 'bar'
 			};
 
