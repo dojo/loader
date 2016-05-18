@@ -32,6 +32,7 @@
 		"./tests/functional/basicCommonJsLoading.ts",
 		"./tests/functional/executeTest.ts",
 		"./tests/functional/require/require.ts",
+		"./tests/interfaces.d.ts",
 		"./tests/intern-local.ts",
 		"./tests/intern.ts",
 		"./tests/module.d.ts",

@@ -539,7 +539,7 @@ registerSuite({
 
 	nodeRequire() {
 		assert.isFunction(global.require.nodeRequire, '"require.nodeRequire" should be a function');
-		assert.isNotNull(global.require<any>('events').EventEmitter, '"require.nodeRequire" should load module');
+		assert.isNotNull(global.require('events').EventEmitter, '"require.nodeRequire" should load module');
 	},
 
 	toAbsMid() {

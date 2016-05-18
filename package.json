@@ -26,7 +26,7 @@
 		"grunt-contrib-copy": "^1.0.0",
 		"grunt-contrib-uglify": "^1.0.1",
 		"grunt-contrib-watch": "^1.0.0",
-		"grunt-dojo2": ">=2.0.0-beta.1",
+		"grunt-dojo2": ">=2.0.0-beta.4",
 		"grunt-release": "0.13.0",
 		"grunt-text-replace": "0.4.0",
 		"grunt-ts": "^5.0.0",
