@@ -17,6 +17,7 @@
 		"./tests/**/*.ts"
 	],
 	"files": [
+		"./test.ts",
 		"./typings/index.d.ts",
 		"./src/interfaces.d.ts",
 		"./src/loader.ts",
