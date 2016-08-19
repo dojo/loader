@@ -216,8 +216,8 @@
 					packageDescriptor.location = packageDescriptor.location.replace(/\/*$/, '/');
 				}
 
-				if (config && config.pkgs) {
-					config.pkgs[<string> packageDescriptor.name] = packageDescriptor;
+				if (config && config.pkgs && packageDescriptor.name) {
+					config.pkgs[packageDescriptor.name] = packageDescriptor;
 				}
 			});
 
