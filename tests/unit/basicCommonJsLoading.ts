@@ -66,7 +66,7 @@ registerSuite({
 		(<any> process)._events.uncaughtException = globalErrorHandler;
 	},
 
-	'simple test'() {
+	'simple test'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -78,7 +78,7 @@ registerSuite({
 		}));
 	},
 
-	'CommonJS module with ID'() {
+	'CommonJS module with ID'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -93,7 +93,7 @@ registerSuite({
 		}));
 	},
 
-	'CommonJS module with ID and dependency - ID'() {
+	'CommonJS module with ID and dependency - ID'(this: any) {
 		const expected = {
 			testModule1Value: 'testModule1',
 			testModule2Value: 'testModule2'
@@ -114,7 +114,7 @@ registerSuite({
 		}));
 	},
 
-	'CommonJS module with ID and dependency - module'() {
+	'CommonJS module with ID and dependency - module'(this: any) {
 		const expected = {
 			appModuleValue: COMMON_JS_APP_MESSAGE,
 			testModule3Value: 'testModule3'
@@ -134,7 +134,7 @@ registerSuite({
 		}));
 	},
 
-	'CommonJS module without ID and dependency - id'() {
+	'CommonJS module without ID and dependency - id'(this: any) {
 		const expected = {
 			testModule1Value: 'testModule1',
 			testModule2Value: 'testModule2'
@@ -159,7 +159,7 @@ registerSuite({
 		});
 	},
 
-	'CommonJS module with circular dependency'() {
+	'CommonJS module with circular dependency'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -172,7 +172,7 @@ registerSuite({
 		}));
 	},
 
-	'CommonJS module with circular dependency 2'() {
+	'CommonJS module with circular dependency 2'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -185,7 +185,7 @@ registerSuite({
 		}));
 	},
 
-	'CommonJS module with circular dependency 3'() {
+	'CommonJS module with circular dependency 3'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -201,7 +201,7 @@ registerSuite({
 		}));
 	},
 
-	'CommonJS module with deep dependencies'() {
+	'CommonJS module with deep dependencies'(this: any) {
 		const expected = {
 			objectExport: 'objectExport'
 		};
