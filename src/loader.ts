@@ -28,7 +28,7 @@
 	};
 
 	// The arguments sent to loader via AMD define().
-	let moduleDefinitionArguments: DojoLoader.ModuleDefinitionArguments = null;
+	let moduleDefinitionArguments: DojoLoader.ModuleDefinitionArguments | undefined = undefined;
 
 	// The list of modules that need to be evaluated.
 	let executionQueue: DojoLoader.Module[] = [];
@@ -69,7 +69,7 @@
 	// 4. Defined: the resource contained a define statement that advised the loader about the module.
 	//
 	// 5. Evaluated: the module was defined via define and the loader has evaluated the factory and computed a result.
-	let modules: { [ moduleId: string ]: DojoLoader.Module; } = {};
+	let modules: { [ moduleId: string ]: DojoLoader.Module | undefined; } = {};
 
 	// list of (from-path, to-path, regex, length) derived from paths;
 	// a "program" to apply paths; see computeMapProg
@@ -116,7 +116,20 @@
 
 	const listenerQueues: { [queue: string]: ((...args: any[]) => void)[] } = {};
 
-	const reportModuleLoadError = function (parent: DojoLoader.Module, module: DojoLoader.Module, url: string): void {
+	const emit = function(type: DojoLoader.SignalType, args: {}): number | boolean {
+		let queue = listenerQueues[type];
+		let hasListeners = queue && queue.length;
+
+		if (hasListeners) {
+			for (let listener of queue.slice(0)) {
+				listener.apply(null, Array.isArray(args) ? args : [args]);
+			}
+		}
+
+		return hasListeners;
+	};
+
+	const reportModuleLoadError = function (parent: DojoLoader.Module | undefined, module: DojoLoader.Module, url: string): void {
 		const parentMid = (parent ? ` (parent: ${parent.mid})` : '');
 		const message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
 		const error = mix<DojoLoader.LoaderError>(new Error(message), {
@@ -129,19 +142,6 @@
 		});
 
 		if (!emit('error', error)) { throw error; };
-	};
-
-	const emit = function(type: DojoLoader.SignalType, args: {}): number | boolean {
-		let queue = listenerQueues[type];
-		let hasListeners = queue && queue.length;
-
-		if (hasListeners) {
-			for (let listener of queue.slice(0)) {
-				listener.apply(null, Array.isArray(args) ? args : [args]);
-			}
-		}
-
-		return hasListeners;
 	};
 
 	const on = function(type: string, listener: (error: DojoLoader.LoaderError) => void): { remove: () => void } {
@@ -206,7 +206,7 @@
 			// TODO: Expose all properties on req as getter/setters? Plugin modules like dojo/node being able to
 			// retrieve baseUrl is important. baseUrl is defined as a getter currently.
 
-			forEach(configuration.packages, function (packageDescriptor: DojoLoader.Package): void {
+			forEach(configuration.packages || [], function (packageDescriptor: DojoLoader.Package): void {
 				// Allow shorthand package definition, where name and location are the same
 				if (typeof packageDescriptor === 'string') {
 					packageDescriptor = { name: <string> packageDescriptor, location: <string> packageDescriptor };
@@ -216,10 +216,12 @@
 					packageDescriptor.location = packageDescriptor.location.replace(/\/*$/, '/');
 				}
 
-				config.pkgs[packageDescriptor.name] = packageDescriptor;
+				if (config && config.pkgs) {
+					config.pkgs[<string> packageDescriptor.name] = packageDescriptor;
+				}
 			});
 
-			function computeMapProgram(map: DojoLoader.ModuleMapItem): DojoLoader.MapItem[] {
+			function computeMapProgram(map: DojoLoader.ModuleMapItem | undefined): DojoLoader.MapItem[] {
 				// This method takes a map as represented by a JavaScript object and initializes an array of
 				// arrays of (map-key, map-value, regex-for-map-key, length-of-map-key), sorted decreasing by length-
 				// of-map-key. The regex looks for the map-key followed by either "/" or end-of-string at the beginning
@@ -253,20 +255,22 @@
 
 				const result: DojoLoader.MapItem[] = [];
 
-				for (let moduleId in map) {
-					const value: any = (<any> map)[moduleId];
-					const isValueAMapReplacement: boolean = typeof value === 'object';
+				if (map) {
+					for (let moduleId in map) {
+						const value: any = (<any> map)[moduleId];
+						const isValueAMapReplacement: boolean = typeof value === 'object';
 
-					const item = <DojoLoader.MapItem> {
-						0: moduleId,
-						1: isValueAMapReplacement ? computeMapProgram(value) : value,
-						2: new RegExp('^' + moduleId.replace(/[-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&') + '(?:\/|$)'),
-						3: moduleId.length
-					};
-					result.push(item);
+						const item = <DojoLoader.MapItem> {
+							0: moduleId,
+							1: isValueAMapReplacement ? computeMapProgram(value) : value,
+							2: new RegExp('^' + moduleId.replace(/[-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&') + '(?:\/|$)'),
+							3: moduleId.length
+						};
+						result.push(item);
 
-					if (isValueAMapReplacement && moduleId === '*') {
-						(<DojoLoader.MapRoot> result).star = item[1];
+						if (isValueAMapReplacement && moduleId === '*') {
+							(<DojoLoader.MapRoot> result).star = item[1];
+						}
 					}
 				}
 
@@ -330,16 +334,16 @@
 	let loadNodeModule: (moduleId: string, parent?: DojoLoader.Module) => any = noop;
 
 	function contextRequire(moduleId: string, unused?: void, referenceModule?: DojoLoader.Module): DojoLoader.Module;
-	function contextRequire(dependencies: string[], callback: DojoLoader.RequireCallback, referenceModule?: DojoLoader.Module): DojoLoader.Module;
-	function contextRequire(dependencies: string | string[], callback: any, referenceModule?: DojoLoader.Module): DojoLoader.Module {
-		let module: DojoLoader.Module;
+	function contextRequire(dependencies: string[], callback: DojoLoader.RequireCallback | undefined, referenceModule?: DojoLoader.Module): DojoLoader.Module;
+	function contextRequire(dependencies: string | string[], callback: any, referenceModule?: DojoLoader.Module): DojoLoader.Module | undefined {
+		let module: DojoLoader.Module | undefined = undefined;
 		if (typeof dependencies === 'string') {
 			module = getModule(dependencies, referenceModule);
 			if (module.executed !== true && module.executed !== EXECUTING) {
 				if (has('host-node') && !module.plugin) {
 					let result = loadNodeModule(module.mid, referenceModule);
 					if (result) {
-						initializeModule(module, [], null);
+						initializeModule(module, [], undefined);
 						module.result = result;
 						module.cjs.setExports(result);
 						module.executed = true;
@@ -349,7 +353,7 @@
 					}
 				}
 				else if (module.plugin) {
-					injectModule(module, null);
+					injectModule(module, undefined);
 				}
 			}
 			// Assign the result of the module to `module`
@@ -367,7 +371,7 @@
 				gc: true // garbage collect
 			});
 			guardCheckComplete(function (): void {
-				forEach(module.deps, injectModule.bind(null, module));
+				forEach(module ? module.deps : [], injectModule.bind(null, module));
 			});
 			executionQueue.push(module);
 			checkComplete();
@@ -375,9 +379,9 @@
 		return module;
 	}
 
-	function createRequire(module: DojoLoader.Module): DojoLoader.Require {
-		let result: DojoLoader.Require = (!module && requireModule) || module.require;
-		if (!result) {
+	function createRequire(module: DojoLoader.Module | undefined): DojoLoader.Require | undefined {
+		let result: DojoLoader.Require | undefined = (!module && requireModule) || (module && module.require);
+		if (!result && module) {
 			module.require = result = <DojoLoader.Require> function (dependencies: any, callback: any): DojoLoader.Module {
 				return contextRequire(dependencies, callback, module);
 			};
@@ -393,7 +397,7 @@
 		return result;
 	}
 
-	function runMapProgram(targetModuleId: string, map: DojoLoader.MapItem[]): DojoLoader.MapSource {
+	function runMapProgram(targetModuleId: string, map: DojoLoader.MapItem[] | undefined): DojoLoader.MapSource | undefined {
 		// search for targetModuleId in map; return the map item if found; falsy otherwise
 		if (map) {
 			for (let i = 0, j = map.length; i < j; ++i) {
@@ -403,14 +407,14 @@
 			}
 		}
 
-		return null;
+		return undefined;
 	}
 
 	function compactPath(path: string): string {
 		const pathSegments: string[] = path.replace(/\\/g, '/').split('/');
-		let absolutePathSegments: string[] = [];
-		let segment: string;
-		let lastSegment: string;
+		let absolutePathSegments: (string|undefined)[] = [];
+		let segment: string | undefined;
+		let lastSegment: string | undefined = '';
 
 		while (pathSegments.length) {
 			segment = pathSegments.shift();
@@ -434,10 +438,10 @@
 
 		// if there is a reference module, then use its module map, if one exists; otherwise, use the global map.
 		// see computeMapProg for more information on the structure of the map arrays
-		let moduleMap: DojoLoader.MapItem = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
+		let moduleMap: DojoLoader.MapItem | undefined = referenceModule && runMapProgram(referenceModule.mid, mapPrograms);
 		moduleMap = moduleMap ? moduleMap[1] : mapPrograms.star;
 
-		let mapItem: DojoLoader.MapItem;
+		let mapItem: DojoLoader.MapItem | undefined;
 		if ((mapItem = runMapProgram(moduleId, moduleMap))) {
 			moduleId = mapItem[1] + moduleId.slice(mapItem[3]);
 		}
@@ -473,11 +477,11 @@
 	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
 		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
-		let pack = config.pkgs[packageId];
-		let moduleIdInPackage: string;
+		let pack = config && config.pkgs ? config.pkgs[packageId] : {};
+		let moduleIdInPackage = '';
 
 		if (pack) {
-			moduleId = packageId + '/' + (moduleIdInPackage = (match[3] || pack.main || 'main'));
+			moduleId = packageId + '/' + (moduleIdInPackage = ((match && match[3]) || pack.main || 'main'));
 		}
 		else {
 			packageId = '';
@@ -504,9 +508,9 @@
 		return module;
 	}
 
-	function resolvePluginResourceId(plugin: DojoLoader.Module, pluginResourceId: string, contextRequire: DojoLoader.Require): string {
-		return plugin.normalize ? plugin.normalize(pluginResourceId, contextRequire.toAbsMid) :
-			contextRequire.toAbsMid(pluginResourceId);
+	function resolvePluginResourceId(plugin: DojoLoader.Module, pluginResourceId: string, contextRequire?: DojoLoader.Require): string {
+		const toAbsMid = contextRequire ? contextRequire.toAbsMid : undefined;
+		return plugin.normalize ? plugin.normalize(pluginResourceId, <any> toAbsMid) : toAbsMid ? toAbsMid(pluginResourceId) : '';
 	}
 
 	function getModule(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
@@ -546,12 +550,12 @@
 		return modules[module.mid] || (modules[module.mid] = module);
 	}
 
-	function toAbsMid(moduleId: string, referenceModule: DojoLoader.Module): string {
+	function toAbsMid(moduleId: string, referenceModule: DojoLoader.Module | undefined): string {
 		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 		return getModuleInformation(moduleId, referenceModule).mid;
 	}
 
-	function toUrl(name: string, referenceModule: DojoLoader.Module): string {
+	function toUrl(name: string, referenceModule: DojoLoader.Module | undefined): string {
 		let moduleId = name + '/x';
 		moduleId = updateModuleIdFromMap(moduleId, referenceModule);
 		const moduleInfo: DojoLoader.Module = getModuleInformation(moduleId, referenceModule);
@@ -650,7 +654,7 @@
 			});
 
 			// for plugins, resolve the loadQ
-			forEach(module.loadQ, function (pseudoPluginResource: DojoLoader.Module): void {
+			forEach(module.loadQ || [], function (pseudoPluginResource: DojoLoader.Module): void {
 				// manufacture and insert the real module in modules
 				const pluginResourceId: string = resolvePluginResourceId(module, pseudoPluginResource.prid,
 					pseudoPluginResource.req);
@@ -666,7 +670,9 @@
 				// pluginResource is really just a placeholder with the wrong moduleId (because we couldn't calculate it
 				// until the plugin was on board) fix() replaces the pseudo module in a resolved dependencies array with the
 				// real module lastly, mark the pseudo module as arrived and delete it from modules
-				pseudoPluginResource.fix(modules[moduleId]);
+				if (pseudoPluginResource && pseudoPluginResource.fix) {
+					pseudoPluginResource.fix(<any> modules[moduleId]);
+				}
 				--waitingCount;
 				modules[pseudoPluginResource.mid] = undefined;
 			});
@@ -714,7 +720,7 @@
 
 	function injectPlugin(module: DojoLoader.Module): void {
 		// injects the plugin module given by module; may have to inject the plugin itself
-		const plugin: DojoLoader.Module = module.plugin;
+		const plugin: DojoLoader.Module | undefined = module.plugin;
 		const onLoad = function (def: any): void {
 				module.result = def;
 				--waitingCount;
@@ -722,13 +728,13 @@
 				checkComplete();
 			};
 
-		if (plugin.load) {
+		if (plugin && plugin.load) {
 			plugin.load(module.prid, module.req, onLoad, config);
 		}
-		else if (plugin.loadQ) {
+		else if (plugin && plugin.loadQ) {
 			plugin.loadQ.push(module);
 		}
-		else {
+		else if (plugin) {
 			// the unshift instead of push is important: we don't want plugins to execute as
 			// dependencies of some other module because this may cause circles when the plugin
 			// loadQ is run; also, generally, we want plugins to run early since they may load
@@ -739,17 +745,17 @@
 		}
 	}
 
-	function injectModule(parent: DojoLoader.Module, module: DojoLoader.Module): void {
+	function injectModule(parent?: DojoLoader.Module, module?: DojoLoader.Module): void {
 		// TODO: This is for debugging, we should bracket it
 		if (!module) {
 			module = parent;
-			parent = null;
+			parent = undefined;
 		}
 
-		if (module.plugin) {
+		if (module && module.plugin) {
 			injectPlugin(module);
 		}
-		else if (!module.injected) {
+		else if (module && !module.injected) {
 			let cached: DojoLoader.Factory;
 			const onLoadCallback = function (node?: HTMLScriptElement): void {
 				// DojoLoader.moduleDefinitionArguments is an array of [dependencies, factory]
@@ -759,16 +765,20 @@
 					moduleDefinitionArguments = (<any> node).defArgs;
 				}
 
+				let moduleDefArgs: string[] = [];
+				let moduleDefFactory: DojoLoader.Factory | undefined = undefined;
+
 				// non-amd module
-				if (!moduleDefinitionArguments) {
-					moduleDefinitionArguments = [ [], undefined ];
+				if (moduleDefinitionArguments) {
+					moduleDefArgs = moduleDefinitionArguments[0];
+					moduleDefFactory = moduleDefinitionArguments[1];
 				}
 
-				defineModule(module, moduleDefinitionArguments[0], moduleDefinitionArguments[1]);
-				moduleDefinitionArguments = null;
+				defineModule(module, moduleDefArgs, moduleDefFactory);
+				moduleDefinitionArguments = undefined;
 
 				guardCheckComplete(function (): void {
-					forEach(module.deps, injectModule.bind(null, module));
+					forEach((module && module.deps) || [], injectModule.bind(null, module));
 				});
 				checkComplete();
 			};
@@ -790,7 +800,7 @@
 		}
 	}
 
-	function resolveDependencies(dependencies: string[], module: DojoLoader.Module, referenceModule: DojoLoader.Module): DojoLoader.Module[] {
+	function resolveDependencies(dependencies: string[], module: DojoLoader.Module, referenceModule?: DojoLoader.Module): DojoLoader.Module[] {
 		// resolve dependencies with respect to this module
 		return dependencies.map(function (dependency: string, i: number): DojoLoader.Module {
 			const result: DojoLoader.Module = getModule(dependency, referenceModule);
@@ -803,24 +813,30 @@
 		});
 	}
 
-	function defineModule(module: DojoLoader.Module, dependencies: string[], factory: DojoLoader.Factory): DojoLoader.Module {
+	function defineModule(module: DojoLoader.Module | undefined, dependencies: string[], factory?: DojoLoader.Factory): DojoLoader.Module | undefined {
 		--waitingCount;
 		return initializeModule(module, dependencies, factory);
 	}
 
-	function initializeModule(module: DojoLoader.Module, dependencies: string[], factory: DojoLoader.Factory): DojoLoader.Module {
-		return <DojoLoader.Module> mix(module, {
-			def: factory,
-			deps: resolveDependencies(dependencies, module, module),
-			cjs: {
-				id: module.mid,
-				uri: module.url,
-				exports: (module.result = {}),
-				setExports: function (exports: any): void {
-					module.cjs.exports = exports;
+	function initializeModule(module: DojoLoader.Module | undefined, dependencies: string[], factory?: DojoLoader.Factory): DojoLoader.Module | undefined {
+		const moduleToInitialize = module;
+		let initializedModule: DojoLoader.Module | undefined = undefined;
+
+		if (moduleToInitialize) {
+			initializedModule = <DojoLoader.Module> mix(moduleToInitialize, {
+				def: factory,
+				deps: resolveDependencies(dependencies, moduleToInitialize, moduleToInitialize),
+				cjs: {
+					id: moduleToInitialize.mid,
+					uri: moduleToInitialize.url,
+					exports: (moduleToInitialize.result = {}),
+					setExports: function (exports: any): void {
+						moduleToInitialize.cjs.exports = exports;
+					}
 				}
-			}
-		});
+			});
+		}
+		return initializedModule;
 	}
 
 	has.add('function-bind', Boolean(Function.prototype.bind));
@@ -859,7 +875,9 @@
 			globalObject.define = undefined;
 
 			try {
-				result = requireModule.nodeRequire(moduleId);
+				if (requireModule && requireModule.nodeRequire) {
+					result = requireModule.nodeRequire(moduleId);
+				}
 			}
 			catch (error) {
 				// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
@@ -996,7 +1014,7 @@
 	});
 
 	Object.defineProperty(requireModule, 'baseUrl', {
-		get: function (): string {
+		get: function (): string | undefined {
 			return config.baseUrl;
 		},
 		enumerable: true
@@ -1067,7 +1085,7 @@
 					let result: any = originalFactory.apply(null, arguments);
 					if (originalModuleId !== module.id) {
 						const newModule: DojoLoader.Module = getModule(module.id);
-						defineModule(newModule, dependencies, null);
+						defineModule(newModule, dependencies, undefined);
 						newModule.injected = true;
 						newModule.executed = true;
 						newModule.result = module.exports = result || module.exports;
@@ -1102,7 +1120,7 @@
 	});
 
 	setGlobals(requireModule, define);
-	if (has('host-nashorn') && args[0]) {
+	if (has('host-nashorn') && args && args[0]) {
 		load(args[0]);
 	}
 })((typeof Packages !== 'undefined' ? Array.prototype.slice.call(arguments, 0) : []));

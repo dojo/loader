@@ -8,7 +8,7 @@ export default function (suite: Suite, htmlTestPath: string, testFunction: (resu
 		.get((<any> require).toUrl(htmlTestPath))
 		.then(pollUntil<any>(function () {
 			return (<any> window).loaderTestResults;
-		}, null, timeout), undefined)
+		}, undefined, timeout), undefined)
 		.then(testFunction, function () {
 			throw new Error('loaderTestResult was not set.');
 		});
