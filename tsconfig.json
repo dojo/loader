@@ -1,5 +1,5 @@
 {
-	"version": "1.8.2",
+	"version": "2.0.0",
 	"compilerOptions": {
 		"declaration": false,
 		"module": "commonjs",
@@ -11,39 +11,9 @@
 		"target": "es5",
 		"moduleResolution": "classic"
 	},
-	"filesGlob": [
+	"include": [
 		"./typings/index.d.ts",
 		"./src/**/*.ts",
 		"./tests/**/*.ts"
-	],
-	"files": [
-		"./test.ts",
-		"./typings/index.d.ts",
-		"./src/interfaces.d.ts",
-		"./src/loader.ts",
-		"./tests/functional/all.ts",
-		"./tests/functional/amdApp/Deep2.ts",
-		"./tests/functional/amdApp/app.ts",
-		"./tests/functional/amdApp/circular1.ts",
-		"./tests/functional/amdApp/circular2.ts",
-		"./tests/functional/amdApp/deep1.ts",
-		"./tests/functional/amdApp/deep3.ts",
-		"./tests/functional/amdApp/deep4.ts",
-		"./tests/functional/basicAmdLoading.ts",
-		"./tests/functional/basicCommonJsLoading.ts",
-		"./tests/functional/executeTest.ts",
-		"./tests/functional/require/require.ts",
-		"./tests/interfaces.d.ts",
-		"./tests/intern-local.ts",
-		"./tests/intern.ts",
-		"./tests/module.d.ts",
-		"./tests/support/Reporter.ts",
-		"./tests/support/util.ts",
-		"./tests/unit/all.ts",
-		"./tests/unit/basicCommonJsLoading.ts",
-		"./tests/unit/require.ts"
-	],
-	"atom": {
-		"rewriteTsconfig": false
-	}
+	]
 }
