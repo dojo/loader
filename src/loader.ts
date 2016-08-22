@@ -334,7 +334,7 @@
 	let loadNodeModule: (moduleId: string, parent?: DojoLoader.Module) => any = noop;
 
 	function contextRequire(moduleId: string, unused?: void, referenceModule?: DojoLoader.Module): DojoLoader.Module;
-	function contextRequire(dependencies: string[], callback: DojoLoader.RequireCallback | undefined, referenceModule?: DojoLoader.Module): DojoLoader.Module;
+	function contextRequire(dependencies: string[], callback?: DojoLoader.RequireCallback, referenceModule?: DojoLoader.Module): DojoLoader.Module;
 	function contextRequire(dependencies: string | string[], callback: any, referenceModule?: DojoLoader.Module): DojoLoader.Module | undefined {
 		let module: DojoLoader.Module | undefined = undefined;
 		if (typeof dependencies === 'string') {
@@ -397,7 +397,7 @@
 		return result;
 	}
 
-	function runMapProgram(targetModuleId: string, map: DojoLoader.MapItem[] | undefined): DojoLoader.MapSource | undefined {
+	function runMapProgram(targetModuleId: string, map?: DojoLoader.MapItem[]): DojoLoader.MapSource | undefined {
 		// search for targetModuleId in map; return the map item if found; falsy otherwise
 		if (map) {
 			for (let i = 0, j = map.length; i < j; ++i) {
