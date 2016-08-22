@@ -7,83 +7,83 @@ const AMD_APP_MESSAGE = 'Message from AMD app.';
 registerSuite({
 	name: 'basic AMD loading',
 
-	'simple test'() {
+	'simple test'(this: any) {
 		return executeTest(this, './basicAmdLoading.html', function (results: any) {
 			assert.strictEqual(results.message, AMD_APP_MESSAGE);
 		});
 	},
 
-	'AMD module with ID'() {
+	'AMD module with ID'(this: any) {
 		return executeTest(this, './amdModuleWithId1.html', function (results: any) {
 			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module should load');
 		});
 	},
 
-	'AMD module with ID - separate module file'() {
+	'AMD module with ID - separate module file'(this: any) {
 		return executeTest(this, './amdModuleWithId1a.html', function (results: any) {
 			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module should load');
 		});
 	},
 
-	'AMD module with ID and dependency - ID'() {
+	'AMD module with ID and dependency - ID'(this: any) {
 		return executeTest(this, './amdModuleWithId2.html', function (results: any) {
 			assert.strictEqual(results.testModule1Value, 'testModule1', 'Dependency module should load');
 			assert.strictEqual(results.testModule2Value, 'testModule2', 'Test module should load');
 		});
 	},
 
-	'AMD module with ID and dependency - ID and separate module files'() {
+	'AMD module with ID and dependency - ID and separate module files'(this: any) {
 		return executeTest(this, './amdModuleWithId2a.html', function (results: any) {
 			assert.strictEqual(results.testModule1Value, 'testModule1', 'Dependency module should load');
 			assert.strictEqual(results.testModule2Value, 'testModule2', 'Test module should load');
 		});
 	},
 
-	'AMD module with ID and dependency - module'() {
+	'AMD module with ID and dependency - module'(this: any) {
 		return executeTest(this, './amdModuleWithId3.html', function (results: any) {
 			assert.strictEqual(results.appModuleValue, AMD_APP_MESSAGE, 'Test module and dependency should load');
 			assert.strictEqual(results.testModule3Value, 'testModule3', 'Test module and dependency should load');
 		});
 	},
 
-	'AMD module with ID and dependency - module and separate module files'() {
+	'AMD module with ID and dependency - module and separate module files'(this: any) {
 		return executeTest(this, './amdModuleWithId3a.html', function (results: any) {
 			assert.strictEqual(results.appModuleValue, AMD_APP_MESSAGE, 'Test module and dependency should load');
 			assert.strictEqual(results.testModule3Value, 'testModule3', 'Test module and dependency should load');
 		});
 	},
 
-	'AMD module without ID and dependency - id'() {
+	'AMD module without ID and dependency - id'(this: any) {
 		return executeTest(this, './amdModuleWithId4.html', function (results: any) {
 			assert.strictEqual(results, 'testModule1', 'Test module and dependency should load');
 		});
 	},
 
-	'AMD module without ID and dependency - id and separate module files'() {
+	'AMD module without ID and dependency - id and separate module files'(this: any) {
 		return executeTest(this, './amdModuleWithId4a.html', function (results: any) {
 			assert.strictEqual(results, 'testModule1', 'Test module and dependency should load');
 		});
 	},
 
-	'AMD module with ID - dependency param omitted'() {
+	'AMD module with ID - dependency param omitted'(this: any) {
 		return executeTest(this, './amdModuleWithId5.html', function (results: any) {
 			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module should load');
 		});
 	},
 
-	'AMD module with ID - no dependencies - object returned'() {
+	'AMD module with ID - no dependencies - object returned'(this: any) {
 		return executeTest(this, './amdModuleWithId6.html', function (results: any) {
 			assert.strictEqual(results.testModuleProperty, 'property value', 'Test module should load');
 		});
 	},
 
-	'AMD module without ID and dependency - separate module file - object returned'() {
+	'AMD module without ID and dependency - separate module file - object returned'(this: any) {
 		return executeTest(this, './amdModuleWithId6a.html', function (results: any) {
 			assert.strictEqual(results.aModuleProperty, 'a property value', 'Test module should load');
 		});
 	},
 
-	'AMD module with circular dependency'() {
+	'AMD module with circular dependency'(this: any) {
 		const expected = {
 			'default': 'circular2',
 			message: 'circular1.getMessage'
@@ -94,7 +94,7 @@ registerSuite({
 		});
 	},
 
-	'AMD module with circular dependency 2'() {
+	'AMD module with circular dependency 2'(this: any) {
 		const expected = {
 			'default': 'circular2',
 			message: 'circular1.getMessage'
@@ -105,7 +105,7 @@ registerSuite({
 		});
 	},
 
-	'AMD module with circular dependency 3'() {
+	'AMD module with circular dependency 3'(this: any) {
 		const expected = {
 			c1default: 'circular2',
 			c1message: 'circular1.getMessage',
@@ -118,7 +118,7 @@ registerSuite({
 		});
 	},
 
-	'AMD module with deep dependencies'() {
+	'AMD module with deep dependencies'(this: any) {
 		const expected = {
 			objectExport: 'objectExport'
 		};
@@ -128,7 +128,7 @@ registerSuite({
 		});
 	},
 
-	'AMD only factory require'() {
+	'AMD only factory require'(this: any) {
 		const expected = {
 			property: 'value'
 		};

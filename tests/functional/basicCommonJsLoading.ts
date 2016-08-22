@@ -7,19 +7,19 @@ const COMMON_JS_APP_MESSAGE = 'Message from CommonJS app.';
 registerSuite({
 	name: 'basic CommonJS loading',
 
-	'simple test'() {
+	'simple test'(this: any) {
 		return executeTest(this, './basicCommonJsLoading.html', function (results: any) {
 			assert.strictEqual(results.message, COMMON_JS_APP_MESSAGE);
 		});
 	},
 
-	'CommonJS module with ID'() {
+	'CommonJS module with ID'(this: any) {
 		return executeTest(this, './commonJsModuleWithId1.html', function (results: any) {
 			assert.strictEqual(results.testModule1Value, 'testModule1', 'Test module with explicit mid should load');
 		});
 	},
 
-	'CommonJS module with ID and dependency - ID'() {
+	'CommonJS module with ID and dependency - ID'(this: any) {
 		const expected = {
 			testModule1Value: 'testModule1',
 			testModule2Value: 'testModule2'
@@ -30,7 +30,7 @@ registerSuite({
 		});
 	},
 
-	'CommonJS module with ID and dependency - module'() {
+	'CommonJS module with ID and dependency - module'(this: any) {
 		const expected = {
 			appModuleValue: COMMON_JS_APP_MESSAGE,
 			testModule3Value: 'testModule3'
@@ -41,13 +41,13 @@ registerSuite({
 		});
 	},
 
-	'CommonJS module without ID and dependency - id'() {
+	'CommonJS module without ID and dependency - id'(this: any) {
 		return executeTest(this, './commonJsModuleWithId4.html', function (results: any) {
 			assert.strictEqual(results, 'testModule1', 'Test module and dependency should load');
 		});
 	},
 
-	'CommonJS module with circular dependency'() {
+	'CommonJS module with circular dependency'(this: any) {
 		const expected = {
 			message: 'circular1',
 			circular2Message: 'circular2'
@@ -58,7 +58,7 @@ registerSuite({
 		});
 	},
 
-	'CommonJS module with circular dependency 2'() {
+	'CommonJS module with circular dependency 2'(this: any) {
 		const expected = {
 			message: 'circular2',
 			circular1Message: 'circular1'
@@ -69,7 +69,7 @@ registerSuite({
 		});
 	},
 
-	'CommonJS module with circular dependency 3'() {
+	'CommonJS module with circular dependency 3'(this: any) {
 		const expected = {
 			c1message: 'circular1',
 			c1message2: 'circular2',
@@ -82,7 +82,7 @@ registerSuite({
 		});
 	},
 
-	'CommonJS module with deep dependencies'() {
+	'CommonJS module with deep dependencies'(this: any) {
 		const expected = {
 			objectExport: 'objectExport'
 		};

@@ -57,7 +57,7 @@ registerSuite({
 		}
 	},
 
-	'node modules'() {
+	'node modules'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -90,7 +90,7 @@ registerSuite({
 		assert.strictEqual(eventsAgain, events);
 	},
 
-	'non-existent module'() {
+	'non-existent module'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		(<any> process)._events.uncaughtException = function (error: Error) {
@@ -115,7 +115,7 @@ registerSuite({
 		});
 	},
 
-	'non-existent module with on-error listener should not throw error'() {
+	'non-existent module with on-error listener should not throw error'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 		let badMid = 'bad/module/id';
 
@@ -134,7 +134,7 @@ registerSuite({
 		});
 	},
 
-	'non-existent module with on-error listener should fire callback'() {
+	'non-existent module with on-error listener should fire callback'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 		let badMid = 'bad/module/id';
 
@@ -150,7 +150,7 @@ registerSuite({
 		});
 	},
 
-	'non-existent module with on-error listener should provide info'() {
+	'non-existent module with on-error listener should provide info'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 		let badMid = 'bad/module/id';
 
@@ -168,7 +168,7 @@ registerSuite({
 		});
 	},
 
-	'on-error listener should be removable'() {
+	'on-error listener should be removable'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 		let badMid = 'bad/module/id';
 
@@ -188,7 +188,7 @@ registerSuite({
 		});
 	},
 
-	'only factory AMD require'() {
+	'only factory AMD require'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -202,7 +202,7 @@ registerSuite({
 
 	config: {
 		baseUrl: {
-			default() {
+			default(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -214,7 +214,7 @@ registerSuite({
 				}));
 			},
 
-			explicit() {
+			explicit(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -232,7 +232,7 @@ registerSuite({
 		},
 
 		map: {
-			star() {
+			star(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -252,7 +252,7 @@ registerSuite({
 				}));
 			},
 
-			simple() {
+			simple(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -278,7 +278,7 @@ registerSuite({
 				}));
 			},
 
-			hierarchy() {
+			hierarchy(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -307,7 +307,7 @@ registerSuite({
 				}));
 			},
 
-			merge() {
+			merge(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -343,7 +343,7 @@ registerSuite({
 				}));
 			},
 
-			relative() {
+			relative(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -370,7 +370,7 @@ registerSuite({
 				}));
 			},
 
-			nested() {
+			nested(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -403,7 +403,7 @@ registerSuite({
 				}));
 			},
 
-			plugin() {
+			plugin(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -434,7 +434,7 @@ registerSuite({
 		},
 
 		packages: {
-			'name and location'() {
+			'name and location'(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -455,7 +455,7 @@ registerSuite({
 				}));
 			},
 
-			'name, location and main'() {
+			'name, location and main'(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -479,7 +479,7 @@ registerSuite({
 		},
 
 		paths: {
-			simple() {
+			simple(this: any) {
 				let dfd = this.async(DEFAULT_TIMEOUT);
 
 				setErrorHandler(dfd);
@@ -542,7 +542,7 @@ registerSuite({
 		assert.isNotNull(global.require('events').EventEmitter, '"require.nodeRequire" should load module');
 	},
 
-	toAbsMid() {
+	toAbsMid(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -572,7 +572,7 @@ registerSuite({
 		], () => {});
 	},
 
-	toUrl() {
+	toUrl(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		setErrorHandler(dfd);
@@ -602,7 +602,7 @@ registerSuite({
 		], () => {});
 	},
 
-	undef() {
+	undef(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		(<any> process)._events.uncaughtException = function (error: Error) {
@@ -633,7 +633,7 @@ registerSuite({
 	},
 
 	plugin: {
-		load() {
+		load(this: any) {
 			const dfd = this.async(DEFAULT_TIMEOUT);
 
 			global.require.config({
@@ -649,7 +649,7 @@ registerSuite({
 			}));
 		},
 
-		config() {
+		config(this: any) {
 			const dfd = this.async(DEFAULT_TIMEOUT);
 			const paths: { [path: string]: string } = {
 				common: '_build/tests/common'
@@ -666,7 +666,7 @@ registerSuite({
 			}));
 		},
 
-		mergedConfig() {
+		mergedConfig(this: any) {
 			const dfd = this.async(DEFAULT_TIMEOUT);
 			const paths: { [path: string]: string }  = {
 				common: '_build/tests/common'
@@ -686,7 +686,7 @@ registerSuite({
 			}));
 		},
 
-		relativePluginPaths() {
+		relativePluginPaths(this: any) {
 			const dfd = this.async(DEFAULT_TIMEOUT);
 
 			global.require.config({
