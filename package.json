@@ -13,7 +13,7 @@
 	},
 	"main": "dist/umd/loader.js",
 	"scripts": {
-		"prepublish": "grunt dist dist_esm",
+		"prepublish": "grunt dist ts:esm",
 		"test": "grunt test"
 	},
 	"typings": "./dist/umd/dojo-loader.d.ts",
