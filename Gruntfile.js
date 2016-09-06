@@ -44,8 +44,7 @@ module.exports = function (grunt) {
 		'clean:dev',
 		'ts:dev',
 		'ts:tests',
-		'copy:staticTestFiles',
-		'updateTsconfig'
+		'copy:staticTestFiles'
 	]);
 
 	/* we also have to add the uglify task */
