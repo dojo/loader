@@ -22,9 +22,9 @@ module.exports = function (grunt) {
 					banner: '/*! <%= name %>@<%= version %> - Copyright (c) 2016, The Dojo Foundation. ' +
 						'All rights reserved. */',
 					sourceMap: true,
-					sourceMapName: 'dist/umd/_debug/loader.min.js.map',
+					sourceMapName: 'dist/umd/loader.min.js.map',
 					sourceMapIncludeSources: true,
-					sourceMapIn: 'dist/umd/_debug/loader.js.map',
+					sourceMapIn: 'dist/umd/loader.js.map',
 					compress: {
 						dead_code: true,
 						unsafe: true
