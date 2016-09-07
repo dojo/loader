@@ -7,11 +7,11 @@ module.exports = function (grunt) {
 		/* loader has to build in a slightly different way than the standard Dojo 2 package */
 		ts: {
 			tests: {
-				options: {
+				compilerOptions: {
 					module: 'umd'
 				},
 				outDir: '<%= devDirectory %>/tests',
-				src: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
+				include: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
 			}
 		},
 
