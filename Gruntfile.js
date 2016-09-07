@@ -7,11 +7,11 @@ module.exports = function (grunt) {
 		/* loader has to build in a slightly different way than the standard Dojo 2 package */
 		ts: {
 			tests: {
-				options: {
-					module: 'umd'
+				compilerOptions: {
+					module: 'umd',
+					outDir: '<%= devDirectory %>/tests'
 				},
-				outDir: '<%= devDirectory %>/tests',
-				src: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
+				include: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
 			}
 		},
 
@@ -22,9 +22,9 @@ module.exports = function (grunt) {
 					banner: '/*! <%= name %>@<%= version %> - Copyright (c) 2016, The Dojo Foundation. ' +
 						'All rights reserved. */',
 					sourceMap: true,
-					sourceMapName: 'dist/umd/_debug/loader.min.js.map',
+					sourceMapName: 'dist/umd/loader.min.js.map',
 					sourceMapIncludeSources: true,
-					sourceMapIn: 'dist/umd/_debug/loader.js.map',
+					sourceMapIn: 'dist/umd/loader.js.map',
 					compress: {
 						dead_code: true,
 						unsafe: true
@@ -44,8 +44,7 @@ module.exports = function (grunt) {
 		'clean:dev',
 		'ts:dev',
 		'ts:tests',
-		'copy:staticTestFiles',
-		'updateTsconfig'
+		'copy:staticTestFiles'
 	]);
 
 	/* we also have to add the uglify task */

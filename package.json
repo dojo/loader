@@ -13,7 +13,7 @@
 	},
 	"main": "dist/umd/loader.js",
 	"scripts": {
-		"prepublish": "grunt dist dist_esm",
+		"prepublish": "grunt dist ts:esm",
 		"test": "grunt test"
 	},
 	"typings": "./dist/umd/dojo-loader.d.ts",
@@ -36,6 +36,6 @@
 		"istanbul": "0.4.3",
 		"remap-istanbul": "0.6.4",
 		"tslint": "next",
-		"typescript": "2.1.0-dev.20160819"
+		"typescript": "2.0.2"
 	}
 }
