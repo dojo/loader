@@ -2,8 +2,22 @@
 
 module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('dts-generator');
 
 	require('grunt-dojo2').initConfig(grunt, {
+		dtsGenerator: {
+			options: {
+				baseDir: 'src',
+				name: '<%= name %>'
+			},
+			dist: {
+				options: {
+					out: 'dist/umd/<%= name %>.d.ts'
+				},
+				src: [ '<%= skipTests %>' ]
+			}
+		},
+
 		/* loader has to build in a slightly different way than the standard Dojo 2 package */
 		ts: {
 			tests: {
@@ -12,6 +26,11 @@ module.exports = function (grunt) {
 					outDir: '<%= devDirectory %>/tests'
 				},
 				include: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
+			},
+			dist: {
+				compilerOptions: {
+					declaration: false
+				}
 			}
 		},
 
@@ -48,5 +67,5 @@ module.exports = function (grunt) {
 	]);
 
 	/* we also have to add the uglify task */
-	grunt.registerTask('dist', grunt.config.get('distTasks').concat('uglify:dist'));
+	grunt.registerTask('dist', grunt.config.get('distTasks').concat(['uglify:dist', 'dtsGenerator:dist']));
 };
