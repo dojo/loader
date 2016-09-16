@@ -11,12 +11,12 @@
     "type": "git",
     "url": "https://github.com/dojo/loader.git"
   },
-  "main": "dist/umd/loader.js",
+  "main": "loader.js",
+  "private": true,
   "scripts": {
-    "prepublish": "grunt dist ts:esm",
     "test": "grunt test"
   },
-  "typings": "./dist/umd/dojo-loader.d.ts",
+  "typings": "dojo-loader.d.ts",
   "devDependencies": {
     "codecov.io": "0.1.6",
     "dts-generator": "~1.7.0",
