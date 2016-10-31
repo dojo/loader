@@ -6,6 +6,8 @@
 
 This package provides a JavaScript AMD loader useful in applications running in either a web browser, node.js or nashorn.
 
+**WARNING** This is *beta* software.  While we do not anticipate significant changes to the API at this stage, we may feel the need to do so.  This is not yet production ready, so you should use at your own risk.
+
 dojo-loader does not have any dependencies on a JavaScript framework.
 
 ## Support
