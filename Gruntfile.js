@@ -58,7 +58,7 @@ module.exports = function (grunt) {
 
 	/* we have to write the dev task from the default because of the need to copy compile the tests differently */
 	grunt.registerTask('dev', [
-		'typings',
+		'typings:dev',
 		'tslint',
 		'clean:dev',
 		'ts:dev',
