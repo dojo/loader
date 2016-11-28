@@ -5,7 +5,7 @@ const COMMON_JS_APP_MESSAGE = 'Message from CommonJS app.';
 const DEFAULT_TIMEOUT = 1000;
 
 let globalErrorHandler: any;
-let nodeRequire: Function;
+let nodeRequire: NodeRequire;
 let originalDefine: any;
 let originalRequire: any;
 
@@ -18,11 +18,11 @@ function setErrorHandler(dfd: any) {
 function reloadLoader() {
 	let loaderPath = (<any> require).toUrl('src/loader.js');
 
-	global.define = null;
-	global.require = null;
+	global.define = <any> null;
+	global.require = <any> null;
 
-	if ((<any> nodeRequire).cache) {
-		delete (<any> nodeRequire).cache[(<any> nodeRequire).resolve(loaderPath)];
+	if (nodeRequire.cache) {
+		delete nodeRequire.cache[nodeRequire.resolve(loaderPath)];
 	}
 
 	nodeRequire(loaderPath);

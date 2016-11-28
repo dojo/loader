@@ -211,4 +211,18 @@ declare namespace DojoLoader {
 }
 
 declare const define: DojoLoader.Define;
-declare const require: DojoLoader.RootRequire;
+
+declare interface NodeRequire {
+	(dependencies: string[], callback: DojoLoader.RequireCallback): void;
+
+	config(config: DojoLoader.Config): void;
+	has: DojoLoader.Has;
+	inspect?(name: string): any;
+	nodeRequire?: NodeRequire;
+	on(type: DojoLoader.SignalType, listener: any): { remove: () => void };
+	toAbsMid(moduleId: string): string;
+	toUrl(path: string): string;
+	undef(moduleId: string): void;
+}
+
+declare const arguments: IArguments;

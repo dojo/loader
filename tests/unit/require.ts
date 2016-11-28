@@ -4,7 +4,7 @@ import * as registerSuite from 'intern!object';
 const DEFAULT_TIMEOUT = 1000;
 
 let globalErrorHandler: any;
-let nodeRequire: Function;
+let nodeRequire: NodeRequire;
 let originalDefine: any;
 let originalRequire: any;
 let onErrorHandler: any;
@@ -18,9 +18,9 @@ function setErrorHandler(dfd: any) {
 function reloadLoader() {
 	let loaderPath = (<any> require).toUrl('src/loader.js');
 
-	global.define = null;
-	global.require = null;
-	delete (<any> nodeRequire).cache[(<any> nodeRequire).resolve(loaderPath)];
+	global.define = <any> null;
+	global.require = <any> null;
+	delete nodeRequire.cache[nodeRequire.resolve(loaderPath)];
 	nodeRequire(loaderPath);
 }
 
@@ -539,7 +539,7 @@ registerSuite({
 
 	nodeRequire() {
 		assert.isFunction(global.require.nodeRequire, '"require.nodeRequire" should be a function');
-		assert.isNotNull(global.require('events').EventEmitter, '"require.nodeRequire" should load module');
+		assert.isNotNull((<any> global.require('events')).EventEmitter, '"require.nodeRequire" should load module');
 	},
 
 	toAbsMid(this: any) {

@@ -1,4 +1,8 @@
 'use strict';
+
+declare const load: (module: string) => any;
+declare const Packages: {} | undefined;
+
 (function (args?: string[]): void {
 	const globalObject: any = Function('return this')();
 	const EXECUTING = 'executing';
