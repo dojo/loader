@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title>Shim AMD Loading Test</title>
+</head>
+
+<body>
+<script src="../../src/loader.js"></script>
+<script>
+	var globalValues = {
+		string: 'string'
+	};
+
+	define('first-number', [], function() {
+		return 3;
+	});
+
+	define('second-number', [], function() {
+		return 5;
+	});
+
+	define('plugin-dep', [], function() {
+		window.pluginDep = 'plugin-dep';
+	});
+
+	require.config({
+		shim: {
+			'global/string': {
+				exports: 'globalValues.string'
+			},
+			'global/number': {
+				init: function() {
+					return 5;
+				}
+			},
+			'init-once': (function() {
+				var initCount = 0;
+
+				return {
+					init: function() {
+						return ++initCount;
+					}
+				};
+			})(),
+			'init-no-return': {
+				init: function() {
+				}
+			},
+			'adder': {
+				deps: ['first-number', 'second-number'],
+				init: function(firstNumber, secondNumber) {
+					return firstNumber + secondNumber;
+				}
+			},
+			'plugin': ['plugin-dep']
+		}
+	});
+
+	require([
+		'global/string',
+		'global/number',
+		'adder',
+		'init-no-return',
+		'init-once',
+		'init-once',
+		'plugin'
+	], function(stringValue, numberValue, addedValues, initNoReturn, initOnce, initTwice) {
+		window.loaderTestResults = {
+			stringValue: stringValue,
+			numberValue: numberValue,
+			addedValues: addedValues,
+			initNoReturn: initNoReturn,
+			initOnce: initOnce,
+			initTwice: initTwice,
+			pluginDep: window.pluginDep,
+			requireError: window.requireError
+		};
+	});
+</script>
+</body>
+</html>
