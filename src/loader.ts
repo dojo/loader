@@ -296,19 +296,19 @@ declare const Packages: {} | undefined;
 			configuration.paths && (pathMapPrograms = computeMapProgram(configuration.paths));
 
 			// shim API
-			if (config.shim !== undefined) {
+			if (config.shim) {
 				Object.keys(config.shim).forEach((moduleId) => {
 					let moduleDef: ModuleShim = (config.shim || {})[ moduleId ];
 
 					// using shorthand module syntax, convert to full syntax
-					if ('length' in moduleDef) {
+					if (Array.isArray(moduleDef)) {
 						moduleDef = {
 							deps: <string[]> moduleDef
 						};
 					}
 
 					define(moduleId, moduleDef.deps || [], function (...dependencies) {
-						let root: any = undefined;
+						let root: any;
 
 						let globalPath = moduleDef.exports;
 
