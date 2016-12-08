@@ -68,8 +68,8 @@ declare namespace DojoLoader {
 	}
 
 	interface LoaderError extends Error {
-		src: string;
-		info: { module: Module, url: string, parentMid: string };
+		readonly src: string;
+		readonly info: { module: Module, url: string, parentMid: string };
 	}
 
 	/**
