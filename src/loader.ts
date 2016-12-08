@@ -1,4 +1,5 @@
 'use strict';
+import ModuleShim = DojoLoader.ModuleShim;
 
 declare const load: (module: string) => any;
 declare const Packages: {} | undefined;
@@ -28,7 +29,8 @@ declare const Packages: {} | undefined;
 		baseUrl: './',
 		packages: [],
 		paths: {},
-		pkgs: {}
+		pkgs: {},
+		shim: {}
 	};
 
 	// The arguments sent to loader via AMD define().
@@ -287,6 +289,48 @@ declare const Packages: {} | undefined;
 
 			// Note that old paths will get destroyed if reconfigured
 			configuration.paths && (pathMapPrograms = computeMapProgram(configuration.paths));
+
+			// shim API
+			if (config.shim) {
+				Object.keys(config.shim).forEach((moduleId) => {
+					let moduleDef: ModuleShim = (config.shim || {})[ moduleId ];
+
+					// using shorthand module syntax, convert to full syntax
+					if (Array.isArray(moduleDef)) {
+						moduleDef = {
+							deps: <string[]> moduleDef
+						};
+					}
+
+					define(moduleId, moduleDef.deps || [], function (...dependencies) {
+						let root: any;
+
+						let globalPath = moduleDef.exports;
+
+						if (globalPath) {
+							root = globalObject;
+
+							globalPath.split('.').forEach((pathComponent) => {
+								if (!(pathComponent in root)) {
+									throw new Error(`Tried to find ${globalPath} but it did not exist`);
+								} else {
+									root = root[ pathComponent ];
+								}
+							});
+						}
+
+						if (moduleDef.init) {
+							let newReturnValue: any = moduleDef.init(...dependencies);
+
+							if (newReturnValue !== undefined) {
+								root = newReturnValue;
+							}
+						}
+
+						return root;
+					});
+				});
+			}
 		};
 	}
 

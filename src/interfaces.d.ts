@@ -46,6 +46,8 @@ declare namespace DojoLoader {
 
 		/* TODO: We should remove internal APIs like this */
 		pkgs?: { [ path: string ]: Package; };
+
+		shim?: { [path: string]: ModuleShim | string[] };
 	}
 
 	interface Define {
@@ -185,6 +187,12 @@ declare namespace DojoLoader {
 	}
 
 	interface PathMap extends MapReplacement {}
+
+	interface ModuleShim {
+		deps?: string[];
+		exports?: string;
+		init?: (...dependencies: any[]) => any;
+	}
 
 	interface Require {
 		(dependencies: string[], callback: RequireCallback): void;
