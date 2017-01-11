@@ -11,7 +11,7 @@ export var proxyUrl = 'http://localhost:9000/';
 // automatically
 export var capabilities = {
 	project: 'Dojo 2',
-	name: 'dojo-loader',
+	name: '@dojo/loader',
 	fixSessionCapabilities: false
 };
 
