@@ -171,6 +171,7 @@ declare const Packages: {} | undefined;
 	has.add('debug', true);
 
 	has.add('loader-configurable', true);
+	has.add('loader-config-attribute', true);
 	if (has('loader-configurable')) {
 		/**
 		 * Configures the loader.
@@ -332,6 +333,27 @@ declare const Packages: {} | undefined;
 				});
 			}
 		};
+
+		if (has('loader-config-attribute') && has('host-browser')) {
+			Array.prototype.slice.call(document.getElementsByTagName('script'), 0).forEach((script: HTMLScriptElement) => {
+				if (script.hasAttribute('data-loader-config')) {
+					const attr = script.getAttribute('data-loader-config');
+					let dojoConfig: DojoLoader.Config | null = null;
+
+					try {
+						dojoConfig = <DojoLoader.Config> JSON.parse(`{ ${attr} }`);
+					}
+					catch (e) {
+						console.error('Unable to parse data-loader-config, ' + attr);
+						console.error(e);
+					}
+
+					if (dojoConfig !== null) {
+						requireModule.config(dojoConfig);
+					}
+				}
+			});
+		}
 	}
 
 	function forEach<T>(array: T[], callback: (value: T, index: number, array: T[]) => void): void {
