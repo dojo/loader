@@ -48,6 +48,8 @@ declare namespace DojoLoader {
 		pkgs?: { [ path: string ]: Package; };
 
 		shim?: { [path: string]: ModuleShim | string[] };
+
+		crossOriginAttribute?: false | 'anonymous' | 'use-credentials';
 	}
 
 	interface Define {
