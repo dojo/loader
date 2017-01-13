@@ -1,14 +1,14 @@
-# dojo-loader
+# @dojo/loader
 
 [![Build Status](https://travis-ci.org/dojo/loader.svg?branch=master)](https://travis-ci.org/dojo/loader)
 [![codecov.io](http://codecov.io/github/dojo/loader/coverage.svg?branch=master)](http://codecov.io/github/dojo/loader?branch=master)
-[![npm version](https://badge.fury.io/js/dojo-loader.svg)](http://badge.fury.io/js/dojo-loader)
+[![npm version](https://badge.fury.io/js/@dojo/loader.svg)](http://badge.fury.io/js/@dojo/loader)
 
 This package provides a JavaScript AMD loader useful in applications running in either a web browser, node.js or nashorn.
 
 **WARNING** This is *beta* software.  While we do not anticipate significant changes to the API at this stage, we may feel the need to do so.  This is not yet production ready, so you should use at your own risk.
 
-dojo-loader does not have any dependencies on a JavaScript framework.
+@dojo/loader does not have any dependencies on a JavaScript framework.
 
 ## Support
 
@@ -36,7 +36,7 @@ dojo-loader does not have any dependencies on a JavaScript framework.
 ## How do I use this package?
 
 ### NPM
-Install using npm: `npm --save-dev dojo-loader`
+Install using npm: `npm --save-dev @dojo/loader`
 
 ### Download from Git
 Users can download and build directly from the repository if they wish.
@@ -53,7 +53,7 @@ The "dist" subdirectory will contain the loader modules.
 Use a script tag to import the loader. This will make `require` and `define` available in the global namespace.
 
 ``` html
-<script src='node_modules/dojo-loader/loader.min.js'></script>
+<script src='node_modules/@dojo/loader/loader.min.js'></script>
 ```
 
 The loader can load both AMD and CJS formatted modules.
