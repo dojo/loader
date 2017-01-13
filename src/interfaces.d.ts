@@ -49,7 +49,7 @@ declare namespace DojoLoader {
 
 		shim?: { [path: string]: ModuleShim | string[] };
 
-		crossOriginAttribute?: false | 'anonymous' | 'use-credentials';
+		crossOrigin?: false | 'anonymous' | 'use-credentials';
 	}
 
 	interface Define {

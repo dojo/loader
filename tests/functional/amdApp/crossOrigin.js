@@ -7,7 +7,7 @@
 		if (script.src && script.src.indexOf('crossOrigin.js') >= 0) {
 			window.crossOriginResult = {
 				node: script,
-				value: script.crossOrigin
+				value: script.crossOrigin || 'null'
 			};
 		}
 	}

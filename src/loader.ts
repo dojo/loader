@@ -31,7 +31,7 @@ declare const Packages: {} | undefined;
 		paths: {},
 		pkgs: {},
 		shim: {},
-		crossOriginAttribute: false
+		crossOrigin: false
 	};
 
 	// The arguments sent to loader via AMD define().
@@ -1024,8 +1024,8 @@ declare const Packages: {} | undefined;
 			node.addEventListener('load', handler, false);
 			node.addEventListener('error', handler, false);
 
-			if (config.crossOriginAttribute !== false) {
-				(<any> node).crossOrigin = config.crossOriginAttribute;
+			if (config.crossOrigin !== false) {
+				(<any> node).crossOrigin = config.crossOrigin;
 			}
 
 			node.charset = 'utf-8';
