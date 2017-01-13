@@ -8,11 +8,11 @@ module.exports = function (grunt) {
 		dtsGenerator: {
 			options: {
 				baseDir: 'src',
-				name: '<%= name %>'
+				name: 'dojo-loader'
 			},
 			dist: {
 				options: {
-					out: 'dist/umd/<%= name %>.d.ts'
+					out: 'dist/umd/dojo-loader.d.ts'
 				},
 				src: [ '<%= skipTests %>' ]
 			}
