@@ -9,7 +9,7 @@ require([
 	'amdApp/app',
 	'dojo/debounce'
 ], function(app, debounce) {
-	window.loaderTestResults = {
+	(<any> window).loaderTestResults = {
 		message: app.getMessage(),
 		debounce: typeof debounce
 	};

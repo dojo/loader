@@ -7,7 +7,7 @@ require.config({
 require([
 	'amdApp/app'
 ], function(app) {
-	window.loaderTestResults = {
+	(<any> window).loaderTestResults = {
 		message: app.getMessage()
 	};
 });
