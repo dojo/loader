@@ -30,7 +30,8 @@ declare const Packages: {} | undefined;
 		packages: [],
 		paths: {},
 		pkgs: {},
-		shim: {}
+		shim: {},
+		crossOrigin: false
 	};
 
 	// The arguments sent to loader via AMD define().
@@ -1023,7 +1024,10 @@ declare const Packages: {} | undefined;
 			node.addEventListener('load', handler, false);
 			node.addEventListener('error', handler, false);
 
-			(<any> node).crossOrigin = 'anonymous';
+			if (config.crossOrigin !== false) {
+				(<any> node).crossOrigin = config.crossOrigin;
+			}
+
 			node.charset = 'utf-8';
 			node.src = url;
 			document.head.appendChild(node);
