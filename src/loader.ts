@@ -5,7 +5,16 @@ declare const load: (module: string) => any;
 declare const Packages: {} | undefined;
 
 (function (args?: string[]): void {
-	const globalObject: any = Function('return this')();
+	let globalObject: any;
+
+	// need to put this in a catch because it could fail w/ CSP
+	try {
+		globalObject = Function('return this')();
+	}
+	catch (e) {
+		globalObject = window;
+	}
+
 	const EXECUTING = 'executing';
 	const ABORT_EXECUTION: Object = {};
 	//
