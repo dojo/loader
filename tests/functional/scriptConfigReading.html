@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title>Script Config Reading Test</title>
+	</head>
+
+	<body>
+		<script data-loader-config='"packages": [{"name": "amdApp", "location": "./amdApp" }]' src="../../src/loader.js"></script>
+		<script>
+			require([
+				'amdApp/app'
+			], function (app) {
+				window.loaderTestResults = {
+					message: app.getMessage()
+				};
+			});
+		</script>
+	</body>
+</html>
