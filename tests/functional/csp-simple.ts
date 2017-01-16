@@ -7,7 +7,5 @@ require.config({
 require([
 	'amdApp/app'
 ], function(app) {
-	(<any> window).loaderTestResults = {
-		message: app.getMessage()
-	};
+	window.location.href = 'csp-success.html';
 });

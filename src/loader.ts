@@ -5,15 +5,21 @@ declare const load: (module: string) => any;
 declare const Packages: {} | undefined;
 
 (function (args?: string[]): void {
-	let globalObject: any;
-
-	// need to put this in a catch because it could fail w/ CSP
-	try {
-		globalObject = Function('return this')();
-	}
-	catch (e) {
-		globalObject = window;
-	}
+	let globalObject: any = (function (): any {
+		if (typeof window !== 'undefined') {
+			// Browsers
+			return window;
+		}
+		else if (typeof global !== 'undefined') {
+			// Node
+			return global;
+		}
+		else if (typeof self !== 'undefined') {
+			// Web workers
+			return self;
+		}
+		return {};
+	})();
 
 	const EXECUTING = 'executing';
 	const ABORT_EXECUTION: Object = {};

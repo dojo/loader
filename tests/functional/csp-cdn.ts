@@ -9,8 +9,5 @@ require([
 	'amdApp/app',
 	'dojo/debounce'
 ], function(app, debounce) {
-	(<any> window).loaderTestResults = {
-		message: app.getMessage(),
-		debounce: typeof debounce
-	};
+	window.location.href = 'csp-success.html#' + typeof debounce;
 });
