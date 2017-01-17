@@ -36,12 +36,20 @@ registerSuite({
 	},
 
 	simple(this: any) {
+		if (this.remote.session.browserName === 'MicrosoftEdge') {
+			this.skip('CSP tests do not work in Edge');
+		}
+
 		return executeTest(this, './csp-simple.html', function (results: any) {
 			assert.strictEqual(results.message, amdAppMessage, 'Local module should load');
 		});
 	},
 
 	cdn(this: any) {
+		if (this.remote.session.browserName === 'MicrosoftEdge') {
+			this.skip('CSP tests do not work in Edge');
+		}
+
 		const expected = {
 			message: amdAppMessage,
 			debounce: '#function'
