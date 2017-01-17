@@ -32,7 +32,6 @@ registerSuite({
 	},
 
 	teardown(this: any) {
-
 		(<any> intern).executor.proxy.config.instrument = oldInstrumentation;
 	},
 
