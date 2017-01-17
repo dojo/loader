@@ -36,7 +36,7 @@ registerSuite({
 	},
 
 	simple(this: any) {
-		if (this.remote.session.browserName === 'MicrosoftEdge') {
+		if (this.remote.session.capabilities.browserName === 'MicrosoftEdge') {
 			this.skip('CSP tests do not work in Edge');
 		}
 
@@ -46,7 +46,7 @@ registerSuite({
 	},
 
 	cdn(this: any) {
-		if (this.remote.session.browserName === 'MicrosoftEdge') {
+		if (this.remote.session.capabilities.browserName === 'MicrosoftEdge') {
 			this.skip('CSP tests do not work in Edge');
 		}
 
