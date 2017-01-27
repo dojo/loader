@@ -631,6 +631,44 @@ registerSuite({
 			dfd.reject('Loading undefined module should throw an error');
 		});
 	},
+	'recursive undef'() {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+
+		global.require.config({
+			packages: [
+				{
+					name: 'recursive',
+					location: './_build/tests/common/recursive'
+				}
+			]
+		});
+
+		function checkForUndef(mod: string): boolean {
+			try {
+				global.require(mod);
+			} catch (error) {
+				if (error.message.indexOf(mod) !== -1) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		global.require([
+			'recursive/a'
+		], function () {
+			global.require.undef('recursive/a', true);
+			const deps: string[] = ['recursive/a', 'recursive/b', 'recursive/c', 'recursive/d', 'recursive/e'];
+			const passed: boolean = deps.every(function (mod: string) {
+				return checkForUndef(mod);
+			});
+			if (passed) {
+				dfd.resolve();
+			} else {
+				dfd.reject('not all dependencies were undefined');
+			}
+		});
+	},
 
 	plugin: {
 		load(this: any) {
