@@ -1,5 +1,6 @@
 'use strict';
 import ModuleShim = DojoLoader.ModuleShim;
+import Module = DojoLoader.Module;
 
 declare const load: (module: string) => any;
 declare const Packages: {} | undefined;
@@ -1077,7 +1078,7 @@ declare const Packages: {} | undefined;
 	has.add('loader-undef', true);
 	if (has('loader-undef')) {
 		requireModule.undef = function (id: string, recursive?: boolean): void {
-			const module: Module = modules[id];
+			const module: Module | undefined = modules[id];
 			const undefDeps = function (mod: Module): void {
 				if (mod.deps) {
 					forEach(mod.deps, undefDeps);

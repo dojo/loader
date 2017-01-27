@@ -631,7 +631,7 @@ registerSuite({
 			dfd.reject('Loading undefined module should throw an error');
 		});
 	},
-	'recursive undef'() {
+	'recursive undef'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		global.require.config({
