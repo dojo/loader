@@ -214,7 +214,7 @@ declare namespace DojoLoader {
 		config(config: Config): void;
 		inspect?(name: string): any;
 		nodeRequire?(id: string): any;
-		undef(moduleId: string): void;
+		undef(moduleId: string, recursive?: boolean): void;
 	}
 
 	type SignalType = 'error';
