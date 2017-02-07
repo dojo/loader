@@ -1,5 +1,5 @@
-import * as assert from 'intern/chai!assert';
 import * as registerSuite from 'intern!object';
+import * as assert from 'intern/chai!assert';
 
 const DEFAULT_TIMEOUT = 1000;
 
@@ -165,6 +165,36 @@ registerSuite({
 			badMid
 		], function () {
 			dfd.reject(new Error('Dependency with bad module id should not be resolved'));
+		});
+	},
+
+	'specific module errors are reported'(this: any) {
+		let badMid = 'tests/unit/bad-module';
+		let dfd = this.async();
+
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: DojoLoader.LoaderError) {
+			assert.include(error.info.details || '', 'Unexpected token');
+		}));
+
+		global.require([
+			badMid
+		], function () {
+			dfd.reject('Should not have resolved');
+		});
+	},
+
+	'missing module errors are reported'(this: any) {
+		let badMid = 'bad/module/id';
+		let dfd = this.async();
+
+		onErrorHandler = global.require.on('error', dfd.callback(function (error: DojoLoader.LoaderError) {
+			assert.include(error.info.details || '', 'Cannot find module');
+		}));
+
+		global.require([
+			badMid
+		], function () {
+			dfd.reject('Should not have resolved');
 		});
 	},
 

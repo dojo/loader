@@ -152,7 +152,7 @@ declare const Packages: {} | undefined;
 		return hasListeners;
 	};
 
-	const reportModuleLoadError = function (parent: DojoLoader.Module | undefined, module: DojoLoader.Module, url: string): void {
+	const reportModuleLoadError = function (parent: DojoLoader.Module | undefined, module: DojoLoader.Module, url: string, details?: string): void {
 		const parentMid = (parent ? ` (parent: ${parent.mid})` : '');
 		const message = `Failed to load module ${module.mid} from ${url}${parentMid}`;
 		const error = mix<DojoLoader.LoaderError>(new Error(message), {
@@ -160,7 +160,8 @@ declare const Packages: {} | undefined;
 			info: {
 				module,
 				url,
-				parentMid
+				parentMid,
+				details
 			}
 		});
 
@@ -423,14 +424,16 @@ declare const Packages: {} | undefined;
 			module = getModule(dependencies, referenceModule);
 			if (module.executed !== true && module.executed !== EXECUTING) {
 				if (has('host-node') && !module.plugin) {
-					let result = loadNodeModule(module.mid, referenceModule);
-					if (result) {
+					try {
+						let result = loadNodeModule(module.mid, referenceModule);
+
 						initializeModule(module, [], undefined);
 						module.result = result;
 						module.cjs.setExports(result);
 						module.executed = true;
 						module.injected = true;
-					} else {
+					}
+					catch (error) {
 						throw new Error('Attempt to require unloaded module ' + module.mid);
 					}
 				}
@@ -958,10 +961,7 @@ declare const Packages: {} | undefined;
 				}
 			}
 			catch (error) {
-				// If the Node.js 'require' function cannot locate a module it will throw "Error: Cannot find module"
-				// Leave it to the caller of this function to handle a non-existent module
-				// (and throw an error if desired)
-				result = undefined;
+				throw error;
 			}
 			finally {
 				globalObject.define = define;
@@ -979,13 +979,13 @@ declare const Packages: {} | undefined;
 							module: DojoLoader.Module, parent?: DojoLoader.Module): void {
 			fs.readFile(url, 'utf8', function (error: Error, data: string): void {
 				function loadCallback () {
-					let result = loadNodeModule(module.mid, parent);
-
-						if (!result) {
-							reportModuleLoadError(parent, module, url);
-						}
-
-					return result;
+					try {
+						let result = loadNodeModule(module.mid, parent);
+						return result;
+					}
+					catch (error) {
+						reportModuleLoadError(parent, module, url, error.message);
+					}
 				}
 				if (error) {
 					moduleDefinitionArguments = [ [], loadCallback ];
@@ -1005,6 +1005,9 @@ declare const Packages: {} | undefined;
 						 * See: dojo/loader#57
 						 */
 						vm.runInThisContext(data, url);
+					}
+					catch (error) {
+						reportModuleLoadError(parent, module, url, error.message);
 					}
 					finally {
 						globalObject.module = oldModule;
