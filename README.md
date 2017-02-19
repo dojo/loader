@@ -73,4 +73,4 @@ Test cases MUST be written using Intern using the Object test interface and Asse
 
 ## Licensing information
 
-© 2004–2016 Dojo Foundation & contributors. [New BSD](http://opensource.org/licenses/BSD-3-Clause) license.
+© 2004–2017 [JS Foundation](https://js.foundation/) & contributors. [New BSD](http://opensource.org/licenses/BSD-3-Clause) license.
