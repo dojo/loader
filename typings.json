@@ -1,6 +1,0 @@
-{
-	"name": "dojo-loader",
-	"globalDevDependencies": {
-		"dojo2-dev": "github:dojo/typings/custom/dev/dev.d.ts#8068ca9e347fa7a20963d8f9d6c8a05e380e2b1c"
-	}
-}
