@@ -1,5 +1,4 @@
 {
-	"version": "2.0.0",
 	"compilerOptions": {
 		"declaration": false,
 		"inlineSources": true,
@@ -11,7 +10,8 @@
 		"removeComments": false,
 		"sourceMap": true,
 		"strictNullChecks": true,
-		"target": "es5"
+		"target": "es5",
+		"types": [ "intern" ]
 	},
 	"include": [
 		"./typings/index.d.ts",
