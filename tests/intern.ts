@@ -33,13 +33,20 @@ export var maxConcurrency = 4;
 // Name of the tunnel class to use for WebDriver tests
 export var tunnel = 'SauceLabsTunnel';
 
+export const loaders = {
+	'host-browser': 'node_modules/@dojo/loader/loader.js',
+	'host-node': '@dojo/loader'
+};
+
 // Configuration options for the module loader; any AMD configuration options supported by the specified AMD loader
 // can be used here
 export var loaderOptions = {
 	// Packages that should be registered with the loader in each testing environment
 	packages: [
 		{ name: 'src', location: '_build/src' },
-		{ name: 'tests', location: '_build/tests' }
+		{ name: 'tests', location: '_build/tests' },
+		{ name: 'dojo', location: 'node_modules/intern/browser_modules/dojo' },
+		{ name: 'grunt-dojo2', location: 'node_modules/grunt-dojo2'}
 	]
 };
 
