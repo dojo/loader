@@ -8,7 +8,23 @@ This package provides a JavaScript AMD loader useful in applications running in 
 
 **WARNING** This is *beta* software.  While we do not anticipate significant changes to the API at this stage, we may feel the need to do so.  This is not yet production ready, so you should use at your own risk.
 
-@dojo/loader does not have any dependencies on a JavaScript framework.
+`@dojo/loader` does not have any dependencies on a JavaScript framework.
+
+- [Usage](#usage)
+- [Support](#support)
+- [Features](#features)
+- [How do I contribute?](#how-do-i-contribute)
+  - [Installation](#installation)
+  - [Testing](#testing)
+- [Licensing information](#licensing-information)
+
+## Usage
+
+To use `@dojo/loader`, install the package:
+
+```bash
+npm install @dojo/loader
+```
 
 ## Support
 
@@ -33,23 +49,6 @@ This package provides a JavaScript AMD loader useful in applications running in 
 	- [has](https://github.com/dojo/core/blob/master/src/has.ts)
 - Loading in a Nashorn environment
 
-## How do I use this package?
-
-### NPM
-Install using npm: `npm --save-dev @dojo/loader`
-
-### Download from Git
-Users can download and build directly from the repository if they wish.
-
-From the loader root directory:
-
- 1. npm install
- 2. grunt dist
-
-The "dist" subdirectory will contain the loader modules.
-
-## Use the loader
-
 Use a script tag to import the loader. This will make `require` and `define` available in the global namespace.
 
 ``` html
@@ -65,7 +64,13 @@ There is no need to use the Dojo 1.x method of requiring node modules via `dojo/
 We appreciate your interest!  Please see the [Guidelines Repository](https://github.com/dojo/guidelines#readme) for the
 Contributing Guidelines and Style Guide.
 
-## Testing
+### Installation
+
+To start working with this package, clone the repository and run `npm install`.
+
+In order to build the project run `grunt dev` or `grunt dist`.
+
+### Testing
 
 Test cases MUST be written using Intern using the Object test interface and Assert assertion interface.
 
