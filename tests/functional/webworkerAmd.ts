@@ -8,7 +8,7 @@ registerSuite({
 	name: 'AMD loading in web worker',
 
 	'basic loading'(this: any) {
-		return executeTest(this, './basicAmdLoading.html', function (results: any) {
+		return executeTest(this, './webworkerBasic.html', function (results: any) {
 			assert.strictEqual(results.message, AMD_APP_MESSAGE);
 		});
 	}
