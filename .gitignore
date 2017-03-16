@@ -15,3 +15,5 @@ tests/typings/dist/
 html-report
 coverage*.json
 lcov.info
+/_apidoc
+deploy_key

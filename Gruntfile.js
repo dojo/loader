@@ -34,6 +34,12 @@ module.exports = function (grunt) {
 			}
 		},
 
+		typedoc: {
+			options: {
+				ignoreCompilerErrors: true // Remove this once compile errors are resolved
+			}
+		},
+
 		/* loader has minification built into the package, eventually this should be moved to grunt-dojo2 */
 		uglify: {
 			dist: {
