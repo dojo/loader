@@ -1,0 +1,1 @@
+﻿var typedoc = typedoc || {};typedoc.search = typedoc.search || {};typedoc.search.data = {"kinds":{"1":"External module"},"rows":[{"id":0,"kind":1,"name":"\"interfaces.d\"","url":"modules/_interfaces_d_.html","classes":"tsd-kind-external-module"},{"id":1,"kind":1,"name":"\"loader\"","url":"modules/_loader_.html","classes":"tsd-kind-external-module"}]};
