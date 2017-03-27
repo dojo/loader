@@ -1,6 +1,6 @@
 {
   "name": "@dojo/loader",
-  "version": "2.0.0-pre",
+  "version": "2.0.0-beta.10",
   "description": "JavaScript module loader for web applications.",
   "engines": {
     "npm": ">=3.0.0"
