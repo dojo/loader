@@ -186,6 +186,7 @@ declare const Packages: {} | undefined;
 	has.add('host-browser', typeof document !== 'undefined' && typeof location !== 'undefined');
 	has.add('host-node', typeof process === 'object' && process.versions && process.versions.node);
 	has.add('host-nashorn', typeof load === 'function' && typeof Packages !== 'undefined');
+	has.add('host-web-worker', !has('host-browser') && typeof importScripts !== 'undefined');
 	has.add('debug', true);
 
 	has.add('loader-configurable', true);
@@ -1059,6 +1060,21 @@ declare const Packages: {} | undefined;
 			parent?: DojoLoader.Module): void {
 
 			load(url);
+			callback();
+		};
+
+		setGlobals = globalObjectGlobals;
+	}
+	else if (has('host-web-worker')) {
+		injectUrl = function (url: string, callback: (node?: HTMLScriptElement) => void, module: DojoLoader.Module,
+			parent?: DojoLoader.Module): void {
+
+			try {
+				importScripts(url);
+			}
+			catch (e) {
+				reportModuleLoadError(parent, module, url);
+			}
 			callback();
 		};
 

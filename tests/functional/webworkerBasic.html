@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+	<script>
+		if (window.Worker) {
+			const worker = new Worker('worker.js');
+
+			worker.onmessage = function (e) {
+				window.loaderTestResults = e.data;
+			}
+
+			worker.postMessage('start');
+		}
+		else {
+			console.error('does not support web workers');
+		}
+	</script>
+</body>
+</html>
