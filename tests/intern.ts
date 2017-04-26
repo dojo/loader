@@ -19,19 +19,19 @@ export const capabilities = {
 // OnDemand. Options that will be permutated are browserName, version, platform, and platformVersion; any other
 // capabilities options specified for an environment will be copied as-is
 export const environments = [
-	{ browserName: 'internet explorer', version: [ '10.0', '11.0' ], platform: 'Windows 7' },
-	{ browserName: 'microsoftedge', platform: 'Windows 10' },
-	{ browserName: 'firefox', platform: 'Windows 10' },
-	{ browserName: 'chrome', platform: 'Windows 10' },
-	{ browserName: 'safari', version: '9', platform: 'OS X 10.11' }
-	// { browserName: 'android', platform: 'Linux', version: '4.4', deviceName: 'Google Nexus 7 HD Emulator' }
+	{ browserName: 'internet explorer', version: '11', platform: 'WINDOWS' },
+	{ browserName: 'edge', platform: 'WINDOWS' },
+	{ browserName: 'firefox', platform: 'WINDOWS' },
+	{ browserName: 'chrome', platform: 'WINDOWS' },
+	{ browserName: 'safari', platform: 'MAC' },
+	{ browserName: 'iPad' }
 ];
 
 // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
-export const maxConcurrency = 4;
+export const maxConcurrency = 5;
 
 // Name of the tunnel class to use for WebDriver tests
-export const tunnel = 'SauceLabsTunnel';
+export const tunnel = 'BrowserStackTunnel';
 
 export const loaders = {
 	'host-browser': 'node_modules/@dojo/loader/loader.js',
