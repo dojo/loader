@@ -209,6 +209,7 @@ declare namespace DojoLoader {
 	}
 
 	interface RootRequire extends Require {
+		cache(cache: DojoLoader.ObjectMap): void;
 		has: Has;
 		on(type: SignalType, listener: any): { remove: () => void };
 		config(config: Config): void;
@@ -232,7 +233,7 @@ declare interface NodeRequire {
 	on(type: DojoLoader.SignalType, listener: any): { remove: () => void };
 	toAbsMid(moduleId: string): string;
 	toUrl(path: string): string;
-	undef(moduleId: string): void;
+	undef(moduleId: string, recursive?: boolean): void;
 }
 
 declare const arguments: IArguments;
