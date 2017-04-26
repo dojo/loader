@@ -23,8 +23,8 @@ export const environments = [
 	{ browserName: 'edge', platform: 'WINDOWS' },
 	{ browserName: 'firefox', platform: 'WINDOWS' },
 	{ browserName: 'chrome', platform: 'WINDOWS' },
-	{ browserName: 'safari', platform: 'MAC' },
-	{ browserName: 'iPad' }
+	{ browserName: 'safari', version: '10', platform: 'MAC' },
+	{ browserName: 'iPad', version: '9.1' }
 ];
 
 // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
