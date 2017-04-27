@@ -1108,7 +1108,8 @@ declare const Packages: {} | undefined;
 				if (recursive && module.deps) {
 					forEach(module.deps, undefDeps);
 				}
-				modules[id] = undefined;
+				delete modules[module.mid];
+				delete cache[module.mid];
 			}
 		};
 	}

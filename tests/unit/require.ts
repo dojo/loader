@@ -661,6 +661,7 @@ registerSuite({
 			dfd.reject('Loading undefined module should throw an error');
 		});
 	},
+
 	'recurisve undef': {
 		'dependencies are unloaded'(this: any) {
 			let dfd = this.async(DEFAULT_TIMEOUT);
@@ -706,6 +707,39 @@ registerSuite({
 		'modules without dependencies work as expected'() {
 			global.require.undef('invalid-module', true);
 		}
+	},
+
+	'cache injected module is properly undefined'(this: any) {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+
+		global.require.config({
+			packages: [
+				{
+					name: 'common',
+					location: './_build/tests/common'
+				}
+			]
+		});
+
+		global.require.cache({
+			'common/app'() {
+				define([], () => {
+					return 'mock';
+				});
+			}
+		});
+
+		global.require.cache({}); /* TODO: Remove when #124 resolve */
+
+		global.require([
+			'common/app'
+		], dfd.callback(function (app: any) {
+			assert.strictEqual(app, 'mock', 'should return cache factory value');
+			global.require.undef('common/app');
+			assert.throws(() => {
+				global.require('common/app');
+			}, Error, 'Attempt to require unloaded module');
+		}));
 	},
 
 	plugin: {
