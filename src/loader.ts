@@ -1099,9 +1099,13 @@ declare const Packages: {} | undefined;
 		requireModule.undef = function (id: string, recursive?: boolean): void {
 			const module: Module | undefined = modules[id];
 			const undefDeps = function (mod: Module): void {
+				if (mod === commonJsRequireModule || mod === commonJsModuleModule || mod === commonJsExportsModule) {
+					return;
+				}
 				if (mod.deps) {
 					forEach(mod.deps, undefDeps);
 				}
+
 				modules[mod.mid] = undefined;
 			};
 			if (module) {

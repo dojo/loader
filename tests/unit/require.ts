@@ -709,6 +709,38 @@ registerSuite({
 		}
 	},
 
+	'important modules are not undefined'(this: any) {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+
+		global.define('undef-module', ['require', 'module', 'exports'], (require: any, module: any, exports: any) => {
+			return {
+				require,
+				module,
+				exports
+			};
+		});
+
+		global.require(['undef-module'], function () {
+			global.require.undef('undef-module', true);
+
+			global.define('undef-module-2', ['require', 'module', 'exports'], (require: any, module: any, exports: any) => {
+				return {
+					require,
+					module,
+					exports
+				};
+			});
+
+			assert.doesNotThrow(() => {
+				global.require(['undef-module-2'], dfd.callback((defs: any) => {
+					assert.isTrue(defs.require !== undefined);
+					assert.isTrue(defs.module !== undefined);
+					assert.isTrue(defs.exports !== undefined);
+				}));
+			});
+		});
+	},
+
 	'cache injected module is properly undefined'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
