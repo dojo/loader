@@ -741,7 +741,26 @@ registerSuite({
 		});
 	},
 
-	'cache injected module is properly undefined'(this: any) {
+	'circular dependencies are required'(this: any) {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+
+		global.require.config({
+			packages: [
+				{
+					name: 'recursive',
+					location: './_build/tests/common/recursive'
+				}
+			]
+		});
+
+		global.require([
+			'recursive/a'
+		], dfd.callback(function (a: any) {
+			assert.equal(a, 'a');
+		}));
+	},
+
+	'require.cache creates modules with only the cache call'(this: any) {
 		let dfd = this.async(DEFAULT_TIMEOUT);
 
 		global.require.config({
@@ -761,7 +780,34 @@ registerSuite({
 			}
 		});
 
-		global.require.cache({}); /* TODO: Remove when #124 resolve */
+		assert.doesNotThrow(() => {
+			global.require([
+				'common/app'
+			], dfd.callback((app: any) => {
+				assert.strictEqual(app, 'mock', 'should return cache factory value');
+			}));
+		});
+	},
+
+	'cache injected module is properly undefined'(this: any) {
+		let dfd = this.async(DEFAULT_TIMEOUT);
+
+		global.require.config({
+			packages: [
+				{
+					name: 'common',
+					location: './_build/tests/common'
+				}
+			]
+		});
+
+		global.require.cache({
+			'common/app'() {
+				define([], () => {
+					return 'mock';
+				});
+			}
+		});
 
 		global.require([
 			'common/app'

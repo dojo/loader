@@ -399,20 +399,6 @@ declare const Packages: {} | undefined;
 		return <T> target;
 	}
 
-	function consumePendingCacheInsert(referenceModule?: DojoLoader.Module): void {
-		let item: any;
-
-		for (let key in pendingCacheInsert) {
-			item = pendingCacheInsert[key];
-
-			cache[
-				typeof item === 'string' ? toUrl(key, referenceModule) : getModuleInformation(key, referenceModule).mid
-			] = item;
-		}
-
-		pendingCacheInsert = {};
-	}
-
 	function noop(): void {};
 
 	let loadNodeModule: (moduleId: string, parent?: DojoLoader.Module) => any = noop;
@@ -844,9 +830,6 @@ declare const Packages: {} | undefined;
 		else if (module && !module.injected) {
 			let cached: DojoLoader.Factory;
 			const onLoadCallback = function (node?: HTMLScriptElement): void {
-				// DojoLoader.moduleDefinitionArguments is an array of [dependencies, factory]
-				consumePendingCacheInsert(module);
-
 				let moduleDefArgs: string[] = [];
 				let moduleDefFactory: DojoLoader.Factory | undefined = undefined;
 
@@ -867,7 +850,7 @@ declare const Packages: {} | undefined;
 
 			++waitingCount;
 			module.injected = true;
-			if ((cached = cache[module.mid])) {
+			if ((cached = cache[module.mid]) || (module.mid in pendingCacheInsert)) {
 				try {
 					cached();
 					onLoadCallback();
@@ -1122,9 +1105,16 @@ declare const Packages: {} | undefined;
 		toAbsMid: toAbsMid,
 		toUrl: toUrl,
 
-		cache: function (cache: DojoLoader.ObjectMap): void {
-			consumePendingCacheInsert();
-			pendingCacheInsert = cache;
+		cache: function (cacheModules: DojoLoader.ObjectMap): void {
+			let item: any;
+
+			for (let key in cacheModules) {
+				item = cacheModules[key];
+
+				cache[
+					typeof item === 'string' ? toUrl(key, undefined) : getModuleInformation(key, undefined).mid
+					] = item;
+			}
 		}
 	});
 
