@@ -1,3 +1,5 @@
+fixes:
+- "_build/::"
 coverage:
   notify:
     slack:
