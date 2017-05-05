@@ -98,14 +98,6 @@ declare const Packages: {} | undefined;
 	// a "program" to apply paths; see computeMapProg
 	let pathMapPrograms: DojoLoader.PathMap[] = [];
 
-	// hash: (mid | url)-->(function | string)
-	//
-	// Gives a set of cache modules pending entry into cache. When cached modules are published to the loader, they are
-	// entered into pendingCacheInsert; modules are then pressed into cache upon (1) AMD define or (2) upon receiving
-	// another independent set of cached modules. (1) is the usual case, and this case allows normalizing mids given
-	// in the pending cache for the local configuration, possibly relocating modules.
-	let pendingCacheInsert: { [moduleId: string]: any; } = {};
-
 	let setGlobals: (require: DojoLoader.RootRequire, define: DojoLoader.Define) => void;
 
 	let uidGenerator = 0;
@@ -850,7 +842,7 @@ declare const Packages: {} | undefined;
 
 			++waitingCount;
 			module.injected = true;
-			if ((cached = cache[module.mid]) || (module.mid in pendingCacheInsert)) {
+			if (cached = cache[module.mid]) {
 				try {
 					cached();
 					onLoadCallback();
@@ -1112,7 +1104,7 @@ declare const Packages: {} | undefined;
 				item = cacheModules[key];
 
 				cache[
-					typeof item === 'string' ? toUrl(key, undefined) : getModuleInformation(key, undefined).mid
+					getModuleInformation(key, undefined).mid
 					] = item;
 			}
 		}
