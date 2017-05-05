@@ -98,14 +98,6 @@ declare const Packages: {} | undefined;
 	// a "program" to apply paths; see computeMapProg
 	let pathMapPrograms: DojoLoader.PathMap[] = [];
 
-	// hash: (mid | url)-->(function | string)
-	//
-	// Gives a set of cache modules pending entry into cache. When cached modules are published to the loader, they are
-	// entered into pendingCacheInsert; modules are then pressed into cache upon (1) AMD define or (2) upon receiving
-	// another independent set of cached modules. (1) is the usual case, and this case allows normalizing mids given
-	// in the pending cache for the local configuration, possibly relocating modules.
-	let pendingCacheInsert: { [moduleId: string]: any; } = {};
-
 	let setGlobals: (require: DojoLoader.RootRequire, define: DojoLoader.Define) => void;
 
 	let uidGenerator = 0;
@@ -397,20 +389,6 @@ declare const Packages: {} | undefined;
 			}
 		}
 		return <T> target;
-	}
-
-	function consumePendingCacheInsert(referenceModule?: DojoLoader.Module): void {
-		let item: any;
-
-		for (let key in pendingCacheInsert) {
-			item = pendingCacheInsert[key];
-
-			cache[
-				typeof item === 'string' ? toUrl(key, referenceModule) : getModuleInformation(key, referenceModule).mid
-			] = item;
-		}
-
-		pendingCacheInsert = {};
 	}
 
 	function noop(): void {};
@@ -844,9 +822,6 @@ declare const Packages: {} | undefined;
 		else if (module && !module.injected) {
 			let cached: DojoLoader.Factory;
 			const onLoadCallback = function (node?: HTMLScriptElement): void {
-				// DojoLoader.moduleDefinitionArguments is an array of [dependencies, factory]
-				consumePendingCacheInsert(module);
-
 				let moduleDefArgs: string[] = [];
 				let moduleDefFactory: DojoLoader.Factory | undefined = undefined;
 
@@ -867,7 +842,7 @@ declare const Packages: {} | undefined;
 
 			++waitingCount;
 			module.injected = true;
-			if ((cached = cache[module.mid])) {
+			if (cached = cache[module.mid]) {
 				try {
 					cached();
 					onLoadCallback();
@@ -1122,9 +1097,16 @@ declare const Packages: {} | undefined;
 		toAbsMid: toAbsMid,
 		toUrl: toUrl,
 
-		cache: function (cache: DojoLoader.ObjectMap): void {
-			consumePendingCacheInsert();
-			pendingCacheInsert = cache;
+		cache: function (cacheModules: DojoLoader.ObjectMap): void {
+			let item: any;
+
+			for (let key in cacheModules) {
+				item = cacheModules[key];
+
+				cache[
+					getModuleInformation(key, undefined).mid
+					] = item;
+			}
 		}
 	});
 
