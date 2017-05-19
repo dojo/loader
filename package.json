@@ -21,7 +21,7 @@
   },
   "typings": "dojo-loader.d.ts",
   "devDependencies": {
-    "@dojo/loader": "^2.0.0-beta.9",
+    "@dojo/loader": "beta1",
     "@types/chai": "~3.4.0",
     "@types/glob": "~5.0.0",
     "@types/grunt": "~0.4.0",
@@ -29,7 +29,7 @@
     "dts-generator": "~2.0.0",
     "grunt": "^1.0.1",
     "grunt-contrib-uglify": "^2.0.0",
-    "grunt-dojo2": "beta1",
+    "grunt-dojo2": "latest",
     "intern": "~3.4.1",
     "typescript": "~2.3.2"
   }
