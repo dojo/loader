@@ -305,13 +305,18 @@ declare const Packages: {} | undefined;
 			// shim API
 			if (config.shim) {
 				Object.keys(config.shim).forEach((moduleId) => {
-					let moduleDef: ModuleShim = (config.shim || {})[ moduleId ];
+					// guards currently get reset in callbacks: https://github.com/Microsoft/TypeScript/issues/11498
+					const value = config.shim![moduleId];
+					let moduleDef: ModuleShim;
 
 					// using shorthand module syntax, convert to full syntax
-					if (Array.isArray(moduleDef)) {
+					if (Array.isArray(value)) {
 						moduleDef = {
-							deps: <string[]> moduleDef
+							deps: value
 						};
+					}
+					else {
+						moduleDef = value;
 					}
 
 					define(moduleId, moduleDef.deps || [], function (...dependencies) {
