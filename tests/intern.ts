@@ -22,10 +22,10 @@ export const environments = [
 	{ browserName: 'internet explorer', version: '11', platform: 'WINDOWS' },
 	{ browserName: 'edge', platform: 'WINDOWS' },
 	{ browserName: 'firefox', platform: 'WINDOWS' },
-	{ browserName: 'chrome', platform: 'WINDOWS' } /* ,
-	{ browserName: 'safari', version: '10', platform: 'MAC' },
+	{ browserName: 'chrome', platform: 'WINDOWS' },
+	{ browserName: 'safari', version: '10', platform: 'MAC' } /* ,
 	{ browserName: 'iPad', version: '9.1' } */
-	/* issues with Safari and iOS on BrowserStack with loader */
+	/* issues with iOS 9.1 and BrowserStack */
 ];
 
 // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
