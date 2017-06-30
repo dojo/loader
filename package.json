@@ -31,6 +31,6 @@
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-dojo2": "latest",
     "intern": "~3.4.1",
-    "typescript": "~2.3.2"
+    "typescript": "~2.4.1"
   }
 }
