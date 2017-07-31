@@ -544,7 +544,7 @@ declare const Packages: {} | undefined;
 	}
 
 	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
-		let match = moduleId.match(/^([^\/]+)(\/(.+))?$/);
+		let match = moduleId.match(/^((?:@[^\/]*\/)?[^\/]+)(\/(.+))?$/);
 		let packageId = match ? match[1] : '';
 		let pack = config && config.pkgs ? config.pkgs[packageId] : {};
 		let moduleIdInPackage = '';

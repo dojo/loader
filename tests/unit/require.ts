@@ -505,6 +505,27 @@ registerSuite({
 				], dfd.callback(function (app: any) {
 					assert.strictEqual(app, 'app', '"app" module should load');
 				}));
+			},
+			'slashes in package name'(this: any) {
+				let dfd = this.async(DEFAULT_TIMEOUT);
+
+				setErrorHandler(dfd);
+
+				global.require.config({
+					packages: [
+						{
+							name: '@test/common',
+							location: './_build/tests/common',
+							main: 'app'
+						}
+					]
+				});
+
+				global.require([
+					'@test/common'
+				], dfd.callback(function (app: any) {
+					assert.strictEqual(app, 'app', '"app" module should load');
+				}));
 			}
 		},
 
