@@ -97,6 +97,18 @@ registerSuite({
 				return executeTest(this, './config/packages2.html', function (results: any) {
 					assert.strictEqual(results, appMessage, '"app" module should load');
 				});
+			},
+
+			'package name with slashes'(this: any) {
+				return executeTest(this, './config/packages3.html', function (results: any) {
+					assert.strictEqual(results, appMessage, '"app" module should load');
+				});
+			},
+
+			'nested packages'(this: any) {
+				return executeTest(this, './config/packages4.html', function (results: any) {
+					assert.strictEqual(results, appMessage, '"app" module should load');
+				});
 			}
 		},
 
