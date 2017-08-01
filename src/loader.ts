@@ -1,6 +1,7 @@
 'use strict';
 import ModuleShim = DojoLoader.ModuleShim;
 import Module = DojoLoader.Module;
+import Package = DojoLoader.Package;
 
 declare const load: (module: string) => any;
 declare const Packages: {} | undefined;
@@ -544,16 +545,16 @@ declare const Packages: {} | undefined;
 	}
 
 	function getModuleInformation(moduleId: string, referenceModule?: DojoLoader.Module): DojoLoader.Module {
-		let match = moduleId.match(/^((?:@[^\/]*\/)?[^\/]+)(\/(.+))?$/);
-		let packageId = match ? match[1] : '';
-		let pack = config && config.pkgs ? config.pkgs[packageId] : {};
+		let packageId = '';
+		let pack: Package = {};
 		let moduleIdInPackage = '';
 
-		if (pack) {
-			moduleId = packageId + '/' + (moduleIdInPackage = ((match && match[3]) || pack.main || 'main'));
-		}
-		else {
-			packageId = '';
+		const matches = Object.keys((config && config.pkgs || {})).filter(pkg => moduleId.indexOf(pkg) === 0).sort((a, b) => a.length > b.length ? -1 : 1);
+
+		if (matches.length) {
+			packageId = matches.shift() as string;
+			pack = config.pkgs![packageId];
+			moduleId = packageId + '/' + (moduleIdInPackage = (moduleId.substr(packageId.length + 1) || pack.main || 'main'));
 		}
 
 		let module = modules[moduleId];
