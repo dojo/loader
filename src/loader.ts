@@ -549,7 +549,7 @@ declare const Packages: {} | undefined;
 		let pack: Package = {};
 		let moduleIdInPackage = '';
 
-		const matches = Object.keys((config && config.pkgs || {})).filter(pkg => moduleId.indexOf(pkg) === 0).sort((a, b) => a.length > b.length ? -1 : 1);
+		const matches = Object.keys((config && config.pkgs || {})).filter(pkg => (moduleId + '/').indexOf(pkg + '/') === 0).sort((a, b) => a.length > b.length ? -1 : 1);
 
 		if (matches.length) {
 			packageId = matches.shift() as string;
