@@ -2,6 +2,14 @@
 	"compilerOptions": {
 		"declaration": false,
 		"inlineSources": true,
+		"lib": [
+			"dom",
+			"es5",
+			"es2015.iterable",
+			"es2015.promise",
+			"es2015.symbol",
+			"es2015.symbol.wellknown"
+		],
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"noImplicitAny": true,

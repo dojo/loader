@@ -1,12 +1,9 @@
-import { Thenable } from 'dojo/Promise';
-export { Thenable } from 'dojo/Promise';
-
-export function isEventuallyRejected<T>(promise: Thenable<T>): Thenable<boolean> {
+export function isEventuallyRejected<T>(promise: Promise<T>): Promise<boolean> {
 	return promise.then<any>(function () {
 		throw new Error('unexpected code path');
-	}, function () {
+	}, <any> (() => {
 		return true; // expect rejection
-	});
+	}));
 }
 
 export function throwImmediatly() {

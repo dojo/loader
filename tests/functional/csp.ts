@@ -1,11 +1,12 @@
-import * as assert from 'intern/chai!assert';
-import * as registerSuite from 'intern!object';
-import * as intern from 'intern';
+const { registerSuite } = intern.getInterface('object');
+const { assert } = intern.getPlugin('chai');
+
 import executeTest from './executeTest';
+import Node from 'intern/lib/executors/Node';
 
 const amdAppMessage = 'Success';
 
-let oldInstrumentation: any;
+let oldShouldInstrument: any;
 
 /**
  * Gotchas for CSP testing
@@ -23,40 +24,40 @@ let oldInstrumentation: any;
  *   to disable instrumentation for this suite, and re-enable it afterwards. There is no public API for this, so we need
  *   to perform some Intern wizardry.
  */
-registerSuite({
-	name: 'AMD loading with CSP enabled',
-
-	setup(this: any) {
-		oldInstrumentation = (<any> intern).executor.proxy.config.instrument;
-		(<any> intern).executor.proxy.config.instrument = false;
+registerSuite('AMD loading with CSP enabled', {
+	before() {
+		oldShouldInstrument = (<Node> this.executor).shouldInstrumentFile;
+		(<Node> this.executor).shouldInstrumentFile = (_filename: string) => false;
 	},
 
-	teardown(this: any) {
-		(<any> intern).executor.proxy.config.instrument = oldInstrumentation;
+	after() {
+		(<Node> this.executor).shouldInstrumentFile = oldShouldInstrument;
 	},
 
-	simple(this: any) {
-		if (this.remote.session.capabilities.browserName === 'MicrosoftEdge') {
-			this.skip('CSP tests do not work in Edge');
+	tests: {
+		simple() {
+			if (this.remote.session.capabilities.browserName === 'MicrosoftEdge') {
+				this.skip('CSP tests do not work in Edge');
+			}
+
+			return executeTest(this, require, './csp-simple.html', function (results: any) {
+				assert.strictEqual(results.message, amdAppMessage, 'Local module should load');
+			});
+		},
+
+		cdn() {
+			if (this.remote.session.capabilities.browserName === 'MicrosoftEdge') {
+				this.skip('CSP tests do not work in Edge');
+			}
+
+			const expected = {
+				message: amdAppMessage,
+				debounce: '#function'
+			};
+
+			return executeTest(this, require, './csp-cdn.html', function (results: any) {
+				assert.deepEqual(results, expected, 'Local module and CDN module should load');
+			});
 		}
-
-		return executeTest(this, './csp-simple.html', function (results: any) {
-			assert.strictEqual(results.message, amdAppMessage, 'Local module should load');
-		});
-	},
-
-	cdn(this: any) {
-		if (this.remote.session.capabilities.browserName === 'MicrosoftEdge') {
-			this.skip('CSP tests do not work in Edge');
-		}
-
-		const expected = {
-			message: amdAppMessage,
-			debounce: '#function'
-		};
-
-		return executeTest(this, './csp-cdn.html', function (results: any) {
-			assert.deepEqual(results, expected, 'Local module and CDN module should load');
-		});
 	}
 });

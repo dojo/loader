@@ -59,6 +59,10 @@ module.exports = function (grunt) {
 					'dist/umd/loader.min.js': 'dist/umd/loader.js'
 				}
 			}
+		},
+
+		intern: {
+			version: 4
 		}
 	});
 
