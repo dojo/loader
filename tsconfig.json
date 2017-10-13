@@ -16,6 +16,7 @@
 		"noImplicitThis": true,
 		"outDir": "_build/",
 		"removeComments": false,
+		"rootDir": ".",
 		"sourceMap": true,
 		"strictNullChecks": true,
 		"target": "es5",
@@ -23,7 +24,6 @@
 	},
 	"include": [
 		"./typings/index.d.ts",
-		"./src/**/*.ts",
-		"./tests/**/*.ts"
+		"./src/**/*.ts"
 	]
 }

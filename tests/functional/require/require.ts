@@ -18,7 +18,7 @@ function executeTest(suite: Test, htmlTestPath: string, testFn: (result: any) =>
 
 const appMessage = 'app';
 
-registerSuite('require', {
+registerSuite('browser - require', {
 	config: {
 		baseUrl: {
 			default(this: any) {

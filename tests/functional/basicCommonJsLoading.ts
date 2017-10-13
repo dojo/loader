@@ -5,7 +5,7 @@ import executeTest from './executeTest';
 
 const COMMON_JS_APP_MESSAGE = 'Message from CommonJS app.';
 
-registerSuite('basic CommonJS loading', {
+registerSuite('browser - basic CommonJS loading', {
 	'simple test'() {
 		return executeTest(this, require, './basicCommonJsLoading.html', function (results: any) {
 			assert.strictEqual(results.message, COMMON_JS_APP_MESSAGE);

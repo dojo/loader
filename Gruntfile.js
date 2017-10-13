@@ -22,8 +22,7 @@ module.exports = function (grunt) {
 		ts: {
 			tests: {
 				compilerOptions: {
-					module: 'umd',
-					outDir: '<%= devDirectory %>/tests'
+					module: 'umd'
 				},
 				include: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
 			},

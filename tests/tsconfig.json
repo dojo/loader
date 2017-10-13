@@ -1,0 +1,11 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"module": "umd"
+	},
+	"include": [
+		"./**/*.ts",
+		"../src/interfaces.d.ts",
+		"../typings/index.d.ts"
+	]
+}
