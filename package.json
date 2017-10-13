@@ -30,7 +30,7 @@
     "grunt": "^1.0.1",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-dojo2": "latest",
-    "intern": "~4.0.1",
+    "intern": "~4.0.2",
     "typescript": "~2.4.1"
   }
 }
