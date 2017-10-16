@@ -22,8 +22,7 @@ module.exports = function (grunt) {
 		ts: {
 			tests: {
 				compilerOptions: {
-					module: 'umd',
-					outDir: '<%= devDirectory %>/tests'
+					module: 'umd'
 				},
 				include: [ 'tests/**/*.ts', 'typings/index.d.ts', 'src/interfaces.d.ts' ]
 			},
@@ -59,6 +58,10 @@ module.exports = function (grunt) {
 					'dist/umd/loader.min.js': 'dist/umd/loader.js'
 				}
 			}
+		},
+
+		intern: {
+			version: 4
 		}
 	});
 

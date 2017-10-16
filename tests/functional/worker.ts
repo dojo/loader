@@ -1,3 +1,5 @@
+declare function importScripts(url: string): void;
+
 onmessage = function (e) {
 	try {
 		/* load the loader */

@@ -1,14 +1,14 @@
-import * as assert from 'intern/chai!assert';
-import * as registerSuite from 'intern!object';
-import * as Suite from 'intern/lib/Suite';
-import * as Command from 'leadfoot/Command';
+const { registerSuite } = intern.getInterface('object');
+const { assert } = intern.getPlugin('chai');
 
-import pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
+import Test from 'intern/lib/Test';
+import Command from '@theintern/leadfoot/Command';
+import pollUntil from '@theintern/leadfoot/helpers/pollUntil';
 
-function executeTest(suite: Suite, htmlTestPath: string, testFn: (result: any) => void, timeout = 5000): Command<any> {
+function executeTest(suite: Test, htmlTestPath: string, testFn: (result: any) => void, timeout = 5000): Command<any> {
 	return suite.remote
-		.get((<any> require).toUrl(htmlTestPath))
-		.then(pollUntil<any>(function () {
+		.get(require.resolve(htmlTestPath))
+		.then(pollUntil(function () {
 			return (<any> window).loaderTestResults;
 		}, undefined, timeout), undefined)
 		.then(testFn, function () {
@@ -18,9 +18,7 @@ function executeTest(suite: Suite, htmlTestPath: string, testFn: (result: any) =
 
 const appMessage = 'app';
 
-registerSuite({
-	name: 'require',
-
+registerSuite('browser - require', {
 	config: {
 		baseUrl: {
 			default(this: any) {

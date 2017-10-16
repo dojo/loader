@@ -1,12 +1,11 @@
-import * as assert from 'intern/chai!assert';
-import * as registerSuite from 'intern!object';
+const { registerSuite } = intern.getInterface('object');
+const { assert } = intern.getPlugin('chai');
+
 import executeTest from './executeTest';
 
-registerSuite({
-	name: 'Shim API AMD loading',
-
-	'shim tests'(this: any) {
-		return executeTest(this, './shimAmdLoading.html', function (results: any) {
+registerSuite('Shim API AMD loading', {
+	'shim tests'() {
+		return executeTest(this, require, './shimAmdLoading.html', function (results: any) {
 			assert.strictEqual(results.stringValue, 'string', 'Global value should have been read from nested path');
 			assert.strictEqual(results.numberValue, 5, 'Init return value should be used as module value');
 			assert.strictEqual(results.initTwice, 1, 'Module init function should only be called once');
@@ -16,8 +15,8 @@ registerSuite({
 		});
 	},
 
-	'non-existent global variable'(this: any) {
-		return executeTest(this, './shimAmdLoading2.html', function (results: any) {
+	'non-existent global variable'() {
+		return executeTest(this, require, './shimAmdLoading2.html', function (results: any) {
 			assert.strictEqual(results.error, 'Tried to find badVariable but it did not exist', 'Non existent global variable expected to error');
 		});
 	}

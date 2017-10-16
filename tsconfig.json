@@ -2,12 +2,21 @@
 	"compilerOptions": {
 		"declaration": false,
 		"inlineSources": true,
+		"lib": [
+			"dom",
+			"es5",
+			"es2015.iterable",
+			"es2015.promise",
+			"es2015.symbol",
+			"es2015.symbol.wellknown"
+		],
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"outDir": "_build/",
 		"removeComments": false,
+		"rootDir": ".",
 		"sourceMap": true,
 		"strictNullChecks": true,
 		"target": "es5",
@@ -15,7 +24,6 @@
 	},
 	"include": [
 		"./typings/index.d.ts",
-		"./src/**/*.ts",
-		"./tests/**/*.ts"
+		"./src/**/*.ts"
 	]
 }

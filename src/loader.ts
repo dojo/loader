@@ -5,6 +5,7 @@ import Package = DojoLoader.Package;
 
 declare const load: (module: string) => any;
 declare const Packages: {} | undefined;
+declare const importScripts: ((url: string) => void);
 
 (function (args?: string[]): void {
 	let globalObject: any = (function (): any {

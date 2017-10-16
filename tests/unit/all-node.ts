@@ -1,0 +1,2 @@
+import './basicCommonJsLoading';
+import './require';
