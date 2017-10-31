@@ -12,8 +12,7 @@ node_modules
 bower_components
 tests/typings/dist/
 .baseDir.ts
-html-report
-coverage*.json
-lcov.info
+/html-report
+coverage-final.lcov
 /_apidoc
 deploy_key
