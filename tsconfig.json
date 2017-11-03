@@ -12,18 +12,15 @@
 		],
 		"module": "commonjs",
 		"moduleResolution": "node",
-		"noImplicitAny": true,
-		"noImplicitThis": true,
 		"outDir": "_build/",
 		"removeComments": false,
 		"rootDir": ".",
 		"sourceMap": true,
-		"strictNullChecks": true,
+		"strict": true,
 		"target": "es5",
 		"types": [ "intern" ]
 	},
 	"include": [
-		"./typings/index.d.ts",
 		"./src/**/*.ts"
 	]
 }
