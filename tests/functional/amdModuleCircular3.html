@@ -6,27 +6,31 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				packages: [
 					{
 						name: 'amdApp',
-						location: './amdApp'
+						location: '_build/tests/functional/amdApp'
 					}
 				]
-			});
+			}));
 
-			require([
-				'amdApp/circular1',
-				'amdApp/circular2'
-			], function (circular1, circular2) {
-				window.loaderTestResults = {
-					c1default: circular1.default(),
-					c1message: circular1.getMessage(),
-					c2default: circular2.default(),
-					c2message: circular2.getMessage()
-				};
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'amdApp/circular1',
+    				'amdApp/circular2'
+    			], function (circular1, circular2) {
+    				window.loaderTestResults = {
+    					c1default: circular1.default(),
+    					c1message: circular1.getMessage(),
+    					c2default: circular2.default(),
+    					c2message: circular2.getMessage()
+    				};
+    			})
 			});
 		</script>
 	</body>

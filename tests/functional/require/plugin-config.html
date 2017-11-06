@@ -6,40 +6,43 @@
 	</head>
 
 	<body>
+		<script src="../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../src/loader.js"></script>
 		<script>
 			var requireConfig = {
-				baseUrl: '../..',
+				baseUrl: '../../../../',
 				packages: [
 					{
 						name: 'chai',
-						location: '../../node_modules/chai',
+						location: 'node_modules/chai',
 						main: 'chai'
 					}
 				]
 			};
-			require.config(requireConfig);
+			require.config(shimAmdDependencies(requireConfig));
 
-			require([
-				'common/pluginConfig!one',
-				'chai'
-			], function (pluginConfig, chai) {
-				var assert = chai.assert;
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'_build/tests/common/pluginConfig!one',
+    				'chai'
+    			], function (pluginConfig, chai) {
+    				var assert = chai.assert;
 
-				try {
-					assert.equal(pluginConfig.baseUrl, requireConfig.baseUrl,
-						'Plugin config should contain the BaseUrl');
-					assert.deepEqual(pluginConfig.packages, requireConfig.packages,
-						'Plugin should have received cpackages equal to require config packages');
-				}
-				catch (error) {
-					window.loaderTestResults = error.message;
-				}
-				finally {
-					if (window.loaderTestResults === undefined) {
-						window.loaderTestResults = 'success';
-					}
-				}
+    				try {
+    					assert.equal(pluginConfig.baseUrl, requireConfig.baseUrl,
+    						'Plugin config should contain the BaseUrl');
+    					assert.deepEqual(pluginConfig.packages, requireConfig.packages,
+    						'Plugin should have received cpackages equal to require config packages');
+    				}
+    				catch (error) {
+    					window.loaderTestResults = error.message;
+    				}
+    				finally {
+    					if (window.loaderTestResults === undefined) {
+    						window.loaderTestResults = 'success';
+    					}
+    				}
+    			});
 			});
 		</script>
 	</body>

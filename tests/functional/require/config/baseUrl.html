@@ -6,16 +6,22 @@
 	</head>
 
 	<body>
+		<script src="../../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../../src/loader.js"></script>
 		<script>
-			require.config({
-				baseUrl: '.'
-			});
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../../',
+				packages: [
+					{ name: 'pkg', location: '_build/tests/functional/require/config/pkg' }
+				]
+			}));
 
-			require([
-				'pkg/main'
-			], function (app) {
-				window.loaderTestResults = app;
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'pkg/main'
+    			], function (app) {
+    				window.loaderTestResults = app;
+    			});
 			});
 		</script>
 	</body>

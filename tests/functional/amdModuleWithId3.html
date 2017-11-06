@@ -6,17 +6,19 @@
 	</head>
 
 	<body>
+	<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
 			// ensure loader is configured before 'define' is called
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				packages: [
 					{
 						name: 'amdApp',
-						location: './amdApp'
+						location: '_build/tests/functional/amdApp'
 					}
 				]
-			});
+			}));
 
 			define('test/module3', [
 				'amdApp/app'
@@ -27,10 +29,12 @@
 				};
 			});
 
-			require([
-				'test/module3'
-			], function (testModule3) {
-				window.loaderTestResults = testModule3;
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'test/module3'
+    			], function (testModule3) {
+    				window.loaderTestResults = testModule3;
+    			})
 			});
 		</script>
 	</body>

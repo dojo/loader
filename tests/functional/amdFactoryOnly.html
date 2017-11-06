@@ -6,19 +6,23 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				packages: [
-					{ name: 'amd', location: '../common/amd' }
+					{ name: 'amd', location: '_build/tests/common/amd' }
 				]
-			});
-			require([
-				'amd/onlyFactory'
-			], function (app) {
-				window.loaderTestResults = {
-					property: app.property
-				};
+			}));
+			require(['@dojo/shim/main'], function () {
+				require([
+					'amd/onlyFactory'
+				], function (app) {
+					window.loaderTestResults = {
+						property: app.property
+					};
+				});
 			});
 		</script>
 	</body>

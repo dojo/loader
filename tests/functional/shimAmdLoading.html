@@ -6,6 +6,7 @@
 </head>
 
 <body>
+<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 <script src="../../src/loader.js"></script>
 <script>
 	var globalValues = {
@@ -24,7 +25,8 @@
 		window.pluginDep = 'plugin-dep';
 	});
 
-	require.config({
+	require.config(shimAmdDependencies({
+		baseUrl: '../../../',
 		shim: {
 			'global/string': {
 				exports: 'globalValues.string'
@@ -55,27 +57,29 @@
 			},
 			'plugin': ['plugin-dep']
 		}
-	});
+	}));
 
-	require([
-		'global/string',
-		'global/number',
-		'adder',
-		'init-no-return',
-		'init-once',
-		'init-once',
-		'plugin'
-	], function(stringValue, numberValue, addedValues, initNoReturn, initOnce, initTwice) {
-		window.loaderTestResults = {
-			stringValue: stringValue,
-			numberValue: numberValue,
-			addedValues: addedValues,
-			initNoReturn: initNoReturn,
-			initOnce: initOnce,
-			initTwice: initTwice,
-			pluginDep: window.pluginDep,
-			requireError: window.requireError
-		};
+	require(['@dojo/shim/main'], function () {
+	    require([
+    		'global/string',
+    		'global/number',
+    		'adder',
+    		'init-no-return',
+    		'init-once',
+    		'init-once',
+    		'plugin'
+    	], function(stringValue, numberValue, addedValues, initNoReturn, initOnce, initTwice) {
+    		window.loaderTestResults = {
+    			stringValue: stringValue,
+    			numberValue: numberValue,
+    			addedValues: addedValues,
+    			initNoReturn: initNoReturn,
+    			initOnce: initOnce,
+    			initTwice: initTwice,
+    			pluginDep: window.pluginDep,
+    			requireError: window.requireError
+    		};
+    	});
 	});
 </script>
 </body>

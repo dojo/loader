@@ -6,26 +6,24 @@
 </head>
 
 <body>
+<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 <script src="../../src/loader.js"></script>
 <script>
-	require.config({
+	require.config(shimAmdDependencies({
+		baseUrl: '../../../',
 		shim: {
 			'error': {
 				exports: 'badVariable'
 			}
 		}
-	});
+	}));
 
 	try {
-		require([
-			'error'
-		], function() {
-			window.loaderTestResults = {
-			};
+		require(['error'], function () {
 		});
 	} catch (e) {
-	    window.loaderTestResults = {
-	        error: e.message
+		window.loaderTestResults = {
+			error: e.message
 		}
 	}
 </script>

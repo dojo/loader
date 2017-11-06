@@ -6,50 +6,54 @@
 	</head>
 
 	<body>
+		<script src="../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../src/loader.js"></script>
 		<script>
-			require.config({
-				baseUrl: '..',
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../',
 				packages: [
 					{
 						name: 'chai',
-						location: '../../../node_modules/chai',
+						location: 'node_modules/chai',
 						main: 'chai'
 					}
 				]
+			}));
+
+			require(['@dojo/shim/main'], function () {
+			    define('common/a/toUrlTest', [
+    				'require',
+    				'chai/chai'
+    			], function (contextRequire, chai) {
+    				var assert = chai.assert;
+
+    				try {
+    					assert.strictEqual(require.toUrl('mid'), '../../../../mid');
+    					assert.strictEqual(require.toUrl('./mid'), '../../../../mid');
+    					assert.strictEqual(require.toUrl('common/mid'), '../../../../common/mid');
+
+    					assert.strictEqual(contextRequire.toUrl('mid'), '../../../../mid');
+    					assert.strictEqual(contextRequire.toUrl('./mid'), '../../../../common/a/mid');
+    					assert.strictEqual(contextRequire.toUrl('../mid'), '../../../../common/mid');
+    					assert.strictEqual(contextRequire.toUrl('package/mid'), '../../../../package/mid');
+    					assert.strictEqual(contextRequire.toUrl('./package/mid'), '../../../../common/a/package/mid');
+    					assert.strictEqual(contextRequire.toUrl('../package/mid'), '../../../../common/package/mid');
+    				}
+    				catch (error) {
+    					window.loaderTestResults = error.message;
+    				}
+    				finally {
+    					if (window.loaderTestResults === undefined) {
+    						window.loaderTestResults = 'success';
+    					}
+    				}
+    			});
+
+				require([
+					'common/a/toUrlTest'
+				]);
 			});
 
-			define('common/a/toUrlTest', [
-				'require',
-				'chai/chai'
-			], function (contextRequire, chai) {
-				var assert = chai.assert;
-
-				try {
-					assert.strictEqual(require.toUrl('mid'), '../mid');
-					assert.strictEqual(require.toUrl('./mid'), '../mid');
-					assert.strictEqual(require.toUrl('common/mid'), '../common/mid');
-
-					assert.strictEqual(contextRequire.toUrl('mid'), '../mid');
-					assert.strictEqual(contextRequire.toUrl('./mid'), '../common/a/mid');
-					assert.strictEqual(contextRequire.toUrl('../mid'), '../common/mid');
-					assert.strictEqual(contextRequire.toUrl('package/mid'), '../package/mid');
-					assert.strictEqual(contextRequire.toUrl('./package/mid'), '../common/a/package/mid');
-					assert.strictEqual(contextRequire.toUrl('../package/mid'), '../common/package/mid');
-				}
-				catch (error) {
-					window.loaderTestResults = error.message;
-				}
-				finally {
-					if (window.loaderTestResults === undefined) {
-						window.loaderTestResults = 'success';
-					}
-				}
-			});
-
-			require([
-				'common/a/toUrlTest'
-			]);
 		</script>
 	</body>
 </html>

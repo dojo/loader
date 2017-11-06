@@ -6,9 +6,11 @@
 	</head>
 
 	<body>
+		<script src="../../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../../',
 				map: {
 					'*': {
 						plugin: 'common/plugin',
@@ -18,19 +20,21 @@
 				packages: [
 					{
 						name: 'common',
-						location: '../../../common'
+						location: '_build/tests/common'
 					}
 				]
-			});
+			}));
 
-			require([
-				'plugin!one',
-				'plugin2'
-			], function (plugin1, plugin2) {
-				window.loaderTestResults = {
-					plugin1: plugin1,
-					plugin2: plugin2
-				};
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'plugin!one',
+    				'plugin2'
+    			], function (plugin1, plugin2) {
+    				window.loaderTestResults = {
+    					plugin1: plugin1,
+    					plugin2: plugin2
+    				};
+    			});
 			});
 		</script>
 	</body>

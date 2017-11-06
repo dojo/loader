@@ -6,16 +6,29 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require([
-				'amdApp/module1'
-			], function () {
-				var testModule1 = require('test/module1');
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
+				packages: [
+					{
+						name: 'amdApp',
+						location: '_build/tests/functional/amdApp'
+					}
+				]
+			}));
 
-				window.loaderTestResults = {
-					testModule1Value: testModule1
-				};
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'amdApp/module1'
+    			], function () {
+    				var testModule1 = require('test/module1');
+
+    				window.loaderTestResults = {
+    					testModule1Value: testModule1
+    				};
+    			})
 			});
 		</script>
 	</body>

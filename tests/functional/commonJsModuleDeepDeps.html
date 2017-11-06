@@ -6,22 +6,26 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				packages: [
 					{
 						name: 'commonJs',
-						location: '../common/commonJs'
+						location: '_build/tests/common/commonJs'
 					}
 				]
-			});
-			require([
-				'commonJs/deep1'
-			], function (deep1) {
-				var obj = deep1();
+			}));
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'commonJs/deep1'
+    			], function (deep1) {
+    				var obj = deep1();
 
-				window.loaderTestResults = obj.deep3();
+    				window.loaderTestResults = obj.deep3();
+    			})
 			});
 		</script>
 	</body>
