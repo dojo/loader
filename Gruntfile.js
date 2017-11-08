@@ -28,7 +28,8 @@ module.exports = function (grunt) {
 			},
 			dist: {
 				compilerOptions: {
-					declaration: false
+					declaration: false,
+					rootDir: 'src'
 				}
 			}
 		},
