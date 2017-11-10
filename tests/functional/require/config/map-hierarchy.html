@@ -6,29 +6,33 @@
 	</head>
 
 	<body>
+		<script src="../../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../../',
 				map: {
 					common: {
-						mapped: '../../../common'
+						mapped: '_build/tests/common'
 					},
 					'common/a': {
-						mapped: '../../../common/a'
+						mapped: '_build/tests/common/a'
 					}
 				},
 				packages: [
 					{
 						name: 'common',
-						location: '../../../common'
+						location: '_build/tests/common'
 					}
 				]
-			});
+			}));
 
-			require([
-				'common/a/map2'
-			], function (map2) {
-				window.loaderTestResults = map2;
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'common/a/map2'
+    			], function (map2) {
+    				window.loaderTestResults = map2;
+    			});
 			});
 		</script>
 	</body>

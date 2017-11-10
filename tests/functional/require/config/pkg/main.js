@@ -1,5 +1,5 @@
 define([
-	'../../../../common/app'
+	'_build/tests/common/app'
 ], function (app) {
 	return app;
 });

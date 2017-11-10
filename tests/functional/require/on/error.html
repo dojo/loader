@@ -6,39 +6,42 @@
 	</head>
 
 	<body>
+		<script src="../../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../../src/loader.js"></script>
 		<script>
-			require.config({
-				baseUrl: '../..',
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../../',
 				packages: [
 					{
 						name: 'chai',
-						location: '../../../node_modules/chai',
+						location: 'node_modules/chai',
 						main: 'chai'
 					}
 				]
-			});
+			}));
 
-			require(['chai/chai'], function (chai) {
-				var assert = chai.assert;
-				var badMid = 'bad/module';
+			require(['@dojo/shim/main'], function () {
+			    require(['chai/chai'], function (chai) {
+    				var assert = chai.assert;
+    				var badMid = 'bad/module';
 
-				require.on('error', function (loaderError) {
-					try {
-						assert.strictEqual(loaderError.src, 'dojo/loader', 'Error should be marked as from the loader');
-						assert.isObject(loaderError.info, 'Error should be supplemented with info');
-						assert.strictEqual(loaderError.info.module.mid, badMid, 'Error should be related to the bad module');
-						assert.include(loaderError.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
-					} catch (error) {
-						window.loaderTestResults = error.message;
-					} finally {
-						if (window.loaderTestResults === undefined) {
-							window.loaderTestResults = 'success';
-						}
-					}
-				});
+    				require.on('error', function (loaderError) {
+    					try {
+    						assert.strictEqual(loaderError.src, 'dojo/loader', 'Error should be marked as from the loader');
+    						assert.isObject(loaderError.info, 'Error should be supplemented with info');
+    						assert.strictEqual(loaderError.info.module.mid, badMid, 'Error should be related to the bad module');
+    						assert.include(loaderError.info.url, badMid + '.js', 'Error should contain the URL of the bad module');
+    					} catch (error) {
+    						window.loaderTestResults = error.message;
+    					} finally {
+    						if (window.loaderTestResults === undefined) {
+    							window.loaderTestResults = 'success';
+    						}
+    					}
+    				});
 
-				require([badMid]);
+    				require([badMid]);
+    			});
 			});
 		</script>
 	</body>

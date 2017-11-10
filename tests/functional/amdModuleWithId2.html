@@ -6,8 +6,13 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../'
+			}));
+
 			define('test/module1', [], function () {
 				return 'testModule1';
 			});
@@ -21,10 +26,12 @@
 				};
 			});
 
-			require([
-				'test/module2'
-			], function (testModule2) {
-				window.loaderTestResults = testModule2;
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'test/module2'
+    			], function (testModule2) {
+    				window.loaderTestResults = testModule2;
+    			})
 			});
 		</script>
 	</body>

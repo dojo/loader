@@ -6,23 +6,27 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				packages: [
 					{
 						name: 'commonJs',
-						location: '../common/commonJs'
+						location: '_build/tests/common/commonJs'
 					}
 				]
-			});
-			require([
-				'commonJs/circular2'
-			], function (circular2) {
-				window.loaderTestResults = {
-					message: circular2.getMessage(),
-					circular1Message: circular2.circular1Message()
-				};
+			}));
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'commonJs/circular2'
+    			], function (circular2) {
+    				window.loaderTestResults = {
+    					message: circular2.getMessage(),
+    					circular1Message: circular2.circular1Message()
+    				};
+    			})
 			});
 		</script>
 	</body>

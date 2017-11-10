@@ -6,20 +6,24 @@
 	</head>
 
 	<body>
+	<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				crossOrigin: false,
 				packages: [
-					{ name: 'amdApp', location: './amdApp' }
+					{ name: 'amdApp', location: '_build/tests/functional/amdApp' }
 				]
-			});
-			require([
-				'amdApp/crossOrigin'
-			], function (app) {
-				window.loaderTestResults = {
-					message: 'The cross origin value is ' + window.crossOriginResult.value
-				};
+			}));
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'amdApp/crossOrigin'
+    			], function (app) {
+    				window.loaderTestResults = {
+    					message: 'The cross origin value is ' + window.crossOriginResult.value
+    				};
+    			});
 			});
 		</script>
 	</body>

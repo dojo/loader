@@ -6,16 +6,19 @@
 	</head>
 
 	<body>
+		<script src="../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../src/loader.js"></script>
 		<script>
-			require.config({
-				baseUrl: '../..'
-			});
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../'
+			}));
 
-			require([
-				'common/plugin!one'
-			], function (plugin1) {
-				window.loaderTestResults = plugin1;
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'_build/tests/common/plugin!one'
+    			], function (plugin1) {
+    				window.loaderTestResults = plugin1;
+    			});
 			});
 		</script>
 	</body>

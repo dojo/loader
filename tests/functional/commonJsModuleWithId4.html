@@ -6,28 +6,33 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				packages: [
 					{
 						name: 'commonJs',
-						location: '../common/commonJs'
+						location: '_build/tests/common/commonJs'
 					}
 				]
-			});
+			}));
 
-			// 'commonJs/testModule1.js' specifies its mid explicitly ('test/module1'), so we have to specify it by filepath
-			// to get it load initially. 'commonJs/app1' specifies 'test/module1' as a dependency, so we need to ensure
-			// 'commonJs/testModule1.js' has been loaded before we attempt to load 'commonJs/app1'
-			require([
-				'commonJs/testModule1'
-			], function () {
-				require([
-					'commonJs/app1'
-				], function (app1) {
-					window.loaderTestResults = app1.getMessage();
-				});
+			require(['@dojo/shim/main'], function () {
+    			// 'commonJs/testModule1.js' specifies its mid explicitly ('test/module1'), so we have to specify it by filepath
+    			// to get it load initially. 'commonJs/app1' specifies 'test/module1' as a dependency, so we need to ensure
+    			// 'commonJs/testModule1.js' has been loaded before we attempt to load 'commonJs/app1'
+    			require([
+    				'commonJs/testModule1'
+    			], function () {
+    				require([
+    					'commonJs/app1'
+    				], function (app1) {
+    					window.loaderTestResults = app1.getMessage();
+    				});
+    			});
+
 			});
 		</script>
 	</body>

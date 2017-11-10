@@ -18,20 +18,6 @@
 		"./_build/tests/functional/all.js"
 	],
 
-	"browser": {
-		"loader": {
-			"script": "dojo2",
-			"options": {
-				"packages": [
-					{ "name": "src", "location": "_build/src" },
-					{ "name": "tests", "location": "_build/tests" },
-					{ "name": "@dojo", "location": "node_modules/@dojo" },
-					{ "name": "sinon", "location": "node_modules/sinon/pkg", "main": "sinon" }
-				]
-			}
-		}
-	},
-
 	"node": {
 		"suites": [
 			"./_build/tests/unit/all-node.js"

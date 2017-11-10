@@ -6,9 +6,11 @@
 	</head>
 
 	<body>
+		<script src="../../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../../',
 				map: {
 					'*': {
 						'common/app': 'common/a/remappedApp'
@@ -20,19 +22,21 @@
 				packages: [
 					{
 						name: 'common',
-						location: '../../../common'
+						location: '_build/tests/common'
 					}
 				]
-			});
+			}));
 
-			require([
-				'common/usesApp',
-				'common/a/remappedApp'
-			], function (app, remappedApp) {
-				window.loaderTestResults = {
-					app: app,
-					remappedApp: remappedApp
-				};
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'common/usesApp',
+    				'common/a/remappedApp'
+    			], function (app, remappedApp) {
+    				window.loaderTestResults = {
+    					app: app,
+    					remappedApp: remappedApp
+    				};
+    			});
 			});
 		</script>
 	</body>

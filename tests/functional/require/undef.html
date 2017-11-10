@@ -6,50 +6,53 @@
 	</head>
 
 	<body>
+		<script src="../../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../../src/loader.js"></script>
 		<script>
-			require.config({
-				baseUrl: '../..',
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../../',
 				packages: [
 					{
 						name: 'chai',
-						location: '../../node_modules/chai',
+						location: 'node_modules/chai',
 						main: 'chai'
 					}
 				]
-			});
+			}));
 
-			define('some/module', [], function () {
-				return 'bananas';
-			});
+			require(['@dojo/shim/main'], function () {
+			    define('some/module', [], function () {
+    				return 'bananas';
+    			});
 
-			require([
-				'chai/chai',
-				'some/module',
-				'common/app'
-			], function (chai, someModule, app) {
-				var assert = chai.assert;
+				require([
+					'chai/chai',
+					'some/module',
+					'_build/tests/common/app'
+				], function (chai, someModule, app) {
+					var assert = chai.assert;
 
-				try {
-					assert.strictEqual(someModule, 'bananas', '"some/module" should load');
-					assert.strictEqual(app, 'app', '"common/app" should load');
+					try {
+						assert.strictEqual(someModule, 'bananas', '"some/module" should load');
+						assert.strictEqual(app, 'app', '"common/app" should load');
 
-					require.undef('some/module');
-					someModule = require('some/module');
-					assert.isUndefined(someModule, '"some/module" should be undefined');
+						require.undef('some/module');
+						someModule = require('some/module');
+						assert.isUndefined(someModule, '"some/module" should be undefined');
 
-					require.undef('common/app');
-					app = require('common/app');
-					assert.isUndefined(someModule, '"common/app" should be undefined');
-				}
-				catch (error) {
-					window.loaderTestResults = error.message;
-				}
-				finally {
-					if (window.loaderTestResults === undefined) {
-						window.loaderTestResults = 'success';
+						require.undef('common/app');
+						app = require('common/app');
+						assert.isUndefined(someModule, '"common/app" should be undefined');
 					}
-				}
+					catch (error) {
+						window.loaderTestResults = error.message;
+					}
+					finally {
+						if (window.loaderTestResults === undefined) {
+							window.loaderTestResults = 'success';
+						}
+					}
+				});
 			});
 		</script>
 	</body>

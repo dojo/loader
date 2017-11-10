@@ -6,23 +6,27 @@
 	</head>
 
 	<body>
+		<script src="../../../node_modules/@dojo/shim/util/amd.js"></script>
 		<script src="../../src/loader.js"></script>
 		<script>
-			require.config({
+			require.config(shimAmdDependencies({
+				baseUrl: '../../../',
 				packages: [
 					{
 						name: 'amdApp',
-						location: './amdApp'
+						location: '_build/tests/functional/amdApp'
 					}
 				]
-			});
+			}));
 
-			require([
-				'amdApp/deep1'
-			], function (deep1) {
-				var obj = deep1.default();
+			require(['@dojo/shim/main'], function () {
+			    require([
+    				'amdApp/deep1'
+    			], function (deep1) {
+    				var obj = deep1.default();
 
-				window.loaderTestResults = obj.deep3();
+    				window.loaderTestResults = obj.deep3();
+    			})
 			});
 		</script>
 	</body>
