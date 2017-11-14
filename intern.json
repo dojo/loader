@@ -1,7 +1,7 @@
 {
-	"capabilities": {
+	"capabilities+": {
 		"project": "Dojo 2",
-		"name": "@dojo/shim",
+		"name": "@dojo/loader",
 		"fixSessionCapabilities": false,
 		"browserstack.debug": false
 	},
