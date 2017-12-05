@@ -22,7 +22,6 @@
   "typings": "dojo-loader.d.ts",
   "devDependencies": {
     "@dojo/loader": "beta3",
-    "@types/chai": "~3.4.0",
     "@types/glob": "~5.0.0",
     "@types/grunt": "~0.4.0",
     "@types/node": "~6.0.0",
