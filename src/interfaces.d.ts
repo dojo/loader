@@ -236,4 +236,4 @@ declare interface NodeRequire {
 	undef(moduleId: string, recursive?: boolean): void;
 }
 
-declare const arguments: IArguments;
+declare var arguments: IArguments;

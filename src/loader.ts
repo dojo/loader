@@ -3,9 +3,8 @@ import ModuleShim = DojoLoader.ModuleShim;
 import Module = DojoLoader.Module;
 import Package = DojoLoader.Package;
 
-declare const load: (module: string) => any;
-declare const Packages: {} | undefined;
-declare const importScripts: ((url: string) => void);
+// Nashorn global
+declare var Packages: { [key: string]: any; } | undefined;
 
 (function (args?: string[]): void {
 	let globalObject: any = (function (): any {
@@ -23,6 +22,12 @@ declare const importScripts: ((url: string) => void);
 		}
 		return {};
 	})();
+
+	// Nashorn global
+	const load: (module: string) => any = globalObject.load;
+
+	// webworker global
+	const importScripts: ((url: string) => void) = globalObject.importScripts;
 
 	const EXECUTING = 'executing';
 	const ABORT_EXECUTION: Object = {};
