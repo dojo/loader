@@ -1,27 +1,22 @@
 declare function importScripts(url: string): void;
 
-onmessage = function (e) {
+onmessage = function(e) {
 	try {
 		/* load the loader */
 		importScripts('../../src/loader.js');
 
 		require.config({
-			packages: [
-				{ name: 'amdApp', location: './amdApp' }
-			]
+			packages: [{ name: 'amdApp', location: './amdApp' }]
 		});
 
-		require([
-			'amdApp/app'
-		], function (app) {
+		require(['amdApp/app'], function(app) {
 			/* post message back with the results */
-			(<any> postMessage)({
+			(<any>postMessage)({
 				message: app.getMessage()
 			});
 		});
-	}
-	catch (e) {
-		(<any> postMessage)({
+	} catch (e) {
+		(<any>postMessage)({
 			message: e.message,
 			status: 'fail'
 		});
