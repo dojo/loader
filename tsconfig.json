@@ -12,6 +12,7 @@
 		],
 		"module": "commonjs",
 		"moduleResolution": "node",
+		"noUnusedLocals": true,
 		"outDir": "_build/",
 		"removeComments": false,
 		"rootDir": ".",
