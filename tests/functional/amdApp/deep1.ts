@@ -1,4 +1,3 @@
-/* tslint:disable:no-unused-variable */
 import Deep2 from './Deep2';
 import { Deep4 } from './deep3';
 
