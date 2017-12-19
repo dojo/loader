@@ -26,12 +26,12 @@ let oldShouldInstrument: any;
  */
 registerSuite('AMD loading with CSP enabled', {
 	before() {
-		oldShouldInstrument = (<Node> this.executor).shouldInstrumentFile;
-		(<Node> this.executor).shouldInstrumentFile = (_filename: string) => false;
+		oldShouldInstrument = (<Node>this.executor).shouldInstrumentFile;
+		(<Node>this.executor).shouldInstrumentFile = (_filename: string) => false;
 	},
 
 	after() {
-		(<Node> this.executor).shouldInstrumentFile = oldShouldInstrument;
+		(<Node>this.executor).shouldInstrumentFile = oldShouldInstrument;
 	},
 
 	tests: {
@@ -40,7 +40,7 @@ registerSuite('AMD loading with CSP enabled', {
 				this.skip('CSP tests do not work in Edge');
 			}
 
-			return executeTest(this, require, './csp-simple.html', function (results: any) {
+			return executeTest(this, require, './csp-simple.html', function(results: any) {
 				assert.strictEqual(results.message, amdAppMessage, 'Local module should load');
 			});
 		},
@@ -55,7 +55,7 @@ registerSuite('AMD loading with CSP enabled', {
 				debounce: '#function'
 			};
 
-			return executeTest(this, require, './csp-cdn.html', function (results: any) {
+			return executeTest(this, require, './csp-cdn.html', function(results: any) {
 				assert.deepEqual(results, expected, 'Local module and CDN module should load');
 			});
 		}

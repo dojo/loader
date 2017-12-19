@@ -1,6 +1,6 @@
 import circular2 from './circular2';
 
-export default function (): string {
+export default function(): string {
 	return circular2();
 }
 

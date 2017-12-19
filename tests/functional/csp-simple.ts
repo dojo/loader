@@ -1,11 +1,7 @@
 require.config({
-	packages: [
-		{name: 'amdApp', location: './amdApp'}
-	]
+	packages: [{ name: 'amdApp', location: './amdApp' }]
 });
 
-require([
-	'amdApp/app'
-], function(app) {
+require(['amdApp/app'], function(app) {
 	window.location.href = 'csp-success.html';
 });

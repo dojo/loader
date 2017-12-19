@@ -1,6 +1,6 @@
 import { getMessage as circular1Message } from './circular1';
 
-export default function (): string {
+export default function(): string {
 	return 'circular2';
 }
 

@@ -1,5 +1,4 @@
 declare namespace DojoLoader {
-
 	/**
 	 * Common AMD Configuration
 	 *
@@ -42,10 +41,10 @@ declare namespace DojoLoader {
 		 *
 		 * A property in the paths object is an absolute module ID prefix.
 		 */
-		paths?: { [ path: string ]: string; };
+		paths?: { [path: string]: string };
 
 		/* TODO: We should remove internal APIs like this */
-		pkgs?: { [ path: string ]: Package; };
+		pkgs?: { [path: string]: Package };
 
 		shim?: { [path: string]: ModuleShim | string[] };
 
@@ -66,14 +65,18 @@ declare namespace DojoLoader {
 
 	interface Has {
 		(name: string): any;
-		add(name: string, value: (global: Window, document?: HTMLDocument, element?: HTMLDivElement) => any,
-			now?: boolean, force?: boolean): void;
+		add(
+			name: string,
+			value: (global: Window, document?: HTMLDocument, element?: HTMLDivElement) => any,
+			now?: boolean,
+			force?: boolean
+		): void;
 		add(name: string, value: any, now?: boolean, force?: boolean): void;
 	}
 
 	interface LoaderError extends Error {
 		readonly src: string;
-		readonly info: { module: Module, url: string, parentMid: string, details?: string };
+		readonly info: { module: Module; url: string; parentMid: string; details?: string };
 	}
 
 	/**
@@ -98,7 +101,12 @@ declare namespace DojoLoader {
 		 *               an `isBuild` property in the config to true if this plugin is being called
 		 *               as part of an optimizer build.
 		 */
-		load?(resourceId: string, require: Require, load: (value?: any) => void, config?: { [ prop: string ]: any; }): void;
+		load?(
+			resourceId: string,
+			require: Require,
+			load: (value?: any) => void,
+			config?: { [prop: string]: any }
+		): void;
 
 		/**
 		 * A function to normalize the passed-in resource ID. Normalization of an module ID normally
@@ -113,10 +121,10 @@ declare namespace DojoLoader {
 	}
 
 	interface MapItem extends Array<any> {
-		/* prefix */      0: string;
+		/* prefix */ 0: string;
 		/* replacement */ 1: any;
-		/* regExp */      2: RegExp;
-		/* length */      3: number;
+		/* regExp */ 2: RegExp;
+		/* length */ 3: number;
 	}
 
 	interface MapReplacement extends MapItem {
@@ -165,18 +173,20 @@ declare namespace DojoLoader {
 	}
 
 	interface ModuleMap extends ModuleMapItem {
-		[ sourceMid: string ]: ModuleMapReplacement | string;
+		[sourceMid: string]: ModuleMapReplacement | string;
 	}
 
 	interface ModuleMapItem {
-		[ mid: string ]: /* ModuleMapReplacement | ModuleMap */ any;
+		[mid: string]: /* ModuleMapReplacement | ModuleMap */ any;
 	}
 
 	interface ModuleMapReplacement extends ModuleMapItem {
-		[ findMid: string ]: /* replaceMid */ string;
+		[findMid: string]: /* replaceMid */ string;
 	}
 
-	interface ObjectMap { [ key: string ]: any; }
+	interface ObjectMap {
+		[key: string]: any;
+	}
 
 	interface Package {
 		location?: string;
@@ -185,7 +195,7 @@ declare namespace DojoLoader {
 	}
 
 	interface PackageMap {
-		[ packageId: string ]: Package;
+		[packageId: string]: Package;
 	}
 
 	interface PathMap extends MapReplacement {}
