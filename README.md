@@ -6,8 +6,6 @@
 
 This package provides a JavaScript AMD loader useful in applications running in either a web browser, node.js or nashorn.
 
-**WARNING** This is *beta* software.  While we do not anticipate significant changes to the API at this stage, we may feel the need to do so.  This is not yet production ready, so you should use at your own risk.
-
 `@dojo/loader` does not have any dependencies on a JavaScript framework.
 
 - [Usage](#usage)
@@ -89,4 +87,4 @@ Test cases MUST be written using Intern using the Object test interface and Asse
 
 ## Licensing information
 
-© 2004–2017 [JS Foundation](https://js.foundation/) & contributors. [New BSD](http://opensource.org/licenses/BSD-3-Clause) license.
+© 2004–2018 [JS Foundation](https://js.foundation/) & contributors. [New BSD](http://opensource.org/licenses/BSD-3-Clause) license.
