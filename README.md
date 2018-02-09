@@ -17,6 +17,10 @@ This package provides a JavaScript AMD loader useful in applications running in 
   - [Testing](#testing)
 - [Licensing information](#licensing-information)
 
+## Note
+
+We strongly recommend using the `@dojo/cli` build tools for Dojo 2 application over a runtime loader such as `@dojo/loader`. 
+
 ## Usage
 
 To use `@dojo/loader`, install the package:
@@ -42,7 +46,7 @@ npm install @dojo/loader
 ## Features
 
 - AMD loading
-- CJS loading
+- CJS loading (in a node environment)
 - Plugins:
 	- [text](https://github.com/dojo/core/blob/master/src/text.ts)
 	- [has](https://github.com/dojo/core/blob/master/src/has.ts)
