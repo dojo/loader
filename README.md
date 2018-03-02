@@ -69,7 +69,7 @@ Contributing Guidelines.
 
 ### Code Style
 
-This repository uses [`prettier`](https://prettier.io/) for code styling rules and formatting. A pre-commit hook is installed automatically and configured to run `prettier` against all staged files as per the configuration in the projects `package.json`.
+This repository uses [`prettier`](https://prettier.io/) for code styling rules and formatting. A pre-commit hook is installed automatically and configured to run `prettier` against all staged files as per the configuration in the project's `package.json`.
 
 An additional npm script to run `prettier` (with write set to `true`) against all `src` and `test` project files is available by running:
 
