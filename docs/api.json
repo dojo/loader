@@ -1,0 +1,122 @@
+{
+	"id": 0,
+	"name": "@dojo/loader",
+	"kind": 0,
+	"flags": {
+		"__visited__": true
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "\"loader\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true,
+				"__visited__": true
+			},
+			"originalName": "src/loader.ts",
+			"children": [
+				{
+					"id": 2,
+					"name": "Packages",
+					"kind": 32,
+					"kindString": "Variable",
+					"flags": {
+						"__visited__": true
+					},
+					"sources": [
+						{
+							"fileName": "loader.ts",
+							"line": 7,
+							"character": 20
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 3,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"__visited__": true
+									},
+									"indexSignature": [
+										{
+											"id": 4,
+											"name": "__index",
+											"kind": 8192,
+											"kindString": "Index signature",
+											"flags": {
+												"__visited__": true
+											},
+											"parameters": [
+												{
+													"id": 5,
+													"name": "key",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {
+														"__visited__": true
+													},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loader.ts",
+											"line": 7,
+											"character": 21
+										}
+									]
+								}
+							},
+							{
+								"type": "intrinsic",
+								"name": "undefined"
+							}
+						]
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"kind": 32,
+					"children": [
+						2
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "loader.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "External modules",
+			"kind": 1,
+			"children": [
+				1
+			]
+		}
+	]
+}
