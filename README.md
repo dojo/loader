@@ -1,4 +1,5 @@
 # @dojo/loader
+<!-- start-github-only -->
 
 [![Build Status](https://travis-ci.org/dojo/loader.svg?branch=master)](https://travis-ci.org/dojo/loader)
 [![codecov.io](http://codecov.io/github/dojo/loader/coverage.svg?branch=master)](http://codecov.io/github/dojo/loader?branch=master)
@@ -18,6 +19,7 @@ This package provides a JavaScript AMD loader useful in applications running in 
 - [Licensing information](#licensing-information)
 
 ## Note
+<!-- end-github-only -->
 
 We strongly recommend using the `@dojo/cli` build tools for a Dojo 2 application over a runtime loader such as `@dojo/loader`. 
 
@@ -92,3 +94,9 @@ Test cases MUST be written using Intern using the Object test interface and Asse
 ## Licensing information
 
 © 2004–2018 [JS Foundation](https://js.foundation/) & contributors. [New BSD](http://opensource.org/licenses/BSD-3-Clause) license.
+
+<!-- doc-viewer-config
+{
+	"api": "docs/api.json",
+}
+-->
