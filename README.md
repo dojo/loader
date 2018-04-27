@@ -97,6 +97,6 @@ Test cases MUST be written using Intern using the Object test interface and Asse
 
 <!-- doc-viewer-config
 {
-	"api": "docs/api.json",
+	"api": "docs/api.json"
 }
 -->
