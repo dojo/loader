@@ -28,7 +28,7 @@
     "@types/grunt": "~0.4.0",
     "@types/node": "~9.6.5",
     "dts-generator": "~2.0.0",
-    "grunt": "^1.0.1",
+    "grunt": "^1.5.2",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-dojo2": "latest",
     "grunt-tslint": "5.0.1",
